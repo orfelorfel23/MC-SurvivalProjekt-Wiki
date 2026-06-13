@@ -1,0 +1,80 @@
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { Search, LogIn, LogOut, Shield, Languages } from "lucide-react";
+import { useAuth } from "@/lib/use-auth";
+import { useLang, t, KINDS, KIND_LABEL_KEY } from "@/lib/i18n";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+
+export function Header() {
+  const { lang, setLang } = useLang();
+  const { user, isEditor, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const [q, setQ] = useState("");
+
+  return (
+    <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
+      <div className="container mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
+        <Link to="/" className="flex items-center gap-2">
+          <span className="mc-slot inline-flex items-center justify-center w-9 h-9 text-primary font-bold">MC</span>
+          <span className="font-bold text-sm uppercase tracking-wider">Server Wiki</span>
+        </Link>
+        <nav className="hidden md:flex items-center gap-1 ml-4 text-sm flex-wrap">
+          {KINDS.map((k) => (
+            <Link
+              key={k}
+              to={"/$kind" as never}
+              params={{ kind: k } as never}
+              className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
+              activeProps={{ className: "text-accent" }}
+            >
+              {t(KIND_LABEL_KEY[k], lang)}
+            </Link>
+          ))}
+        </nav>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (q.trim()) navigate({ to: "/search", search: { q: q.trim() } });
+          }}
+          className="flex items-center gap-2 ml-auto flex-1 md:flex-initial md:w-72"
+        >
+          <div className="relative w-full">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder={t("searchPlaceholder", lang)}
+              className="w-full pl-8 pr-3 py-1.5 rounded-md bg-input border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+            />
+          </div>
+        </form>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setLang(lang === "de" ? "en" : "de")}
+          title="Sprache wechseln"
+        >
+          <Languages className="w-4 h-4" /> {lang.toUpperCase()}
+        </Button>
+        {isEditor && (
+          <Link to="/editor">
+            <Button variant="outline" size="sm"><Shield className="w-4 h-4" /> {t("editor", lang)}</Button>
+          </Link>
+        )}
+        {isAdmin && (
+          <Link to="/admin">
+            <Button variant="outline" size="sm">{t("admin", lang)}</Button>
+          </Link>
+        )}
+        {user ? (
+          <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); }}>
+            <LogOut className="w-4 h-4" /> {t("logout", lang)}
+          </Button>
+        ) : (
+          <Link to="/auth"><Button size="sm"><LogIn className="w-4 h-4" /> {t("login", lang)}</Button></Link>
+        )}
+      </div>
+    </header>
+  );
+}
