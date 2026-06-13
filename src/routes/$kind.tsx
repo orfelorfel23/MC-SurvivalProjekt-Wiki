@@ -20,13 +20,11 @@ function KindList() {
 
   useEffect(() => {
     setLoading(true);
-    const titleField = k === "wiki" ? "title_de,title_en" : "name_de,name_en";
-    supabase
-      .from(KIND_TABLE[k])
-      .select(`id,slug,${titleField},image_url,category,tags,description_de,description_en${k === "wiki" ? ",body_de,body_en" : ""}`.replace(",image_url", k === "commands" || k === "tasks" || k === "recipes" || k === "wiki" ? "" : ",image_url"))
+    (supabase.from(KIND_TABLE[k]) as any)
+      .select("*")
       .order("updated_at", { ascending: false })
       .limit(200)
-      .then(({ data }) => {
+      .then(({ data }: { data: any[] | null }) => {
         setRows(data ?? []);
         setLoading(false);
       });

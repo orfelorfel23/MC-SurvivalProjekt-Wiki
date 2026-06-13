@@ -24,7 +24,7 @@ function DetailPage() {
 
   useEffect(() => {
     setLoading(true);
-    supabase.from(KIND_TABLE[k]).select("*").eq("slug", slug).maybeSingle().then(async ({ data }) => {
+    (supabase.from(KIND_TABLE[k]) as any).select("*").eq("slug", slug).maybeSingle().then(async ({ data }: { data: any }) => {
       setRow(data);
       if (data && k === "rezepte") {
         const grid: GridSlot[] = Array.isArray(data.grid) ? data.grid : [];
