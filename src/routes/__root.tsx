@@ -7,10 +7,13 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Header } from "@/components/layout/header";
+import { LangContext, type Lang } from "@/lib/i18n";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -77,14 +80,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Minecraft Server Wiki" },
+      { name: "description", content: "Wiki für unseren Minecraft-Server: Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben, Pets und mehr." },
+      { name: "author", content: "Server Wiki" },
+      { property: "og:title", content: "Minecraft Server Wiki" },
+      { property: "og:description", content: "Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben und mehr." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
@@ -115,11 +117,29 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [lang, setLang] = useState<Lang>("de");
+  useEffect(() => {
+    const saved = typeof window !== "undefined" ? (localStorage.getItem("lang") as Lang | null) : null;
+    if (saved === "de" || saved === "en") setLang(saved);
+  }, []);
+  useEffect(() => {
+    if (typeof window !== "undefined") localStorage.setItem("lang", lang);
+  }, [lang]);
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <LangContext.Provider value={{ lang, setLang }}>
+        <div className="min-h-screen flex flex-col">
+          <Header />
+          <main className="flex-1">
+            <Outlet />
+          </main>
+          <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
+            Minecraft Server Wiki · Inhalte werden von Editoren gepflegt
+          </footer>
+        </div>
+        <Toaster />
+      </LangContext.Provider>
     </QueryClientProvider>
   );
 }
