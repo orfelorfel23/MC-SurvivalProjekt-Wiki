@@ -84,9 +84,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Wiki für unseren Minecraft-Server: Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben, Pets und mehr." },
       { name: "author", content: "Server Wiki" },
       { property: "og:title", content: "Minecraft Server Wiki" },
-      { property: "og:description", content: "Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben und mehr." },
+      { property: "og:description", content: "Wiki für unseren Minecraft-Server: Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben, Pets und mehr." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Minecraft Server Wiki" },
+      { name: "twitter:description", content: "Wiki für unseren Minecraft-Server: Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben, Pets und mehr." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fd17d5f1-bab6-4dec-b410-6306c11c4f74/id-preview-51771896--f7b39ff6-c1c2-4596-afe6-e98043701c06.lovable.app-1781381700766.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fd17d5f1-bab6-4dec-b410-6306c11c4f74/id-preview-51771896--f7b39ff6-c1c2-4596-afe6-e98043701c06.lovable.app-1781381700766.png" },
     ],
     links: [
       {
