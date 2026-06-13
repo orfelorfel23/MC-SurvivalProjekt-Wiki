@@ -62,39 +62,52 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
+  /* Dark Minecraft-modern theme as default (no light theme toggle needed) */
+  --radius: 0.5rem;
+  --background: oklch(0.18 0.02 145);
+  --foreground: oklch(0.95 0.01 110);
+  --card: oklch(0.22 0.025 145);
+  --card-foreground: oklch(0.95 0.01 110);
+  --popover: oklch(0.22 0.025 145);
+  --popover-foreground: oklch(0.95 0.01 110);
+  --primary: oklch(0.72 0.18 142);
+  --primary-foreground: oklch(0.15 0.02 145);
+  --secondary: oklch(0.28 0.03 145);
+  --secondary-foreground: oklch(0.95 0.01 110);
+  --muted: oklch(0.26 0.025 145);
+  --muted-foreground: oklch(0.7 0.02 130);
+  --accent: oklch(0.55 0.18 75);
+  --accent-foreground: oklch(0.15 0.02 145);
+  --destructive: oklch(0.6 0.22 27);
+  --destructive-foreground: oklch(0.98 0.01 110);
+  --border: oklch(0.32 0.025 145);
+  --input: oklch(0.26 0.025 145);
+  --ring: oklch(0.72 0.18 142);
+  --chart-1: oklch(0.72 0.18 142);
   --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-3: oklch(0.55 0.18 75);
   --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  --chart-5: oklch(0.65 0.2 30);
+  --sidebar: oklch(0.2 0.022 145);
+  --sidebar-foreground: oklch(0.95 0.01 110);
+  --sidebar-primary: oklch(0.72 0.18 142);
+  --sidebar-primary-foreground: oklch(0.15 0.02 145);
+  --sidebar-accent: oklch(0.28 0.03 145);
+  --sidebar-accent-foreground: oklch(0.95 0.01 110);
+  --sidebar-border: oklch(0.32 0.025 145);
+  --sidebar-ring: oklch(0.72 0.18 142);
+
+  /* Rarity tokens */
+  --rarity-common: oklch(0.78 0.01 110);
+  --rarity-uncommon: oklch(0.72 0.18 142);
+  --rarity-rare: oklch(0.7 0.17 240);
+  --rarity-epic: oklch(0.65 0.22 305);
+  --rarity-legendary: oklch(0.78 0.18 75);
+
+  /* Slot surface (minecraft inventory feel) */
+  --slot: oklch(0.32 0.018 145);
+  --slot-border-light: oklch(0.45 0.02 145);
+  --slot-border-dark: oklch(0.16 0.02 145);
 }
 
 .dark {
@@ -140,5 +153,62 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    background-image:
+      radial-gradient(circle at 20% 10%, oklch(0.24 0.04 145) 0%, transparent 45%),
+      radial-gradient(circle at 80% 90%, oklch(0.22 0.05 75 / 0.4) 0%, transparent 50%);
+    background-attachment: fixed;
   }
+
+  h1, h2, h3, h4 {
+    font-family: 'Press Start 2P', ui-monospace, monospace;
+    letter-spacing: 0.01em;
+  }
+}
+
+/* Pixel display font for headings & item names */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&display=swap');
+
+/* Minecraft inventory slot */
+.mc-slot {
+  background-color: var(--slot);
+  border-top: 2px solid var(--slot-border-dark);
+  border-left: 2px solid var(--slot-border-dark);
+  border-right: 2px solid var(--slot-border-light);
+  border-bottom: 2px solid var(--slot-border-light);
+  image-rendering: pixelated;
+}
+
+.mc-panel {
+  background-color: var(--card);
+  border-top: 3px solid var(--slot-border-light);
+  border-left: 3px solid var(--slot-border-light);
+  border-right: 3px solid var(--slot-border-dark);
+  border-bottom: 3px solid var(--slot-border-dark);
+}
+
+/* Enchantment glint overlay */
+@keyframes mc-glint {
+  0%   { background-position: 0% 0%; opacity: 0.55; }
+  50%  { opacity: 0.85; }
+  100% { background-position: 200% 200%; opacity: 0.55; }
+}
+.mc-glint {
+  position: relative;
+  isolation: isolate;
+}
+.mc-glint::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg,
+    transparent 30%,
+    oklch(0.85 0.22 305 / 0.55) 45%,
+    oklch(0.85 0.25 280 / 0.65) 50%,
+    oklch(0.85 0.22 305 / 0.55) 55%,
+    transparent 70%);
+  background-size: 200% 200%;
+  mix-blend-mode: screen;
+  animation: mc-glint 3s linear infinite;
+  z-index: 1;
 }
