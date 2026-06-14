@@ -16,6 +16,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as KindIndexRouteImport } from './routes/$kind.index'
 import { Route as KindSlugRouteImport } from './routes/$kind.$slug'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
@@ -52,6 +53,11 @@ const KindSlugRoute = KindSlugRouteImport.update({
   path: '/$kind/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
   '/$kind/': typeof KindIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
   '/$kind': typeof KindIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
   '/$kind/': typeof KindIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/$kind/$slug'
     | '/$kind/'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/$kind/$slug'
     | '/$kind'
+    | '/api/auth/$'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/search'
     | '/$kind/$slug'
     | '/$kind/'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   KindSlugRoute: typeof KindSlugRoute
   KindIndexRoute: typeof KindIndexRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KindSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   KindSlugRoute: KindSlugRoute,
   KindIndexRoute: KindIndexRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
