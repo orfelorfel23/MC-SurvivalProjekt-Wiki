@@ -63,10 +63,10 @@
 
 :root {
   /* Dark Minecraft-modern theme as default (no light theme toggle needed) */
-  --radius: 0.5rem;
+  --radius: 0rem;
   --background: oklch(0.18 0.02 145);
   --foreground: oklch(0.95 0.01 110);
-  --card: oklch(0.22 0.025 145);
+  --card: oklch(0.24 0.022 145);
   --card-foreground: oklch(0.95 0.01 110);
   --popover: oklch(0.22 0.025 145);
   --popover-foreground: oklch(0.95 0.01 110);
@@ -105,9 +105,17 @@
   --rarity-legendary: oklch(0.78 0.18 75);
 
   /* Slot surface (minecraft inventory feel) */
-  --slot: oklch(0.32 0.018 145);
-  --slot-border-light: oklch(0.45 0.02 145);
-  --slot-border-dark: oklch(0.16 0.02 145);
+  --slot: oklch(0.36 0.012 145);
+  --slot-border-light: oklch(0.55 0.015 145);
+  --slot-border-dark: oklch(0.14 0.015 145);
+
+  /* Minecraft block surface tokens */
+  --dirt-1: oklch(0.38 0.07 60);
+  --dirt-2: oklch(0.28 0.06 55);
+  --grass-1: oklch(0.62 0.18 142);
+  --grass-2: oklch(0.48 0.16 142);
+  --stone-1: oklch(0.45 0.005 145);
+  --stone-2: oklch(0.32 0.005 145);
 }
 
 .dark {
@@ -153,34 +161,115 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    /* Pixelated dirt/stone-like noise background */
     background-image:
-      radial-gradient(circle at 20% 10%, oklch(0.24 0.04 145) 0%, transparent 45%),
-      radial-gradient(circle at 80% 90%, oklch(0.22 0.05 75 / 0.4) 0%, transparent 50%);
+      linear-gradient(oklch(0.2 0.02 145 / 0.6) 1px, transparent 1px),
+      linear-gradient(90deg, oklch(0.2 0.02 145 / 0.6) 1px, transparent 1px),
+      radial-gradient(circle at 20% 10%, oklch(0.26 0.05 145) 0%, transparent 55%),
+      radial-gradient(circle at 80% 90%, oklch(0.24 0.06 75 / 0.45) 0%, transparent 55%);
+    background-size: 32px 32px, 32px 32px, auto, auto;
     background-attachment: fixed;
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    image-rendering: pixelated;
   }
 
   h1, h2, h3, h4 {
     font-family: 'Press Start 2P', ui-monospace, monospace;
     letter-spacing: 0.01em;
+    text-shadow: 2px 2px 0 oklch(0.1 0.02 145);
+    line-height: 1.4;
+  }
+
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.125rem; }
+  h3 { font-size: 0.95rem; }
+  h4 { font-size: 0.8rem; }
+
+  button, a, input, select, textarea {
+    font-family: 'Press Start 2P', ui-monospace, monospace;
+  }
+  input, textarea, select {
+    font-size: 0.7rem !important;
+    letter-spacing: 0.02em;
   }
 }
 
 /* Minecraft inventory slot */
 .mc-slot {
   background-color: var(--slot);
-  border-top: 2px solid var(--slot-border-dark);
-  border-left: 2px solid var(--slot-border-dark);
-  border-right: 2px solid var(--slot-border-light);
-  border-bottom: 2px solid var(--slot-border-light);
+  border-top: 3px solid var(--slot-border-dark);
+  border-left: 3px solid var(--slot-border-dark);
+  border-right: 3px solid var(--slot-border-light);
+  border-bottom: 3px solid var(--slot-border-light);
+  border-radius: 0 !important;
   image-rendering: pixelated;
 }
 
 .mc-panel {
   background-color: var(--card);
-  border-top: 3px solid var(--slot-border-light);
-  border-left: 3px solid var(--slot-border-light);
-  border-right: 3px solid var(--slot-border-dark);
-  border-bottom: 3px solid var(--slot-border-dark);
+  background-image:
+    linear-gradient(135deg, oklch(1 0 0 / 0.02) 25%, transparent 25%, transparent 50%, oklch(1 0 0 / 0.02) 50%, oklch(1 0 0 / 0.02) 75%, transparent 75%);
+  background-size: 8px 8px;
+  border-top: 4px solid var(--slot-border-light);
+  border-left: 4px solid var(--slot-border-light);
+  border-right: 4px solid var(--slot-border-dark);
+  border-bottom: 4px solid var(--slot-border-dark);
+  border-radius: 0 !important;
+  image-rendering: pixelated;
+}
+
+/* Minecraft-styled button (3D block look) */
+.mc-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 1rem;
+  font-family: 'Press Start 2P', ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--foreground);
+  background-color: var(--secondary);
+  border-top: 3px solid oklch(0.45 0.03 145);
+  border-left: 3px solid oklch(0.45 0.03 145);
+  border-right: 3px solid oklch(0.12 0.02 145);
+  border-bottom: 3px solid oklch(0.12 0.02 145);
+  border-radius: 0;
+  text-shadow: 1px 1px 0 oklch(0.1 0.02 145);
+  cursor: pointer;
+  transition: filter 100ms ease;
+}
+.mc-btn:hover { filter: brightness(1.15); }
+.mc-btn:active {
+  border-top-color: oklch(0.12 0.02 145);
+  border-left-color: oklch(0.12 0.02 145);
+  border-right-color: oklch(0.45 0.03 145);
+  border-bottom-color: oklch(0.45 0.03 145);
+}
+
+/* Grass-top decorative bar */
+.mc-grass-bar {
+  height: 10px;
+  background:
+    linear-gradient(180deg,
+      var(--grass-1) 0,
+      var(--grass-1) 4px,
+      var(--grass-2) 4px,
+      var(--grass-2) 7px,
+      var(--dirt-1) 7px,
+      var(--dirt-1) 100%);
+  image-rendering: pixelated;
+}
+
+/* Dirt block surface */
+.mc-dirt {
+  background-color: var(--dirt-2);
+  background-image:
+    radial-gradient(var(--dirt-1) 2px, transparent 2px),
+    radial-gradient(oklch(0.22 0.05 55) 2px, transparent 2px);
+  background-size: 12px 12px, 16px 16px;
+  background-position: 0 0, 6px 8px;
+  image-rendering: pixelated;
 }
 
 /* Enchantment glint overlay */
