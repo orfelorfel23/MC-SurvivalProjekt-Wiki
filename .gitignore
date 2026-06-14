@@ -36,3 +36,12 @@ dist-ssr
 *.sw?
 
 /src/generated/prisma
+
+# Temporary files and scratchpads
+*.tmp
+temp*.txt
+scratch/
+
+# Python virtual environments
+.venv/
+venv/

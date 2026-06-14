@@ -22,11 +22,15 @@ FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 # Copy necessary files for production
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder --chown=appuser:appgroup /app/package.json ./package.json
+COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --from=builder --chown=appuser:appgroup /app/dist ./dist
+COPY --from=builder --chown=appuser:appgroup /app/prisma ./prisma
+
+USER appuser
 
 EXPOSE 3000
 ENV PORT=3000
