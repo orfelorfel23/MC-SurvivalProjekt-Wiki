@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { searchWiki } from "@/server/functions";
 
-type Row = { kind: string; slug: string; title: string; snippet: string; image_url: string | null };
+type Row = { kind: string; slug: string; title: string; snippet: string; imageUrl: string | null };
 
 export const Route = createFileRoute("/search")({
   validateSearch: (s: Record<string, unknown>) => ({ q: typeof s.q === "string" ? s.q : "" }),
@@ -17,10 +17,10 @@ function SearchPage() {
   useEffect(() => {
     if (!q) return;
     setLoading(true);
-    supabase.rpc("wiki_search", { q }).then(({ data }) => {
+    searchWiki({ data: { q } }).then((data) => {
       setRows((data ?? []) as Row[]);
       setLoading(false);
-    });
+    }).catch(console.error);
   }, [q]);
 
   const grouped = rows.reduce<Record<string, Row[]>>((acc, r) => {
@@ -41,7 +41,7 @@ function SearchPage() {
               {list.map((r) => (
                 <Link key={kind + r.slug} to="/$kind/$slug" params={{ kind, slug: r.slug }}
                   className="mc-panel p-3 hover:bg-accent/10 flex gap-3">
-                  {r.image_url && <img src={r.image_url} alt="" className="w-12 h-12 object-contain mc-slot" />}
+                  {r.imageUrl && <img src={r.imageUrl} alt="" className="w-12 h-12 object-contain mc-slot" />}
                   <div className="min-w-0">
                     <div className="font-bold text-sm">{r.title}</div>
                     <div className="text-xs text-muted-foreground truncate">{r.snippet}</div>

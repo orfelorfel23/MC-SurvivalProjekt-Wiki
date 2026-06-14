@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable";
+import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -22,16 +21,20 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email, password,
-          options: { emailRedirectTo: window.location.origin },
+        const { data, error } = await authClient.signUp.email({
+          email,
+          password,
+          name: email.split("@")[0],
         });
-        if (error) throw error;
-        toast.success("Account erstellt. Du kannst dich jetzt anmelden.");
-        setMode("signin");
+        if (error) throw new Error(error.message);
+        toast.success("Account erstellt. Du bist jetzt angemeldet.");
+        nav({ to: "/" });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        const { data, error } = await authClient.signIn.email({
+          email,
+          password,
+        });
+        if (error) throw new Error(error.message);
         toast.success("Willkommen zurück!");
         nav({ to: "/" });
       }
@@ -40,12 +43,6 @@ function AuthPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const google = async () => {
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (r.error) toast.error(r.error.message ?? "Login fehlgeschlagen");
-    else if (!r.redirected) nav({ to: "/" });
   };
 
   return (
@@ -61,8 +58,7 @@ function AuthPage() {
             {loading ? "..." : mode === "signin" ? "Anmelden" : "Registrieren"}
           </Button>
         </form>
-        <div className="my-4 text-center text-xs text-muted-foreground">oder</div>
-        <Button variant="outline" className="w-full" onClick={google}>Mit Google fortfahren</Button>
+
         <button
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
           className="block w-full mt-4 text-center text-xs text-muted-foreground hover:text-foreground"

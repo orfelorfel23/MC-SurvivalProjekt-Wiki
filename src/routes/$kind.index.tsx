@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { getKindList } from "@/server/functions";
 import { useLang, pickLocalized, t, KIND_TABLE, KIND_LABEL_KEY, type Kind } from "@/lib/i18n";
 
 export const Route = createFileRoute("/$kind/")({
@@ -20,14 +20,13 @@ function KindList() {
 
   useEffect(() => {
     setLoading(true);
-    (supabase.from(KIND_TABLE[k] as any) as any)
-      .select("*")
-      .order("updated_at", { ascending: false })
-      .limit(200)
-      .then(({ data }: { data: any[] | null }) => {
-        setRows(data ?? []);
-        setLoading(false);
-      });
+    getKindList({ data: { kindId: k } }).then((data: any) => {
+      setRows(data ?? []);
+      setLoading(false);
+    }).catch((e) => {
+      console.error(e);
+      setLoading(false);
+    });
   }, [k]);
 
   const label = t(KIND_LABEL_KEY[k], lang);
@@ -40,17 +39,17 @@ function KindList() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {rows.map((r) => {
           const title = k === "wiki"
-            ? pickLocalized(r.title_de, r.title_en, lang)
-            : pickLocalized(r.name_de, r.name_en, lang);
+            ? pickLocalized(r.titleDe, r.titleEn, lang)
+            : pickLocalized(r.nameDe, r.nameEn, lang);
           const snippet = k === "wiki"
-            ? pickLocalized(r.body_de, r.body_en, lang)?.slice(0, 120)
-            : pickLocalized(r.description_de, r.description_en, lang)?.slice(0, 120);
+            ? pickLocalized(r.bodyDe, r.bodyEn, lang)?.slice(0, 120)
+            : pickLocalized(r.descriptionDe, r.descriptionEn, lang)?.slice(0, 120);
           return (
             <Link key={r.id} to="/$kind/$slug" params={{ kind: k, slug: r.slug }}
               className="mc-panel p-4 hover:bg-accent/10 transition-colors flex gap-3">
-              {r.image_url && (
+              {r.imageUrl && (
                 <div className="mc-slot w-16 h-16 flex-shrink-0 flex items-center justify-center">
-                  <img src={r.image_url} alt="" className="w-12 h-12 object-contain" style={{ imageRendering: "pixelated" }} />
+                  <img src={r.imageUrl} alt="" className="w-12 h-12 object-contain" style={{ imageRendering: "pixelated" }} />
                 </div>
               )}
               <div className="min-w-0 flex-1">

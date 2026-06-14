@@ -1,23 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/use-auth";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { getUsersAndRoles, grantRole, revokeRole } from "@/server/functions";
 
 export const Route = createFileRoute("/admin")({ component: AdminPage });
 
 function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
-  const [roles, setRoles] = useState<any[]>([]);
-  const [profiles, setProfiles] = useState<any[]>([]);
-  const [targetEmail, setTargetEmail] = useState("");
+  const [users, setUsers] = useState<any[]>([]);
 
   const load = async () => {
-    const { data: rs } = await supabase.from("user_roles").select("*");
-    setRoles(rs ?? []);
-    const { data: ps } = await supabase.from("profiles").select("id,display_name");
-    setProfiles(ps ?? []);
+    try {
+      const data = await getUsersAndRoles();
+      setUsers(data ?? []);
+    } catch (e: any) {
+      toast.error("Laden fehlgeschlagen: " + e.message);
+    }
   };
 
   useEffect(() => { if (isAdmin) load(); }, [isAdmin]);
@@ -26,13 +26,24 @@ function AdminPage() {
   if (!user) return <div className="container mx-auto px-4 py-8">Bitte anmelden.</div>;
   if (!isAdmin) return <div className="container mx-auto px-4 py-8">Kein Admin-Zugriff.</div>;
 
-  const grant = async (userId: string, role: "admin" | "editor") => {
-    const { error } = await supabase.from("user_roles").insert({ user_id: userId, role });
-    if (error) toast.error(error.message); else { toast.success("Rolle vergeben"); load(); }
+  const handleGrant = async (userId: string, role: "ADMIN" | "EDITOR") => {
+    try {
+      await grantRole({ data: { userId, role } });
+      toast.success("Rolle vergeben");
+      load();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
-  const revoke = async (id: string) => {
-    const { error } = await supabase.from("user_roles").delete().eq("id", id);
-    if (error) toast.error(error.message); else { toast.success("Entfernt"); load(); }
+
+  const handleRevoke = async (id: string) => {
+    try {
+      await revokeRole({ data: { id } });
+      toast.success("Entfernt");
+      load();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   return (
@@ -44,22 +55,22 @@ function AdminPage() {
           Suche unten den Nutzer, dem du eine Rolle geben willst. Nutzer erscheinen hier, sobald sie sich einmal angemeldet haben.
         </p>
         <div className="space-y-2">
-          {profiles.map((p) => {
-            const userRoles = roles.filter((r) => r.user_id === p.id);
+          {users.map((u) => {
+            const userRoles = u.roles || [];
             return (
-              <div key={p.id} className="flex items-center gap-2 p-2 bg-muted rounded text-sm">
+              <div key={u.id} className="flex items-center gap-2 p-2 bg-muted rounded text-sm">
                 <div className="flex-1">
-                  <div className="font-medium">{p.display_name ?? p.id}</div>
-                  <div className="text-xs text-muted-foreground">{userRoles.map((r) => r.role).join(", ") || "keine Rolle"}</div>
+                  <div className="font-medium">{u.name ?? u.id}</div>
+                  <div className="text-xs text-muted-foreground">{userRoles.map((r: any) => r.role).join(", ") || "keine Rolle"}</div>
                 </div>
-                {!userRoles.find((r) => r.role === "editor") && (
-                  <Button size="sm" variant="outline" onClick={() => grant(p.id, "editor")}>+ Editor</Button>
+                {!userRoles.find((r: any) => r.role === "EDITOR") && (
+                  <Button size="sm" variant="outline" onClick={() => handleGrant(u.id, "EDITOR")}>+ Editor</Button>
                 )}
-                {!userRoles.find((r) => r.role === "admin") && (
-                  <Button size="sm" variant="outline" onClick={() => grant(p.id, "admin")}>+ Admin</Button>
+                {!userRoles.find((r: any) => r.role === "ADMIN") && (
+                  <Button size="sm" variant="outline" onClick={() => handleGrant(u.id, "ADMIN")}>+ Admin</Button>
                 )}
-                {userRoles.map((r) => (
-                  <Button key={r.id} size="sm" variant="destructive" onClick={() => revoke(r.id)}>− {r.role}</Button>
+                {userRoles.map((r: any) => (
+                  <Button key={r.id} size="sm" variant="destructive" onClick={() => handleRevoke(r.id)}>− {r.role}</Button>
                 ))}
               </div>
             );

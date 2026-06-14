@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Search, LogIn, LogOut, Shield, Languages } from "lucide-react";
 import { useAuth } from "@/lib/use-auth";
 import { useLang, t, KINDS, KIND_LABEL_KEY } from "@/lib/i18n";
-import { supabase } from "@/integrations/supabase/client";
+import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 
 export function Header() {
@@ -68,7 +68,7 @@ export function Header() {
           </Link>
         )}
         {user ? (
-          <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); }}>
+          <Button variant="ghost" size="sm" onClick={async () => { await authClient.signOut(); }}>
             <LogOut className="w-4 h-4" /> {t("logout", lang)}
           </Button>
         ) : (

@@ -1,0 +1,327 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// Better Auth Core Models
+// -----------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  
+  sessions      Session[]
+  accounts      Account[]
+  
+  // App Relations
+  profile       Profile?
+  roles         UserRole[]
+  createdWorlds World[]
+  createdCommands Command[]
+  createdItems  Item[]
+  createdRecipes Recipe[]
+  createdBosses Boss[]
+  createdTasks  Task[]
+  createdOffers ShopOffer[]
+  createdPets   Pet[]
+  createdPages  WikiPage[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(uuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @default(uuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+// -----------------------------------------------------------------------------
+// App Models
+// -----------------------------------------------------------------------------
+
+enum AppRole {
+  ADMIN
+  EDITOR
+}
+
+model UserRole {
+  id        String   @id @default(uuid())
+  userId    String
+  role      AppRole
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+  @@map("user_roles")
+}
+
+model Profile {
+  id          String   @id
+  displayName String?
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model World {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  nameDe        String
+  nameEn        String?
+  worldType     String   @default("other")
+  descriptionDe String?
+  descriptionEn String?
+  accessInfoDe  String?
+  accessInfoEn  String?
+  rulesDe       String?
+  rulesEn       String?
+  imageUrl      String?
+  tags          String[] @default([])
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  author        User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  bosses        Boss[]
+
+  @@map("worlds")
+}
+
+model Command {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  nameDe        String
+  nameEn        String?
+  syntax        String
+  descriptionDe String?
+  descriptionEn String?
+  permission    String?
+  examples      String?
+  category      String   @default("general")
+  tags          String[] @default([])
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  author        User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@map("commands")
+}
+
+model Item {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  nameDe        String
+  nameEn        String?
+  oraxenId      String?
+  rarity        String   @default("common")
+  descriptionDe String?
+  descriptionEn String?
+  sourceDe      String?
+  sourceEn      String?
+  imageUrl      String?
+  enchanted     Boolean  @default(false)
+  tags          String[] @default([])
+  category      String   @default("misc")
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  author        User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  recipes       Recipe[]
+  bossSpawns    Boss[]
+  shopOffers    ShopOffer[]
+
+  @@map("items")
+}
+
+model Recipe {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  nameDe        String
+  nameEn        String?
+  resultItemId  String?
+  resultCount   Int      @default(1)
+  shaped        Boolean  @default(true)
+  station       String   @default("workbench")
+  grid          Json     @default("[null,null,null,null,null,null,null,null,null]")
+  descriptionDe String?
+  descriptionEn String?
+  tags          String[] @default([])
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  author        User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  resultItem    Item?    @relation(fields: [resultItemId], references: [id], onDelete: SetNull)
+
+  @@map("recipes")
+}
+
+model Boss {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  nameDe        String
+  nameEn        String?
+  worldId       String?
+  spawnItemId   String?
+  difficulty    String   @default("normal")
+  descriptionDe String?
+  descriptionEn String?
+  strategyDe    String?
+  strategyEn    String?
+  drops         Json     @default("[]")
+  imageUrl      String?
+  tags          String[] @default([])
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  author        User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  world         World?   @relation(fields: [worldId], references: [id], onDelete: SetNull)
+  spawnItem     Item?    @relation(fields: [spawnItemId], references: [id], onDelete: SetNull)
+
+  @@map("bosses")
+}
+
+model Task {
+  id             String   @id @default(uuid())
+  slug           String   @unique
+  nameDe         String
+  nameEn         String?
+  descriptionDe  String?
+  descriptionEn  String?
+  rewardAmount   Int?
+  rewardCurrency String   @default("coins")
+  rewardExtraDe  String?
+  rewardExtraEn  String?
+  frequency      String   @default("daily")
+  category       String   @default("general")
+  tags           String[] @default([])
+  createdBy      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  author         User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@map("tasks")
+}
+
+model ShopOffer {
+  id               String   @id @default(uuid())
+  slug             String   @unique
+  nameDe           String
+  nameEn           String?
+  itemId           String?
+  itemNameOverride String?
+  price            Int
+  currency         String   @default("coins")
+  category         String   @default("general")
+  descriptionDe    String?
+  descriptionEn    String?
+  imageUrl         String?
+  tags             String[] @default([])
+  createdBy        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  author           User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  item             Item?    @relation(fields: [itemId], references: [id], onDelete: SetNull)
+
+  @@map("shop_offers")
+}
+
+model Pet {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  nameDe        String
+  nameEn        String?
+  source        String?
+  kind          String   @default("pet")
+  descriptionDe String?
+  descriptionEn String?
+  skillsDe      String?
+  skillsEn      String?
+  acquireDe     String?
+  acquireEn     String?
+  imageUrl      String?
+  tags          String[] @default([])
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  author        User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@map("pets")
+}
+
+model WikiPage {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  titleDe       String
+  titleEn       String?
+  bodyDe        String?
+  bodyEn        String?
+  category      String   @default("general")
+  tags          String[] @default([])
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  author        User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@map("wiki_pages")
+}

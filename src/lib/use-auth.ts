@@ -1,23 +1,13 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { User } from "@supabase/supabase-js";
+import { authClient } from "./auth-client";
+import { getUserRoles } from "@/server/functions";
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const { data, isPending } = authClient.useSession();
+  const user = data?.user ?? null;
+  
   const [isEditor, setIsEditor] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
-    });
-    supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
-      setLoading(false);
-    });
-    return () => sub.subscription.unsubscribe();
-  }, []);
 
   useEffect(() => {
     if (!user) {
@@ -25,12 +15,11 @@ export function useAuth() {
       setIsAdmin(false);
       return;
     }
-    supabase.from("user_roles").select("role").eq("user_id", user.id).then(({ data }) => {
-      const roles = (data ?? []).map((r: { role: string }) => r.role);
-      setIsAdmin(roles.includes("admin"));
-      setIsEditor(roles.includes("admin") || roles.includes("editor"));
-    });
+    getUserRoles({ data: { userId: user.id } }).then((roles) => {
+      setIsAdmin(roles.includes("ADMIN"));
+      setIsEditor(roles.includes("ADMIN") || roles.includes("EDITOR"));
+    }).catch(console.error);
   }, [user]);
 
-  return { user, isEditor, isAdmin, loading };
+  return { user, isEditor, isAdmin, loading: isPending };
 }
