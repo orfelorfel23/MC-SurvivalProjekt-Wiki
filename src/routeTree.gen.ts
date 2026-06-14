@@ -15,8 +15,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as KindIndexRouteImport } from './routes/$kind.index'
+import { Route as EditorTabsRouteImport } from './routes/editor.tabs'
+import { Route as EditorRecipesRouteImport } from './routes/editor.recipes'
 import { Route as KindSlugRouteImport } from './routes/$kind.$slug'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as EditorTabsIdRouteImport } from './routes/editor.tabs.$id'
+import { Route as EditorRecipesIdRouteImport } from './routes/editor.recipes.$id'
 
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
@@ -48,47 +51,71 @@ const KindIndexRoute = KindIndexRouteImport.update({
   path: '/$kind/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditorTabsRoute = EditorTabsRouteImport.update({
+  id: '/tabs',
+  path: '/tabs',
+  getParentRoute: () => EditorRoute,
+} as any)
+const EditorRecipesRoute = EditorRecipesRouteImport.update({
+  id: '/recipes',
+  path: '/recipes',
+  getParentRoute: () => EditorRoute,
+} as any)
 const KindSlugRoute = KindSlugRouteImport.update({
   id: '/$kind/$slug',
   path: '/$kind/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootRouteImport,
+const EditorTabsIdRoute = EditorTabsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => EditorTabsRoute,
+} as any)
+const EditorRecipesIdRoute = EditorRecipesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => EditorRecipesRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
-  '/editor': typeof EditorRoute
+  '/editor': typeof EditorRouteWithChildren
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
+  '/editor/recipes': typeof EditorRecipesRouteWithChildren
+  '/editor/tabs': typeof EditorTabsRouteWithChildren
   '/$kind/': typeof KindIndexRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/editor/recipes/$id': typeof EditorRecipesIdRoute
+  '/editor/tabs/$id': typeof EditorTabsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
-  '/editor': typeof EditorRoute
+  '/editor': typeof EditorRouteWithChildren
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
+  '/editor/recipes': typeof EditorRecipesRouteWithChildren
+  '/editor/tabs': typeof EditorTabsRouteWithChildren
   '/$kind': typeof KindIndexRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/editor/recipes/$id': typeof EditorRecipesIdRoute
+  '/editor/tabs/$id': typeof EditorTabsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
-  '/editor': typeof EditorRoute
+  '/editor': typeof EditorRouteWithChildren
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
+  '/editor/recipes': typeof EditorRecipesRouteWithChildren
+  '/editor/tabs': typeof EditorTabsRouteWithChildren
   '/$kind/': typeof KindIndexRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/editor/recipes/$id': typeof EditorRecipesIdRoute
+  '/editor/tabs/$id': typeof EditorTabsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -99,8 +126,11 @@ export interface FileRouteTypes {
     | '/editor'
     | '/search'
     | '/$kind/$slug'
+    | '/editor/recipes'
+    | '/editor/tabs'
     | '/$kind/'
-    | '/api/auth/$'
+    | '/editor/recipes/$id'
+    | '/editor/tabs/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,8 +139,11 @@ export interface FileRouteTypes {
     | '/editor'
     | '/search'
     | '/$kind/$slug'
+    | '/editor/recipes'
+    | '/editor/tabs'
     | '/$kind'
-    | '/api/auth/$'
+    | '/editor/recipes/$id'
+    | '/editor/tabs/$id'
   id:
     | '__root__'
     | '/'
@@ -119,19 +152,21 @@ export interface FileRouteTypes {
     | '/editor'
     | '/search'
     | '/$kind/$slug'
+    | '/editor/recipes'
+    | '/editor/tabs'
     | '/$kind/'
-    | '/api/auth/$'
+    | '/editor/recipes/$id'
+    | '/editor/tabs/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
-  EditorRoute: typeof EditorRoute
+  EditorRoute: typeof EditorRouteWithChildren
   SearchRoute: typeof SearchRoute
   KindSlugRoute: typeof KindSlugRoute
   KindIndexRoute: typeof KindIndexRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -178,6 +213,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KindIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/editor/tabs': {
+      id: '/editor/tabs'
+      path: '/tabs'
+      fullPath: '/editor/tabs'
+      preLoaderRoute: typeof EditorTabsRouteImport
+      parentRoute: typeof EditorRoute
+    }
+    '/editor/recipes': {
+      id: '/editor/recipes'
+      path: '/recipes'
+      fullPath: '/editor/recipes'
+      preLoaderRoute: typeof EditorRecipesRouteImport
+      parentRoute: typeof EditorRoute
+    }
     '/$kind/$slug': {
       id: '/$kind/$slug'
       path: '/$kind/$slug'
@@ -185,25 +234,68 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KindSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
-      parentRoute: typeof rootRouteImport
+    '/editor/tabs/$id': {
+      id: '/editor/tabs/$id'
+      path: '/$id'
+      fullPath: '/editor/tabs/$id'
+      preLoaderRoute: typeof EditorTabsIdRouteImport
+      parentRoute: typeof EditorTabsRoute
+    }
+    '/editor/recipes/$id': {
+      id: '/editor/recipes/$id'
+      path: '/$id'
+      fullPath: '/editor/recipes/$id'
+      preLoaderRoute: typeof EditorRecipesIdRouteImport
+      parentRoute: typeof EditorRecipesRoute
     }
   }
 }
+
+interface EditorRecipesRouteChildren {
+  EditorRecipesIdRoute: typeof EditorRecipesIdRoute
+}
+
+const EditorRecipesRouteChildren: EditorRecipesRouteChildren = {
+  EditorRecipesIdRoute: EditorRecipesIdRoute,
+}
+
+const EditorRecipesRouteWithChildren = EditorRecipesRoute._addFileChildren(
+  EditorRecipesRouteChildren,
+)
+
+interface EditorTabsRouteChildren {
+  EditorTabsIdRoute: typeof EditorTabsIdRoute
+}
+
+const EditorTabsRouteChildren: EditorTabsRouteChildren = {
+  EditorTabsIdRoute: EditorTabsIdRoute,
+}
+
+const EditorTabsRouteWithChildren = EditorTabsRoute._addFileChildren(
+  EditorTabsRouteChildren,
+)
+
+interface EditorRouteChildren {
+  EditorRecipesRoute: typeof EditorRecipesRouteWithChildren
+  EditorTabsRoute: typeof EditorTabsRouteWithChildren
+}
+
+const EditorRouteChildren: EditorRouteChildren = {
+  EditorRecipesRoute: EditorRecipesRouteWithChildren,
+  EditorTabsRoute: EditorTabsRouteWithChildren,
+}
+
+const EditorRouteWithChildren =
+  EditorRoute._addFileChildren(EditorRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
-  EditorRoute: EditorRoute,
+  EditorRoute: EditorRouteWithChildren,
   SearchRoute: SearchRoute,
   KindSlugRoute: KindSlugRoute,
   KindIndexRoute: KindIndexRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

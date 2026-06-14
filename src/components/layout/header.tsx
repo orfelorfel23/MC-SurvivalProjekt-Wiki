@@ -4,6 +4,8 @@ import { Search, LogIn, LogOut, Shield, Languages } from "lucide-react";
 import { useAuth } from "@/lib/use-auth";
 import { useLang, t, KINDS, KIND_LABEL_KEY } from "@/lib/i18n";
 import { authClient } from "@/lib/auth-client";
+import { useQuery } from "@tanstack/react-query";
+import { getWikiTabs } from "@/server/functions";
 import { Button } from "@/components/ui/button";
 
 export function Header() {
@@ -11,6 +13,12 @@ export function Header() {
   const { user, isEditor, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+
+  const { data: tabs } = useQuery({
+    queryKey: ["wikiTabs"],
+    queryFn: () => getWikiTabs(),
+  });
+
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
@@ -22,7 +30,18 @@ export function Header() {
           <span className="font-bold text-sm uppercase tracking-wider">Server Wiki</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1 ml-4 text-sm flex-wrap">
-          {KINDS.map((k) => (
+          {tabs?.filter(t => t.isVisible).map((t) => (
+            <Link
+              key={t.slug}
+              to={"/$kind" as never}
+              params={{ kind: t.slug } as never}
+              className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
+              activeProps={{ className: "text-accent" }}
+            >
+              {lang === "de" ? t.nameDe : (t.nameEn || t.nameDe)}
+            </Link>
+          ))}
+          {!tabs && KINDS.map((k) => (
             <Link
               key={k}
               to={"/$kind" as never}

@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { prisma } from "./db";
 import { KIND_TABLE } from "../lib/i18n";
+import * as fs from "fs";
+import * as path from "path";
 
 // Map KIND_TABLE names to Prisma model names
 const prismaModels: Record<string, keyof typeof prisma> = {
@@ -18,8 +20,20 @@ const prismaModels: Record<string, keyof typeof prisma> = {
 export const getKindList = createServerFn({ method: "GET" })
   .validator((d: { kindId: string }) => d)
   .handler(async ({ data }) => {
-    const tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
-    if (!tableName) return [];
+    let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
+    
+    // Fallback: If not a builtin kind, treat it as a dynamic wiki tab (query wiki_pages by category)
+    if (!tableName) {
+      const isDynamicTab = await prisma.wikiTab.findUnique({ where: { slug: data.kindId } });
+      if (isDynamicTab && !isDynamicTab.isBuiltin) {
+        return prisma.wikiPage.findMany({
+          where: { category: data.kindId },
+          orderBy: { updatedAt: "desc" },
+          take: 200,
+        });
+      }
+      return [];
+    }
 
     const modelName = prismaModels[tableName] as keyof typeof prisma;
     if (!modelName) return [];
@@ -37,8 +51,18 @@ export const getKindList = createServerFn({ method: "GET" })
 export const getKindItem = createServerFn({ method: "GET" })
   .validator((d: { kindId: string; slug: string }) => d)
   .handler(async ({ data }) => {
-    const tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
-    if (!tableName) return null;
+    let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
+    
+    if (!tableName) {
+      // Dynamic wiki page logic
+      const isDynamicTab = await prisma.wikiTab.findUnique({ where: { slug: data.kindId } });
+      if (isDynamicTab && !isDynamicTab.isBuiltin) {
+        return prisma.wikiPage.findUnique({
+          where: { slug: data.slug },
+        });
+      }
+      return null;
+    }
 
     const modelName = prismaModels[tableName] as keyof typeof prisma;
     if (!modelName) return null;
@@ -99,23 +123,23 @@ export const searchWiki = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const q = `%${data.q}%`;
     const results: any[] = await prisma.$queryRaw`
-      SELECT 'befehle' as kind, slug, name_de as title, description_de as snippet, null as image_url FROM commands WHERE name_de ILIKE ${q} OR description_de ILIKE ${q}
+      SELECT 'befehle' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, null as "imageUrl" FROM commands WHERE "nameDe" ILIKE ${q} OR "descriptionDe" ILIKE ${q}
       UNION ALL
-      SELECT 'welten' as kind, slug, name_de as title, description_de as snippet, image_url FROM worlds WHERE name_de ILIKE ${q} OR description_de ILIKE ${q}
+      SELECT 'welten' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, "imageUrl" FROM worlds WHERE "nameDe" ILIKE ${q} OR "descriptionDe" ILIKE ${q}
       UNION ALL
-      SELECT 'items' as kind, slug, name_de as title, description_de as snippet, image_url FROM items WHERE name_de ILIKE ${q} OR description_de ILIKE ${q}
+      SELECT 'items' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, "imageUrl" FROM items WHERE "nameDe" ILIKE ${q} OR "descriptionDe" ILIKE ${q}
       UNION ALL
-      SELECT 'rezepte' as kind, slug, name_de as title, description_de as snippet, null as image_url FROM recipes WHERE name_de ILIKE ${q}
+      SELECT 'rezepte' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, null as "imageUrl" FROM recipes WHERE "nameDe" ILIKE ${q}
       UNION ALL
-      SELECT 'bosse' as kind, slug, name_de as title, description_de as snippet, image_url FROM bosses WHERE name_de ILIKE ${q}
+      SELECT 'bosse' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, "imageUrl" FROM bosses WHERE "nameDe" ILIKE ${q}
       UNION ALL
-      SELECT 'aufgaben' as kind, slug, name_de as title, description_de as snippet, null as image_url FROM tasks WHERE name_de ILIKE ${q} OR description_de ILIKE ${q}
+      SELECT 'aufgaben' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, null as "imageUrl" FROM tasks WHERE "nameDe" ILIKE ${q} OR "descriptionDe" ILIKE ${q}
       UNION ALL
-      SELECT 'shop' as kind, slug, name_de as title, description_de as snippet, image_url FROM shop_offers WHERE name_de ILIKE ${q} OR description_de ILIKE ${q}
+      SELECT 'shop' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, "imageUrl" FROM shop_offers WHERE "nameDe" ILIKE ${q} OR "descriptionDe" ILIKE ${q}
       UNION ALL
-      SELECT 'pets' as kind, slug, name_de as title, description_de as snippet, image_url FROM pets WHERE name_de ILIKE ${q} OR description_de ILIKE ${q}
+      SELECT 'pets' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, "imageUrl" FROM pets WHERE "nameDe" ILIKE ${q} OR "descriptionDe" ILIKE ${q}
       UNION ALL
-      SELECT 'wiki' as kind, slug, title_de as title, body_de as snippet, null as image_url FROM wiki_pages WHERE title_de ILIKE ${q} OR body_de ILIKE ${q}
+      SELECT 'wiki' as kind, slug, "titleDe" as title, "bodyDe" as snippet, null as "imageUrl" FROM wiki_pages WHERE "titleDe" ILIKE ${q} OR "bodyDe" ILIKE ${q}
       LIMIT 50;
     `;
 
@@ -124,7 +148,7 @@ export const searchWiki = createServerFn({ method: "GET" })
       slug: r.slug,
       title: r.title,
       snippet: r.snippet?.slice(0, 100) ?? "",
-      imageUrl: r.image_url,
+      imageUrl: r.imageUrl,
     }));
   });
 
@@ -159,3 +183,83 @@ export const revokeRole = createServerFn({ method: "POST" })
       where: { id: data.id },
     });
   });
+
+export const getWikiTabs = createServerFn({ method: "GET" }).handler(async () => {
+  return prisma.wikiTab.findMany({
+    orderBy: { order: "asc" },
+  });
+});
+
+export const getTabModulesData = createServerFn({ method: "GET" })
+  .validator((d: { tabSlug: string }) => d)
+  .handler(async ({ data }) => {
+    const tab = await prisma.wikiTab.findUnique({ where: { slug: data.tabSlug } });
+    if (!tab || tab.isBuiltin) return [];
+
+    const modules = Array.isArray(tab.modules) ? tab.modules : [];
+    
+    // Hydrate modules
+    const hydratedModules = await Promise.all(
+      modules.map(async (mod: any) => {
+        try {
+          if (mod.type === "recipe" && mod.id) {
+            const recipe = await prisma.recipe.findUnique({ where: { id: mod.id } });
+            return { ...mod, data: recipe };
+          }
+          if (mod.type === "boss" && mod.id) {
+            const boss = await prisma.boss.findUnique({ where: { id: mod.id } });
+            return { ...mod, data: boss };
+          }
+          if (mod.type === "item" && mod.id) {
+            const item = await prisma.item.findUnique({ where: { id: mod.id } });
+            return { ...mod, data: item };
+          }
+          if (mod.type === "command" && mod.id) {
+            const cmd = await prisma.command.findUnique({ where: { id: mod.id } });
+            return { ...mod, data: cmd };
+          }
+        } catch (e) {
+          console.error("Failed to hydrate module", mod);
+        }
+        return mod; // return as is (for text modules, etc)
+      })
+    );
+
+    return hydratedModules;
+  });
+
+export const saveRecipe = createServerFn({ method: "POST" })
+  .validator((d: { id?: string; nameDe: string; slug: string; shaped: boolean; station: string; grid: any; resultCount: number }) => d)
+  .handler(async ({ data }) => {
+    if (data.id && data.id !== "new") {
+      return prisma.recipe.update({ where: { id: data.id }, data });
+    }
+    return prisma.recipe.create({ data });
+  });
+
+export const saveTab = createServerFn({ method: "POST" })
+  .validator((d: { id?: string; nameDe: string; slug: string; isBuiltin: boolean; modules: any; isVisible: boolean; order: number }) => d)
+  .handler(async ({ data }) => {
+    if (data.id && data.id !== "new") {
+      return prisma.wikiTab.update({ where: { id: data.id }, data });
+    }
+    return prisma.wikiTab.create({ data });
+  });
+
+export const getVanillaItems = createServerFn({ method: "GET" }).handler(async () => {
+  const itemsDir = path.join(process.cwd(), "public", "items");
+  if (!fs.existsSync(itemsDir)) return [];
+  
+  const files = fs.readdirSync(itemsDir);
+  return files
+    .filter(f => f.endsWith(".png"))
+    .map(f => {
+      const id = f.replace(".png", "");
+      // Format "diamond_sword" to "Diamond Sword"
+      const name = id
+        .split("_")
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
+      return { id, name, url: `/items/${f}` };
+    });
+});

@@ -28,6 +28,14 @@ function EditorHome() {
         Editor-Formulare im nächsten Schritt hinzufügen.
       </p>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <Link to="/editor/tabs" className="mc-panel p-4 hover:bg-accent/10">
+          <div className="font-bold">Tabs / Topics</div>
+          <div className="text-xs text-muted-foreground">Wiki-Kategorien verwalten</div>
+        </Link>
+        <Link to="/editor/recipes" className="mc-panel p-4 hover:bg-accent/10">
+          <div className="font-bold">Rezepte</div>
+          <div className="text-xs text-muted-foreground">Crafting-Rezepte verwalten</div>
+        </Link>
         {KINDS.map((k) => (
           <Link
             key={k}
@@ -36,7 +44,7 @@ function EditorHome() {
             className="mc-panel p-4 hover:bg-accent/10"
           >
             <div className="font-bold">{t(KIND_LABEL_KEY[k], lang)}</div>
-            <div className="text-xs text-muted-foreground">Ansicht & Verwaltung</div>
+            <div className="text-xs text-muted-foreground">Ansicht & DB-Verwaltung</div>
           </Link>
         ))}
       </div>

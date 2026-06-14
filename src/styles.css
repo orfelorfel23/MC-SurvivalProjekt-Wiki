@@ -70,7 +70,7 @@
   --card-foreground: oklch(0.95 0.01 110);
   --popover: oklch(0.22 0.025 145);
   --popover-foreground: oklch(0.95 0.01 110);
-  --primary: oklch(0.72 0.18 142);
+  --primary: 32 9% 43%;
   --primary-foreground: oklch(0.15 0.02 145);
   --secondary: oklch(0.28 0.03 145);
   --secondary-foreground: oklch(0.95 0.01 110);
@@ -82,7 +82,7 @@
   --destructive-foreground: oklch(0.98 0.01 110);
   --border: oklch(0.32 0.025 145);
   --input: oklch(0.26 0.025 145);
-  --ring: oklch(0.72 0.18 142);
+  --ring: 32 9% 43%;
   --chart-1: oklch(0.72 0.18 142);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.55 0.18 75);
@@ -109,11 +109,13 @@
   --slot-border-light: oklch(0.55 0.015 145);
   --slot-border-dark: oklch(0.14 0.015 145);
 
-  /* Minecraft block surface tokens */
-  --dirt-1: oklch(0.38 0.07 60);
-  --dirt-2: oklch(0.28 0.06 55);
-  --grass-1: oklch(0.62 0.18 142);
-  --grass-2: oklch(0.48 0.16 142);
+  /* Minecraft block surface tokens based on icon.png primary: 32 9% 43% */
+  /* Converting HSL to oklch approx for dirt: */
+  --dirt-1: oklch(0.40 0.08 60);
+  --dirt-2: oklch(0.32 0.07 55);
+  /* Make grass match the primary color (orange/brown hue) */
+  --grass-1: oklch(0.55 0.12 40);
+  --grass-2: oklch(0.45 0.10 40);
   --stone-1: oklch(0.45 0.005 145);
   --stone-2: oklch(0.32 0.005 145);
 }
@@ -125,7 +127,7 @@
   --card-foreground: oklch(0.984 0.003 247.858);
   --popover: oklch(0.208 0.042 265.755);
   --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
+  --primary: 32 9% 43%;
   --primary-foreground: oklch(0.208 0.042 265.755);
   --secondary: oklch(0.279 0.041 260.031);
   --secondary-foreground: oklch(0.984 0.003 247.858);
@@ -137,7 +139,7 @@
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
+  --ring: 32 9% 43%;
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -187,18 +189,10 @@
     line-height: 1.4;
   }
 
-  h1 {
-    font-size: 1.5rem;
-  }
-  h2 {
-    font-size: 1.125rem;
-  }
-  h3 {
-    font-size: 0.95rem;
-  }
-  h4 {
-    font-size: 0.8rem;
-  }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.125rem; }
+  h3 { font-size: 0.95rem; }
+  h4 { font-size: 0.8rem; }
 
   button,
   a,

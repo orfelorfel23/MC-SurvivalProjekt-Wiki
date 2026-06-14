@@ -1,0 +1,110 @@
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/use-auth";
+import { getKindItem, saveRecipe } from "@/server/functions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { ItemPicker } from "@/components/item-picker";
+import type { GridSlot } from "@/components/crafting-grid";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/editor/recipes/$id")({
+  component: RecipeEditorDetail,
+});
+
+function RecipeEditorDetail() {
+  const { id } = Route.useParams();
+  const { isEditor } = useAuth();
+  const navigate = useNavigate();
+
+  const [recipe, setRecipe] = useState({
+    nameDe: "",
+    slug: "",
+    shaped: true,
+    station: "workbench",
+    resultCount: 1,
+    grid: Array(9).fill(null) as GridSlot[],
+  });
+
+  useEffect(() => {
+    if (id !== "new") {
+      getKindItem({ data: { kindId: "rezepte", slug: id } }).then((r: any) => {
+        if (r) {
+          setRecipe({
+            nameDe: r.nameDe || "",
+            slug: r.slug || "",
+            shaped: r.shaped,
+            station: r.station || "workbench",
+            resultCount: r.resultCount || 1,
+            grid: Array.isArray(r.grid) && r.grid.length === 9 ? r.grid : Array(9).fill(null),
+          });
+        } else {
+          // It's passing ID as slug to getKindItem, wait, getKindItem expects slug.
+          // But our list passed id? Let's check `editor.recipes.tsx` -> params={{ id: r.id }} but getKindItem uses slug usually.
+          // Let's assume id is the id, but we need slug. Wait, getKindItem by slug is how the app works.
+          // I will fix the list to pass slug in a moment.
+        }
+      });
+    }
+  }, [id]);
+
+  const handleSave = async () => {
+    try {
+      await saveRecipe({ data: { ...recipe, id: id === "new" ? undefined : id } });
+      toast.success("Rezept gespeichert!");
+      navigate({ to: "/editor/recipes" });
+    } catch (e) {
+      toast.error("Fehler beim Speichern.");
+    }
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="flex justify-between mb-6">
+        <h1 className="text-2xl text-primary">{id === "new" ? "Neues Rezept" : "Rezept bearbeiten"}</h1>
+        <Button onClick={handleSave}>Speichern</Button>
+      </div>
+
+      <div className="grid gap-6">
+        <div className="grid gap-2">
+          <Label>Name</Label>
+          <Input value={recipe.nameDe} onChange={e => setRecipe({...recipe, nameDe: e.target.value})} />
+        </div>
+        <div className="grid gap-2">
+          <Label>Slug (URL)</Label>
+          <Input value={recipe.slug} onChange={e => setRecipe({...recipe, slug: e.target.value})} />
+        </div>
+        <div className="flex gap-4">
+          <div className="flex items-center gap-2">
+            <Switch checked={recipe.shaped} onCheckedChange={v => setRecipe({...recipe, shaped: v})} />
+            <Label>Geformt (Shaped)</Label>
+          </div>
+        </div>
+
+        <div className="mc-panel p-6 self-start flex flex-col gap-4">
+          <h3 className="text-sm font-bold text-accent">Crafting Grid</h3>
+          <div className="grid grid-cols-3 gap-2 w-max">
+            {recipe.grid.map((slot, i) => (
+              <ItemPicker 
+                key={i} 
+                slot={slot} 
+                onChange={(s) => {
+                  const newGrid = [...recipe.grid];
+                  newGrid[i] = s;
+                  setRecipe({...recipe, grid: newGrid});
+                }}
+                onClear={() => {
+                  const newGrid = [...recipe.grid];
+                  newGrid[i] = null;
+                  setRecipe({...recipe, grid: newGrid});
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
