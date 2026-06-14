@@ -20,7 +20,7 @@ function KindList() {
 
   useEffect(() => {
     setLoading(true);
-    (supabase.from(KIND_TABLE[k]) as any)
+    (supabase.from(KIND_TABLE[k] as any) as any)
       .select("*")
       .order("updated_at", { ascending: false })
       .limit(200)
