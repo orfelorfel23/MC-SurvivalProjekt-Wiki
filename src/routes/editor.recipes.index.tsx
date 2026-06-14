@@ -5,7 +5,7 @@ import { getKindList } from "@/server/functions";
 import { Button } from "@/components/ui/button";
 
 // Basic Recipe Editor
-export const Route = createFileRoute("/editor/recipes")({
+export const Route = createFileRoute("/editor/recipes/")({
   component: RecipeEditorList,
 });
 

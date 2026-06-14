@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getWikiTabs } from "@/server/functions";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/editor/tabs")({
+export const Route = createFileRoute("/editor/tabs/")({
   component: TabsList,
 });
 

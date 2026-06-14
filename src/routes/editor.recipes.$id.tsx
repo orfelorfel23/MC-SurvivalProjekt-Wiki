@@ -20,6 +20,7 @@ function RecipeEditorDetail() {
   const navigate = useNavigate();
 
   const [recipe, setRecipe] = useState({
+    id: undefined as string | undefined,
     nameDe: "",
     slug: "",
     shaped: true,
@@ -33,6 +34,7 @@ function RecipeEditorDetail() {
       getKindItem({ data: { kindId: "rezepte", slug: id } }).then((r: any) => {
         if (r) {
           setRecipe({
+            id: r.id,
             nameDe: r.nameDe || "",
             slug: r.slug || "",
             shaped: r.shaped,
@@ -52,7 +54,7 @@ function RecipeEditorDetail() {
 
   const handleSave = async () => {
     try {
-      await saveRecipe({ data: { ...recipe, id: id === "new" ? undefined : id } });
+      await saveRecipe({ data: { ...recipe, id: recipe.id } });
       toast.success("Rezept gespeichert!");
       navigate({ to: "/editor/recipes" });
     } catch (e) {

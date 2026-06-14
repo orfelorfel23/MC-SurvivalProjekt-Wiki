@@ -14,10 +14,11 @@ import { Route as EditorRouteImport } from './routes/editor'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EditorIndexRouteImport } from './routes/editor.index'
 import { Route as KindIndexRouteImport } from './routes/$kind.index'
-import { Route as EditorTabsRouteImport } from './routes/editor.tabs'
-import { Route as EditorRecipesRouteImport } from './routes/editor.recipes'
 import { Route as KindSlugRouteImport } from './routes/$kind.$slug'
+import { Route as EditorTabsIndexRouteImport } from './routes/editor.tabs.index'
+import { Route as EditorRecipesIndexRouteImport } from './routes/editor.recipes.index'
 import { Route as EditorTabsIdRouteImport } from './routes/editor.tabs.$id'
 import { Route as EditorRecipesIdRouteImport } from './routes/editor.recipes.$id'
 
@@ -46,35 +47,40 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditorIndexRoute = EditorIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => EditorRoute,
+} as any)
 const KindIndexRoute = KindIndexRouteImport.update({
   id: '/$kind/',
   path: '/$kind/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const EditorTabsRoute = EditorTabsRouteImport.update({
-  id: '/tabs',
-  path: '/tabs',
-  getParentRoute: () => EditorRoute,
-} as any)
-const EditorRecipesRoute = EditorRecipesRouteImport.update({
-  id: '/recipes',
-  path: '/recipes',
-  getParentRoute: () => EditorRoute,
 } as any)
 const KindSlugRoute = KindSlugRouteImport.update({
   id: '/$kind/$slug',
   path: '/$kind/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditorTabsIndexRoute = EditorTabsIndexRouteImport.update({
+  id: '/tabs/',
+  path: '/tabs/',
+  getParentRoute: () => EditorRoute,
+} as any)
+const EditorRecipesIndexRoute = EditorRecipesIndexRouteImport.update({
+  id: '/recipes/',
+  path: '/recipes/',
+  getParentRoute: () => EditorRoute,
+} as any)
 const EditorTabsIdRoute = EditorTabsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => EditorTabsRoute,
+  id: '/tabs/$id',
+  path: '/tabs/$id',
+  getParentRoute: () => EditorRoute,
 } as any)
 const EditorRecipesIdRoute = EditorRecipesIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => EditorRecipesRoute,
+  id: '/recipes/$id',
+  path: '/recipes/$id',
+  getParentRoute: () => EditorRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -84,24 +90,25 @@ export interface FileRoutesByFullPath {
   '/editor': typeof EditorRouteWithChildren
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
-  '/editor/recipes': typeof EditorRecipesRouteWithChildren
-  '/editor/tabs': typeof EditorTabsRouteWithChildren
   '/$kind/': typeof KindIndexRoute
+  '/editor/': typeof EditorIndexRoute
   '/editor/recipes/$id': typeof EditorRecipesIdRoute
   '/editor/tabs/$id': typeof EditorTabsIdRoute
+  '/editor/recipes/': typeof EditorRecipesIndexRoute
+  '/editor/tabs/': typeof EditorTabsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
-  '/editor': typeof EditorRouteWithChildren
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
-  '/editor/recipes': typeof EditorRecipesRouteWithChildren
-  '/editor/tabs': typeof EditorTabsRouteWithChildren
   '/$kind': typeof KindIndexRoute
+  '/editor': typeof EditorIndexRoute
   '/editor/recipes/$id': typeof EditorRecipesIdRoute
   '/editor/tabs/$id': typeof EditorTabsIdRoute
+  '/editor/recipes': typeof EditorRecipesIndexRoute
+  '/editor/tabs': typeof EditorTabsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -111,11 +118,12 @@ export interface FileRoutesById {
   '/editor': typeof EditorRouteWithChildren
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
-  '/editor/recipes': typeof EditorRecipesRouteWithChildren
-  '/editor/tabs': typeof EditorTabsRouteWithChildren
   '/$kind/': typeof KindIndexRoute
+  '/editor/': typeof EditorIndexRoute
   '/editor/recipes/$id': typeof EditorRecipesIdRoute
   '/editor/tabs/$id': typeof EditorTabsIdRoute
+  '/editor/recipes/': typeof EditorRecipesIndexRoute
+  '/editor/tabs/': typeof EditorTabsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -126,24 +134,25 @@ export interface FileRouteTypes {
     | '/editor'
     | '/search'
     | '/$kind/$slug'
-    | '/editor/recipes'
-    | '/editor/tabs'
     | '/$kind/'
+    | '/editor/'
     | '/editor/recipes/$id'
     | '/editor/tabs/$id'
+    | '/editor/recipes/'
+    | '/editor/tabs/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
     | '/auth'
-    | '/editor'
     | '/search'
     | '/$kind/$slug'
-    | '/editor/recipes'
-    | '/editor/tabs'
     | '/$kind'
+    | '/editor'
     | '/editor/recipes/$id'
     | '/editor/tabs/$id'
+    | '/editor/recipes'
+    | '/editor/tabs'
   id:
     | '__root__'
     | '/'
@@ -152,11 +161,12 @@ export interface FileRouteTypes {
     | '/editor'
     | '/search'
     | '/$kind/$slug'
-    | '/editor/recipes'
-    | '/editor/tabs'
     | '/$kind/'
+    | '/editor/'
     | '/editor/recipes/$id'
     | '/editor/tabs/$id'
+    | '/editor/recipes/'
+    | '/editor/tabs/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -206,26 +216,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/editor/': {
+      id: '/editor/'
+      path: '/'
+      fullPath: '/editor/'
+      preLoaderRoute: typeof EditorIndexRouteImport
+      parentRoute: typeof EditorRoute
+    }
     '/$kind/': {
       id: '/$kind/'
       path: '/$kind'
       fullPath: '/$kind/'
       preLoaderRoute: typeof KindIndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/editor/tabs': {
-      id: '/editor/tabs'
-      path: '/tabs'
-      fullPath: '/editor/tabs'
-      preLoaderRoute: typeof EditorTabsRouteImport
-      parentRoute: typeof EditorRoute
-    }
-    '/editor/recipes': {
-      id: '/editor/recipes'
-      path: '/recipes'
-      fullPath: '/editor/recipes'
-      preLoaderRoute: typeof EditorRecipesRouteImport
-      parentRoute: typeof EditorRoute
     }
     '/$kind/$slug': {
       id: '/$kind/$slug'
@@ -234,55 +237,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KindSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/editor/tabs/': {
+      id: '/editor/tabs/'
+      path: '/tabs'
+      fullPath: '/editor/tabs/'
+      preLoaderRoute: typeof EditorTabsIndexRouteImport
+      parentRoute: typeof EditorRoute
+    }
+    '/editor/recipes/': {
+      id: '/editor/recipes/'
+      path: '/recipes'
+      fullPath: '/editor/recipes/'
+      preLoaderRoute: typeof EditorRecipesIndexRouteImport
+      parentRoute: typeof EditorRoute
+    }
     '/editor/tabs/$id': {
       id: '/editor/tabs/$id'
-      path: '/$id'
+      path: '/tabs/$id'
       fullPath: '/editor/tabs/$id'
       preLoaderRoute: typeof EditorTabsIdRouteImport
-      parentRoute: typeof EditorTabsRoute
+      parentRoute: typeof EditorRoute
     }
     '/editor/recipes/$id': {
       id: '/editor/recipes/$id'
-      path: '/$id'
+      path: '/recipes/$id'
       fullPath: '/editor/recipes/$id'
       preLoaderRoute: typeof EditorRecipesIdRouteImport
-      parentRoute: typeof EditorRecipesRoute
+      parentRoute: typeof EditorRoute
     }
   }
 }
 
-interface EditorRecipesRouteChildren {
-  EditorRecipesIdRoute: typeof EditorRecipesIdRoute
-}
-
-const EditorRecipesRouteChildren: EditorRecipesRouteChildren = {
-  EditorRecipesIdRoute: EditorRecipesIdRoute,
-}
-
-const EditorRecipesRouteWithChildren = EditorRecipesRoute._addFileChildren(
-  EditorRecipesRouteChildren,
-)
-
-interface EditorTabsRouteChildren {
-  EditorTabsIdRoute: typeof EditorTabsIdRoute
-}
-
-const EditorTabsRouteChildren: EditorTabsRouteChildren = {
-  EditorTabsIdRoute: EditorTabsIdRoute,
-}
-
-const EditorTabsRouteWithChildren = EditorTabsRoute._addFileChildren(
-  EditorTabsRouteChildren,
-)
-
 interface EditorRouteChildren {
-  EditorRecipesRoute: typeof EditorRecipesRouteWithChildren
-  EditorTabsRoute: typeof EditorTabsRouteWithChildren
+  EditorIndexRoute: typeof EditorIndexRoute
+  EditorRecipesIdRoute: typeof EditorRecipesIdRoute
+  EditorTabsIdRoute: typeof EditorTabsIdRoute
+  EditorRecipesIndexRoute: typeof EditorRecipesIndexRoute
+  EditorTabsIndexRoute: typeof EditorTabsIndexRoute
 }
 
 const EditorRouteChildren: EditorRouteChildren = {
-  EditorRecipesRoute: EditorRecipesRouteWithChildren,
-  EditorTabsRoute: EditorTabsRouteWithChildren,
+  EditorIndexRoute: EditorIndexRoute,
+  EditorRecipesIdRoute: EditorRecipesIdRoute,
+  EditorTabsIdRoute: EditorTabsIdRoute,
+  EditorRecipesIndexRoute: EditorRecipesIndexRoute,
+  EditorTabsIndexRoute: EditorTabsIndexRoute,
 }
 
 const EditorRouteWithChildren =
