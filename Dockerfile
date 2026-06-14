@@ -33,4 +33,4 @@ ENV PORT=3000
 ENV HOST=0.0.0.0
 
 # Push prisma schema to db on startup and then run the server
-CMD ["sh", "-c", "npx prisma db push && node dist/server/server.js"]
+CMD ["sh", "-c", "npx prisma db push && npm run preview -- --port 3000 --host 0.0.0.0"]
