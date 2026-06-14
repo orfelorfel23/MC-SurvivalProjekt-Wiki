@@ -6,7 +6,11 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Minecraft Server Wiki" },
-      { name: "description", content: "Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben, Pets und mehr für unseren Minecraft-Server." },
+      {
+        name: "description",
+        content:
+          "Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben, Pets und mehr für unseren Minecraft-Server.",
+      },
     ],
   }),
   component: Index,
@@ -19,11 +23,23 @@ function Index() {
       <section className="mc-panel p-8 md:p-12 mb-10 text-center relative overflow-hidden">
         <div className="mc-grass-bar absolute top-0 left-0 right-0" />
         <h1 className="text-2xl md:text-4xl mb-4 text-primary mt-4">Server Wiki</h1>
-        <p className="text-foreground/90 text-sm max-w-xl mx-auto" style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "0.7rem", lineHeight: 1.8 }}>{t("tagline", lang)}</p>
-        <p className="text-xs text-muted-foreground mt-3 font-sans" style={{ fontFamily: "Inter, sans-serif" }}>{t("heroSub", lang)}</p>
+        <p
+          className="text-foreground/90 text-sm max-w-xl mx-auto"
+          style={{ fontFamily: "'Press Start 2P', monospace", fontSize: "0.7rem", lineHeight: 1.8 }}
+        >
+          {t("tagline", lang)}
+        </p>
+        <p
+          className="text-xs text-muted-foreground mt-3 font-sans"
+          style={{ fontFamily: "Inter, sans-serif" }}
+        >
+          {t("heroSub", lang)}
+        </p>
       </section>
       <section>
-        <h2 className="text-xs uppercase tracking-widest text-accent mb-4">{t("quickLinks", lang)}</h2>
+        <h2 className="text-xs uppercase tracking-widest text-accent mb-4">
+          {t("quickLinks", lang)}
+        </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {KINDS.map((k) => (
             <Link

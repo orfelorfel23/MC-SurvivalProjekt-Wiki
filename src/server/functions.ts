@@ -20,17 +20,17 @@ export const getKindList = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
     if (!tableName) return [];
-    
+
     const modelName = prismaModels[tableName] as keyof typeof prisma;
     if (!modelName) return [];
-    
+
     const model = prisma[modelName] as any;
-    
+
     const results = await model.findMany({
       orderBy: { updatedAt: "desc" },
       take: 200,
     });
-    
+
     return results;
   });
 
@@ -39,18 +39,18 @@ export const getKindItem = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
     if (!tableName) return null;
-    
+
     const modelName = prismaModels[tableName] as keyof typeof prisma;
     if (!modelName) return null;
-    
+
     const model = prisma[modelName] as any;
-    
+
     const item = await model.findUnique({
       where: { slug: data.slug },
     });
-    
+
     if (!item) return null;
-    
+
     // For specific kinds, we might need to include relations
     if (data.kindId === "rezepte") {
       const grid = Array.isArray(item.grid) ? item.grid : [];
@@ -60,33 +60,37 @@ export const getKindItem = createServerFn({ method: "GET" })
       if (ids.size > 0) {
         const resolvedItems = await prisma.item.findMany({
           where: { id: { in: Array.from(ids) } },
-          select: { id: true, slug: true, nameDe: true, nameEn: true, imageUrl: true, enchanted: true }
+          select: {
+            id: true,
+            slug: true,
+            nameDe: true,
+            nameEn: true,
+            imageUrl: true,
+            enchanted: true,
+          },
         });
         (item as any)._resolvedItems = resolvedItems;
         // Also map resultItemId -> result_item_id to match old frontend expectations
         (item as any).result_item_id = item.resultItemId;
       }
     }
-    
+
     if (data.kindId === "items") {
       const relatedRecipes = await prisma.recipe.findMany({
         where: {
-          OR: [
-            { resultItemId: item.id },
-            { grid: { array_contains: [{ item_id: item.id }] } }
-          ]
-        }
+          OR: [{ resultItemId: item.id }, { grid: { array_contains: [{ item_id: item.id }] } }],
+        },
       });
       return { ...item, recipes: relatedRecipes };
     }
-    
+
     if (data.kindId === "bosse" && item.spawnItemId) {
       const spawnItem = await prisma.item.findUnique({
-        where: { id: item.spawnItemId }
+        where: { id: item.spawnItemId },
       });
       return { ...item, spawnItem };
     }
-    
+
     return item;
   });
 
@@ -114,13 +118,13 @@ export const searchWiki = createServerFn({ method: "GET" })
       SELECT 'wiki' as kind, slug, title_de as title, body_de as snippet, null as image_url FROM wiki_pages WHERE title_de ILIKE ${q} OR body_de ILIKE ${q}
       LIMIT 50;
     `;
-    
-    return results.map(r => ({
+
+    return results.map((r) => ({
       kind: r.kind,
       slug: r.slug,
       title: r.title,
       snippet: r.snippet?.slice(0, 100) ?? "",
-      imageUrl: r.image_url
+      imageUrl: r.image_url,
     }));
   });
 
@@ -128,24 +132,23 @@ export const getUserRoles = createServerFn({ method: "GET" })
   .validator((d: { userId: string }) => d)
   .handler(async ({ data }) => {
     const roles = await prisma.userRole.findMany({
-      where: { userId: data.userId }
+      where: { userId: data.userId },
     });
-    return roles.map(r => r.role);
+    return roles.map((r) => r.role);
   });
 
-export const getUsersAndRoles = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const users = await prisma.user.findMany({
-      select: { id: true, name: true, roles: true }
-    });
-    return users;
+export const getUsersAndRoles = createServerFn({ method: "GET" }).handler(async () => {
+  const users = await prisma.user.findMany({
+    select: { id: true, name: true, roles: true },
   });
+  return users;
+});
 
 export const grantRole = createServerFn({ method: "POST" })
-  .validator((d: { userId: string, role: "ADMIN" | "EDITOR" }) => d)
+  .validator((d: { userId: string; role: "ADMIN" | "EDITOR" }) => d)
   .handler(async ({ data }) => {
     return prisma.userRole.create({
-      data: { userId: data.userId, role: data.role }
+      data: { userId: data.userId, role: data.role },
     });
   });
 
@@ -153,6 +156,6 @@ export const revokeRole = createServerFn({ method: "POST" })
   .validator((d: { id: string }) => d)
   .handler(async ({ data }) => {
     return prisma.userRole.delete({
-      where: { id: data.id }
+      where: { id: data.id },
     });
   });

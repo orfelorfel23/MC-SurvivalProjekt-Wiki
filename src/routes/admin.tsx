@@ -20,7 +20,9 @@ function AdminPage() {
     }
   };
 
-  useEffect(() => { if (isAdmin) load(); }, [isAdmin]);
+  useEffect(() => {
+    if (isAdmin) load();
+  }, [isAdmin]);
 
   if (loading) return <div className="container mx-auto px-4 py-8">...</div>;
   if (!user) return <div className="container mx-auto px-4 py-8">Bitte anmelden.</div>;
@@ -52,7 +54,8 @@ function AdminPage() {
       <section className="mc-panel p-4 mb-6">
         <h2 className="text-sm uppercase text-accent mb-3">Editor ernennen</h2>
         <p className="text-xs text-muted-foreground mb-3">
-          Suche unten den Nutzer, dem du eine Rolle geben willst. Nutzer erscheinen hier, sobald sie sich einmal angemeldet haben.
+          Suche unten den Nutzer, dem du eine Rolle geben willst. Nutzer erscheinen hier, sobald sie
+          sich einmal angemeldet haben.
         </p>
         <div className="space-y-2">
           {users.map((u) => {
@@ -61,16 +64,29 @@ function AdminPage() {
               <div key={u.id} className="flex items-center gap-2 p-2 bg-muted rounded text-sm">
                 <div className="flex-1">
                   <div className="font-medium">{u.name ?? u.id}</div>
-                  <div className="text-xs text-muted-foreground">{userRoles.map((r: any) => r.role).join(", ") || "keine Rolle"}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {userRoles.map((r: any) => r.role).join(", ") || "keine Rolle"}
+                  </div>
                 </div>
                 {!userRoles.find((r: any) => r.role === "EDITOR") && (
-                  <Button size="sm" variant="outline" onClick={() => handleGrant(u.id, "EDITOR")}>+ Editor</Button>
+                  <Button size="sm" variant="outline" onClick={() => handleGrant(u.id, "EDITOR")}>
+                    + Editor
+                  </Button>
                 )}
                 {!userRoles.find((r: any) => r.role === "ADMIN") && (
-                  <Button size="sm" variant="outline" onClick={() => handleGrant(u.id, "ADMIN")}>+ Admin</Button>
+                  <Button size="sm" variant="outline" onClick={() => handleGrant(u.id, "ADMIN")}>
+                    + Admin
+                  </Button>
                 )}
                 {userRoles.map((r: any) => (
-                  <Button key={r.id} size="sm" variant="destructive" onClick={() => handleRevoke(r.id)}>− {r.role}</Button>
+                  <Button
+                    key={r.id}
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleRevoke(r.id)}
+                  >
+                    − {r.role}
+                  </Button>
                 ))}
               </div>
             );

@@ -48,12 +48,27 @@ function AuthPage() {
   return (
     <div className="container mx-auto px-4 py-16 max-w-md">
       <div className="mc-panel p-6">
-        <h1 className="text-xl mb-4 text-primary">{mode === "signin" ? "Anmelden" : "Registrieren"}</h1>
+        <h1 className="text-xl mb-4 text-primary">
+          {mode === "signin" ? "Anmelden" : "Registrieren"}
+        </h1>
         <form onSubmit={submit} className="space-y-3">
-          <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="E-Mail"
-            className="w-full px-3 py-2 rounded bg-input border border-border" />
-          <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Passwort"
-            className="w-full px-3 py-2 rounded bg-input border border-border" />
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="E-Mail"
+            className="w-full px-3 py-2 rounded bg-input border border-border"
+          />
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Passwort"
+            className="w-full px-3 py-2 rounded bg-input border border-border"
+          />
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "..." : mode === "signin" ? "Anmelden" : "Registrieren"}
           </Button>

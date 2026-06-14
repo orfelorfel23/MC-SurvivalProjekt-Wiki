@@ -16,7 +16,9 @@ export function Header() {
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
       <div className="container mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
         <Link to="/" className="flex items-center gap-2">
-          <span className="mc-slot inline-flex items-center justify-center w-9 h-9 text-primary font-bold">MC</span>
+          <span className="mc-slot inline-flex items-center justify-center w-9 h-9 text-primary font-bold">
+            MC
+          </span>
           <span className="font-bold text-sm uppercase tracking-wider">Server Wiki</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1 ml-4 text-sm flex-wrap">
@@ -59,20 +61,34 @@ export function Header() {
         </Button>
         {isEditor && (
           <Link to="/editor">
-            <Button variant="outline" size="sm"><Shield className="w-4 h-4" /> {t("editor", lang)}</Button>
+            <Button variant="outline" size="sm">
+              <Shield className="w-4 h-4" /> {t("editor", lang)}
+            </Button>
           </Link>
         )}
         {isAdmin && (
           <Link to="/admin">
-            <Button variant="outline" size="sm">{t("admin", lang)}</Button>
+            <Button variant="outline" size="sm">
+              {t("admin", lang)}
+            </Button>
           </Link>
         )}
         {user ? (
-          <Button variant="ghost" size="sm" onClick={async () => { await authClient.signOut(); }}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              await authClient.signOut();
+            }}
+          >
             <LogOut className="w-4 h-4" /> {t("logout", lang)}
           </Button>
         ) : (
-          <Link to="/auth"><Button size="sm"><LogIn className="w-4 h-4" /> {t("login", lang)}</Button></Link>
+          <Link to="/auth">
+            <Button size="sm">
+              <LogIn className="w-4 h-4" /> {t("login", lang)}
+            </Button>
+          </Link>
         )}
       </div>
       <div className="mc-grass-bar" />

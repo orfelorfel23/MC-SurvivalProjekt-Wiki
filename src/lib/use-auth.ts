@@ -5,7 +5,7 @@ import { getUserRoles } from "@/server/functions";
 export function useAuth() {
   const { data, isPending } = authClient.useSession();
   const user = data?.user ?? null;
-  
+
   const [isEditor, setIsEditor] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -15,10 +15,12 @@ export function useAuth() {
       setIsAdmin(false);
       return;
     }
-    getUserRoles({ data: { userId: user.id } }).then((roles) => {
-      setIsAdmin(roles.includes("ADMIN"));
-      setIsEditor(roles.includes("ADMIN") || roles.includes("EDITOR"));
-    }).catch(console.error);
+    getUserRoles({ data: { userId: user.id } })
+      .then((roles) => {
+        setIsAdmin(roles.includes("ADMIN"));
+        setIsEditor(roles.includes("ADMIN") || roles.includes("EDITOR"));
+      })
+      .catch(console.error);
   }, [user]);
 
   return { user, isEditor, isAdmin, loading: isPending };

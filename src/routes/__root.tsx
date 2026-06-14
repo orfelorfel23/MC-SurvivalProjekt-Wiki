@@ -77,21 +77,44 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Minecraft Server Wiki" },
-      { name: "description", content: "Wiki für unseren Minecraft-Server: Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben, Pets und mehr." },
+      {
+        name: "description",
+        content:
+          "Wiki für unseren Minecraft-Server: Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben, Pets und mehr.",
+      },
       { name: "author", content: "Server Wiki" },
       { property: "og:title", content: "Minecraft Server Wiki" },
-      { property: "og:description", content: "Wiki für unseren Minecraft-Server: Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben, Pets und mehr." },
+      {
+        property: "og:description",
+        content:
+          "Wiki für unseren Minecraft-Server: Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben, Pets und mehr.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "Minecraft Server Wiki" },
-      { name: "twitter:description", content: "Wiki für unseren Minecraft-Server: Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben, Pets und mehr." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fd17d5f1-bab6-4dec-b410-6306c11c4f74/id-preview-51771896--f7b39ff6-c1c2-4596-afe6-e98043701c06.lovable.app-1781381700766.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fd17d5f1-bab6-4dec-b410-6306c11c4f74/id-preview-51771896--f7b39ff6-c1c2-4596-afe6-e98043701c06.lovable.app-1781381700766.png" },
+      {
+        name: "twitter:description",
+        content:
+          "Wiki für unseren Minecraft-Server: Befehle, Custom-Items, Crafting-Rezepte, Bosse, Aufgaben, Pets und mehr.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fd17d5f1-bab6-4dec-b410-6306c11c4f74/id-preview-51771896--f7b39ff6-c1c2-4596-afe6-e98043701c06.lovable.app-1781381700766.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/fd17d5f1-bab6-4dec-b410-6306c11c4f74/id-preview-51771896--f7b39ff6-c1c2-4596-afe6-e98043701c06.lovable.app-1781381700766.png",
+      },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&display=swap" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&display=swap",
+      },
       {
         rel: "stylesheet",
         href: appCss,
@@ -122,7 +145,8 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const [lang, setLang] = useState<Lang>("de");
   useEffect(() => {
-    const saved = typeof window !== "undefined" ? (localStorage.getItem("lang") as Lang | null) : null;
+    const saved =
+      typeof window !== "undefined" ? (localStorage.getItem("lang") as Lang | null) : null;
     if (saved === "de" || saved === "en") setLang(saved);
   }, []);
   useEffect(() => {

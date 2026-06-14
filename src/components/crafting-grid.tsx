@@ -51,16 +51,29 @@ function Slot({ item, count, large }: { item: GridItem | null; count?: number; l
     <Link
       to="/$kind/$slug"
       params={{ kind: "items", slug: item.slug }}
-      className={cn("mc-slot relative flex items-center justify-center group", size, item.enchanted && "mc-glint")}
+      className={cn(
+        "mc-slot relative flex items-center justify-center group",
+        size,
+        item.enchanted && "mc-glint",
+      )}
       title={item.name_de}
     >
       {item.image_url ? (
-        <img src={item.image_url} alt={item.name_de} className="w-3/4 h-3/4 object-contain relative z-0" style={{ imageRendering: "pixelated" }} />
+        <img
+          src={item.image_url}
+          alt={item.name_de}
+          className="w-3/4 h-3/4 object-contain relative z-0"
+          style={{ imageRendering: "pixelated" }}
+        />
       ) : (
-        <span className="text-[10px] text-center px-1 text-muted-foreground relative z-0">{item.name_de.slice(0, 8)}</span>
+        <span className="text-[10px] text-center px-1 text-muted-foreground relative z-0">
+          {item.name_de.slice(0, 8)}
+        </span>
       )}
       {count && count > 1 ? (
-        <span className="absolute bottom-0.5 right-1 text-xs font-bold text-white drop-shadow z-10">{count}</span>
+        <span className="absolute bottom-0.5 right-1 text-xs font-bold text-white drop-shadow z-10">
+          {count}
+        </span>
       ) : null}
       <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs bg-popover border border-border px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
         {item.name_de}
