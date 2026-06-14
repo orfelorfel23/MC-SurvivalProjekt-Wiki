@@ -165,9 +165,6 @@
   }
 }
 
-/* Pixel display font for headings & item names */
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;500;600;700&display=swap');
-
 /* Minecraft inventory slot */
 .mc-slot {
   background-color: var(--slot);
