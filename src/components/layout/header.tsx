@@ -75,6 +75,7 @@ export function Header() {
           <Link to="/auth"><Button size="sm"><LogIn className="w-4 h-4" /> {t("login", lang)}</Button></Link>
         )}
       </div>
+      <div className="mc-grass-bar" />
     </header>
   );
 }
