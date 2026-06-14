@@ -13,8 +13,8 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
-import { Route as KindRouteImport } from './routes/$kind'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as KindIndexRouteImport } from './routes/$kind.index'
 import { Route as KindSlugRouteImport } from './routes/$kind.$slug'
 
 const SearchRoute = SearchRouteImport.update({
@@ -37,87 +37,88 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const KindRoute = KindRouteImport.update({
-  id: '/$kind',
-  path: '/$kind',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KindIndexRoute = KindIndexRouteImport.update({
+  id: '/$kind/',
+  path: '/$kind/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const KindSlugRoute = KindSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => KindRoute,
+  id: '/$kind/$slug',
+  path: '/$kind/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/$kind': typeof KindRouteWithChildren
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/editor': typeof EditorRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
+  '/$kind/': typeof KindIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/$kind': typeof KindRouteWithChildren
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/editor': typeof EditorRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
+  '/$kind': typeof KindIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/$kind': typeof KindRouteWithChildren
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/editor': typeof EditorRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
+  '/$kind/': typeof KindIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/$kind'
     | '/admin'
     | '/auth'
     | '/editor'
     | '/search'
     | '/$kind/$slug'
+    | '/$kind/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/$kind'
     | '/admin'
     | '/auth'
     | '/editor'
     | '/search'
     | '/$kind/$slug'
+    | '/$kind'
   id:
     | '__root__'
     | '/'
-    | '/$kind'
     | '/admin'
     | '/auth'
     | '/editor'
     | '/search'
     | '/$kind/$slug'
+    | '/$kind/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  KindRoute: typeof KindRouteWithChildren
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   EditorRoute: typeof EditorRoute
   SearchRoute: typeof SearchRoute
+  KindSlugRoute: typeof KindSlugRoute
+  KindIndexRoute: typeof KindIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -150,13 +151,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$kind': {
-      id: '/$kind'
-      path: '/$kind'
-      fullPath: '/$kind'
-      preLoaderRoute: typeof KindRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -164,34 +158,42 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$kind/': {
+      id: '/$kind/'
+      path: '/$kind'
+      fullPath: '/$kind/'
+      preLoaderRoute: typeof KindIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$kind/$slug': {
       id: '/$kind/$slug'
-      path: '/$slug'
+      path: '/$kind/$slug'
       fullPath: '/$kind/$slug'
       preLoaderRoute: typeof KindSlugRouteImport
-      parentRoute: typeof KindRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface KindRouteChildren {
-  KindSlugRoute: typeof KindSlugRoute
-}
-
-const KindRouteChildren: KindRouteChildren = {
-  KindSlugRoute: KindSlugRoute,
-}
-
-const KindRouteWithChildren = KindRoute._addFileChildren(KindRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  KindRoute: KindRouteWithChildren,
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   EditorRoute: EditorRoute,
   SearchRoute: SearchRoute,
+  KindSlugRoute: KindSlugRoute,
+  KindIndexRoute: KindIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

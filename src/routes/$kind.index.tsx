@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLang, pickLocalized, t, KIND_TABLE, KIND_LABEL_KEY, type Kind } from "@/lib/i18n";
 
-export const Route = createFileRoute("/$kind")({
+export const Route = createFileRoute("/$kind/")({
   beforeLoad: ({ params }) => {
     if (!(params.kind in KIND_TABLE)) throw notFound();
   },
