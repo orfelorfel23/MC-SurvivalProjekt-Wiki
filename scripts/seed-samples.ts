@@ -94,8 +94,68 @@ async function main() {
       isVisible: true,
       order: 1,
       modules: [
-        { id: "mod-text-1", type: "text", content: "# Willkommen auf dem Server!\nDies ist ein Beispieltext für einen eigenen Reiter." }
+        { type: "text", contentDe: "# Willkommen auf dem Server!\nDies ist ein Beispieltext für einen eigenen Reiter." }
       ]
+    }
+  });
+
+  // Create a Task
+  await prisma.task.upsert({
+    where: { slug: "holzfaeller-daily" },
+    update: {},
+    create: {
+      slug: "holzfaeller-daily",
+      nameDe: "Holzfäller (Täglich)",
+      nameEn: "Lumberjack (Daily)",
+      descriptionDe: "Fälle 100 Eichenstämme im Wald.",
+      frequency: "daily",
+      rewardAmount: 500,
+      rewardCurrency: "Coins",
+      rewardExtraDe: "1x Verzauberter Apfel",
+      category: "farming"
+    }
+  });
+
+  // Create a ShopOffer
+  await prisma.shopOffer.upsert({
+    where: { slug: "diamant-kaufen" },
+    update: {},
+    create: {
+      slug: "diamant-kaufen",
+      nameDe: "Diamant",
+      price: 150,
+      currency: "Coins",
+      descriptionDe: "Kaufe einen wertvollen Diamanten im Admin-Shop.",
+      imageUrl: "/items/diamond.png",
+      category: "materials"
+    }
+  });
+
+  // Create a Pet
+  await prisma.pet.upsert({
+    where: { slug: "drache-pet" },
+    update: {},
+    create: {
+      slug: "drache-pet",
+      nameDe: "Kleiner Drache",
+      kind: "pet",
+      source: "Legendary Crate",
+      descriptionDe: "Ein feuriger kleiner Begleiter, der dir im Kampf hilft.",
+      skillsDe: "Gibt dir dauerhaft Feuerresistenz I.",
+      imageUrl: "/items/dragon_egg.png",
+      acquireDe: "Kann mit einer 1% Chance aus der legendären Kiste gezogen werden."
+    }
+  });
+
+  // Create a WikiPage (for the Allgemeines Tab or other uses)
+  await prisma.wikiPage.upsert({
+    where: { slug: "server-regeln" },
+    update: {},
+    create: {
+      slug: "server-regeln",
+      titleDe: "Server Regeln",
+      bodyDe: "1. Kein Griefing\n2. Kein Spam\n3. Respektiert das Team\n\nVerstöße führen zu einem permanenten Bann.",
+      category: "allgemeines"
     }
   });
 

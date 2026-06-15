@@ -7,7 +7,7 @@ export const Route = createFileRoute("/editor")({
 
 function EditorLayout() {
   const { isEditor, loading } = useAuth();
-  
+
   if (loading) return <div className="container mx-auto px-4 py-8">...</div>;
   if (!isEditor) {
     return (

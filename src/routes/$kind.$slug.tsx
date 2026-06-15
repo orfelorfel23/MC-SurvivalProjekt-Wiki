@@ -1,8 +1,15 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { getKindItem } from "@/server/functions";
+import { useAuth } from "@/lib/use-auth";
+import { saveGenericEntity } from "@/server/functions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import { useLang, pickLocalized, t, KIND_TABLE, KIND_LABEL_KEY, type Kind } from "@/lib/i18n";
 import { CraftingGrid, type GridItem, type GridSlot } from "@/components/crafting-grid";
 
@@ -18,7 +25,12 @@ function DetailPage() {
   const { kind, slug } = Route.useParams();
   const k = kind as Kind;
   const { lang } = useLang();
+  const { isEditor } = useAuth();
+  const navigate = useNavigate();
   const [row, setRow] = useState<any>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState<any>({});
+  const [saving, setSaving] = useState(false);
   const [extras, setExtras] = useState<{
     items?: Record<string, GridItem>;
     result?: GridItem | null;
@@ -33,6 +45,7 @@ function DetailPage() {
     getKindItem({ data: { kindId: k, slug } })
       .then((data: any) => {
         setRow(data);
+        setEditData(data || {});
         if (data && k === "rezepte") {
           const grid: GridSlot[] = Array.isArray(data.grid) ? data.grid : [];
           const ids = new Set<string>();
@@ -61,6 +74,79 @@ function DetailPage() {
     return <div className="container mx-auto px-4 py-8 text-muted-foreground">Lädt...</div>;
   if (!row) return <div className="container mx-auto px-4 py-8">Nicht gefunden.</div>;
 
+  const handleEditClick = () => {
+    if (k === "rezepte") {
+      navigate({ to: "/editor/recipes/$id", params: { id: slug } });
+    } else {
+      setIsEditing(true);
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const payload = { ...editData };
+      delete payload.author;
+      delete payload.recipes;
+      delete payload._resolvedItems;
+      delete payload.world;
+      delete payload.spawnItem;
+      // remove undefined/null just in case
+      Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
+
+      await saveGenericEntity({ data: { kindId: k, slug, data: payload } });
+      setRow(payload);
+      setIsEditing(false);
+      toast.success("Gespeichert!");
+    } catch(e) {
+      toast.error("Fehler beim Speichern");
+    }
+    setSaving(false);
+  };
+
+  if (isEditing) {
+    const fields = [
+      { key: "nameDe", label: "Name (DE)" },
+      { key: "titleDe", label: "Titel (DE)" },
+      { key: "descriptionDe", label: "Beschreibung (DE)", textarea: true },
+      { key: "bodyDe", label: "Inhalt (DE)", textarea: true },
+      { key: "imageUrl", label: "Bild URL" },
+      { key: "category", label: "Kategorie" },
+      { key: "price", label: "Preis (Shop)", type: "number" },
+      { key: "currency", label: "Währung" },
+      { key: "rewardAmount", label: "Belohnung", type: "number" },
+      { key: "rewardCurrency", label: "Belohnung Währung" },
+      { key: "syntax", label: "Syntax" },
+      { key: "permission", label: "Permission" },
+      { key: "examples", label: "Beispiele", textarea: true },
+      { key: "strategyDe", label: "Strategie (DE)", textarea: true }
+    ];
+
+    return (
+      <article className="container mx-auto px-4 py-8 max-w-2xl">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl text-primary">Bearbeiten: {slug}</h1>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsEditing(false)}>Abbrechen</Button>
+            <Button onClick={handleSave} disabled={saving}>{saving ? "Speichert..." : "Speichern"}</Button>
+          </div>
+        </div>
+        <div className="grid gap-4 bg-card p-6 border border-border">
+          {fields.filter(f => editData[f.key] !== undefined).map(f => (
+            <div key={f.key} className="grid gap-2">
+              <Label>{f.label}</Label>
+              {f.textarea ? (
+                <Textarea value={editData[f.key]} onChange={e => setEditData({...editData, [f.key]: e.target.value})} rows={5} />
+              ) : (
+                <Input type={f.type || "text"} value={editData[f.key]} onChange={e => setEditData({...editData, [f.key]: f.type === "number" ? parseInt(e.target.value) || 0 : e.target.value})} />
+              )}
+            </div>
+          ))}
+        </div>
+      </article>
+    );
+  }
+
   const title =
     k === "wiki"
       ? pickLocalized(row.titleDe, row.titleEn, lang)
@@ -68,15 +154,20 @@ function DetailPage() {
   const description = pickLocalized(row.descriptionDe, row.descriptionEn, lang);
 
   return (
-    <article className="container mx-auto px-4 py-8 max-w-4xl">
-      <Link
-        to="/$kind"
-        params={{ kind: k }}
-        className="text-xs text-muted-foreground hover:text-foreground"
-      >
-        ← {t(KIND_LABEL_KEY[k], lang)}
-      </Link>
-      <header className="my-4 flex flex-wrap items-start gap-4">
+    <article className="container mx-auto px-4 py-8 max-w-4xl relative">
+      <div className="flex justify-between items-start">
+        <Link
+          to="/$kind"
+          params={{ kind: k }}
+          className="text-xs text-muted-foreground hover:text-foreground inline-block mb-4"
+        >
+          ← {t(KIND_LABEL_KEY[k], lang)}
+        </Link>
+        {isEditor && (
+          <Button variant="outline" size="sm" onClick={handleEditClick}>Bearbeiten</Button>
+        )}
+      </div>
+      <header className="my-2 flex flex-wrap items-start gap-4">
         {row.imageUrl && (
           <div
             className={`mc-slot w-24 h-24 flex items-center justify-center ${row.enchanted ? "mc-glint" : ""}`}

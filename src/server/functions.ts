@@ -246,6 +246,24 @@ export const saveTab = createServerFn({ method: "POST" })
     return prisma.wikiTab.create({ data });
   });
 
+export const saveGenericEntity = createServerFn({ method: "POST" })
+  .validator((d: { kindId: string; slug: string; data: any }) => d)
+  .handler(async ({ data }) => {
+    let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
+    let modelName = prismaModels[tableName] as keyof typeof prisma;
+
+    if (!modelName) {
+      // dynamic wiki page
+      modelName = "wikiPage" as keyof typeof prisma;
+    }
+
+    const model = prisma[modelName] as any;
+    return model.update({
+      where: { slug: data.slug },
+      data: data.data,
+    });
+  });
+
 export const getVanillaItems = createServerFn({ method: "GET" }).handler(async () => {
   const itemsDir = path.join(process.cwd(), "public", "items");
   if (!fs.existsSync(itemsDir)) return [];

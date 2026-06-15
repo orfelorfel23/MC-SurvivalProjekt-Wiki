@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { getKindList, getWikiTabs, getTabModulesData } from "@/server/functions";
 import { useLang, pickLocalized, t, KIND_TABLE, KIND_LABEL_KEY } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/lib/use-auth";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/$kind/")({
   component: KindList,
@@ -13,6 +16,8 @@ function KindList() {
   const { kind } = Route.useParams();
   const k = kind as string;
   const { lang } = useLang();
+  const { isEditor } = useAuth();
+  const navigate = useNavigate();
   const [rows, setRows] = useState<any[]>([]);
   const [modules, setModules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +60,14 @@ function KindList() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl mb-6 text-primary">{label}</h1>
+      <div className="flex justify-between items-start mb-6">
+        <h1 className="text-2xl text-primary">{label}</h1>
+        {isEditor && currentTab && (
+          <Button variant="outline" size="sm" onClick={() => navigate({ to: "/editor/tabs/$id", params: { id: currentTab.slug } })}>
+            Tab Bearbeiten
+          </Button>
+        )}
+      </div>
       {loading && <p className="text-muted-foreground">{t("loading", lang)}</p>}
       {!loading && currentTab?.isBuiltin && rows.length === 0 && (
         <p className="text-muted-foreground">{t("noResults", lang)}</p>
