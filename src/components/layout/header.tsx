@@ -52,6 +52,13 @@ export function Header() {
               {t(KIND_LABEL_KEY[k], lang)}
             </Link>
           ))}
+          <Link
+            to="/karte"
+            className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
+            activeProps={{ className: "text-accent" }}
+          >
+            Karte
+          </Link>
         </nav>
         <form
           onSubmit={(e) => {

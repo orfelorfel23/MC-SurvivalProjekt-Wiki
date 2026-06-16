@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { useLang, t, KINDS, KIND_LABEL_KEY } from "@/lib/i18n";
 import { ServerStatus } from "@/components/server-status";
+import { SkinViewer } from "@/components/skin-viewer";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,8 +37,9 @@ function Index() {
         >
           {t("heroSub", lang)}
         </p>
-        <div className="mt-8 max-w-sm mx-auto text-left">
+        <div className="mt-8 max-w-4xl mx-auto text-left grid md:grid-cols-2 gap-6 items-start">
           <ServerStatus />
+          <SkinViewer />
         </div>
       </section>
       <section>

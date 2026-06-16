@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
+import { ItemTooltip } from "@/components/item-tooltip";
 
 export type GridSlot = { 
   type?: "db" | "vanilla";
@@ -101,17 +102,22 @@ function Slot({ slot, dbItems, large }: { slot: GridSlot; dbItems?: Record<strin
   );
 
   if (isVanilla || !dbItem) {
-    return <div className={className} title={name}>{inner}</div>;
+    return (
+      <ItemTooltip item={dbItem}>
+        <div className={className}>{inner}</div>
+      </ItemTooltip>
+    );
   }
 
   return (
-    <Link
-      to="/$kind/$slug"
-      params={{ kind: "items", slug: dbItem.slug }}
-      className={className}
-      title={name}
-    >
-      {inner}
-    </Link>
+    <ItemTooltip item={dbItem}>
+      <Link
+        to="/$kind/$slug"
+        params={{ kind: "items", slug: dbItem.slug }}
+        className={className}
+      >
+        {inner}
+      </Link>
+    </ItemTooltip>
   );
 }

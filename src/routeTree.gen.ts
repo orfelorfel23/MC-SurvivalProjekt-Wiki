@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as KarteRouteImport } from './routes/karte'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -25,6 +26,11 @@ import { Route as EditorRecipesIdRouteImport } from './routes/editor.recipes.$id
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KarteRoute = KarteRouteImport.update({
+  id: '/karte',
+  path: '/karte',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EditorRoute = EditorRouteImport.update({
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/editor': typeof EditorRouteWithChildren
+  '/karte': typeof KarteRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
   '/$kind/': typeof KindIndexRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
+  '/karte': typeof KarteRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
   '/$kind': typeof KindIndexRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/auth': typeof AuthRoute
   '/editor': typeof EditorRouteWithChildren
+  '/karte': typeof KarteRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
   '/$kind/': typeof KindIndexRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/editor'
+    | '/karte'
     | '/search'
     | '/$kind/$slug'
     | '/$kind/'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/auth'
+    | '/karte'
     | '/search'
     | '/$kind/$slug'
     | '/$kind'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/editor'
+    | '/karte'
     | '/search'
     | '/$kind/$slug'
     | '/$kind/'
@@ -174,6 +186,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   AuthRoute: typeof AuthRoute
   EditorRoute: typeof EditorRouteWithChildren
+  KarteRoute: typeof KarteRoute
   SearchRoute: typeof SearchRoute
   KindSlugRoute: typeof KindSlugRoute
   KindIndexRoute: typeof KindIndexRoute
@@ -186,6 +199,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/karte': {
+      id: '/karte'
+      path: '/karte'
+      fullPath: '/karte'
+      preLoaderRoute: typeof KarteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/editor': {
@@ -292,6 +312,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   AuthRoute: AuthRoute,
   EditorRoute: EditorRouteWithChildren,
+  KarteRoute: KarteRoute,
   SearchRoute: SearchRoute,
   KindSlugRoute: KindSlugRoute,
   KindIndexRoute: KindIndexRoute,
