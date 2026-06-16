@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { Header } from "@/components/layout/header";
 import { LangContext, type Lang } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
+import { useSound } from "@/lib/use-sound";
 
 function NotFoundComponent() {
   return (
@@ -155,6 +156,8 @@ function RootComponent() {
   useEffect(() => {
     if (typeof window !== "undefined") localStorage.setItem("lang", lang);
   }, [lang]);
+
+  useSound();
 
   return (
     <QueryClientProvider client={queryClient}>

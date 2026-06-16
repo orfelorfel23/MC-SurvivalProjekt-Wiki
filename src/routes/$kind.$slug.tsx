@@ -2,6 +2,8 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import MDEditor from "@uiw/react-md-editor";
+import rehypeSanitize from "rehype-sanitize";
 import { getKindItem } from "@/server/functions";
 import { useAuth } from "@/lib/use-auth";
 import { saveGenericEntity } from "@/server/functions";
@@ -12,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useLang, pickLocalized, t, KIND_TABLE, KIND_LABEL_KEY, type Kind } from "@/lib/i18n";
 import { CraftingGrid, type GridItem, type GridSlot } from "@/components/crafting-grid";
+import { ImageUpload } from "@/components/image-upload";
 
 export const Route = createFileRoute("/$kind/$slug")({
   beforeLoad: ({ params }) => {
@@ -136,9 +139,21 @@ function DetailPage() {
             <div key={f.key} className="grid gap-2">
               <Label>{f.label}</Label>
               {f.textarea ? (
-                <Textarea value={editData[f.key]} onChange={e => setEditData({...editData, [f.key]: e.target.value})} rows={5} />
+                <div data-color-mode="dark">
+                  <MDEditor
+                    value={editData[f.key] || ""}
+                    onChange={val => setEditData({...editData, [f.key]: val})}
+                    previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
+                    height={300}
+                  />
+                </div>
+              ) : f.key === "imageUrl" ? (
+                <ImageUpload 
+                  value={editData[f.key]} 
+                  onChange={url => setEditData({...editData, [f.key]: url})} 
+                />
               ) : (
-                <Input type={f.type || "text"} value={editData[f.key]} onChange={e => setEditData({...editData, [f.key]: f.type === "number" ? parseInt(e.target.value) || 0 : e.target.value})} />
+                <Input type={f.type || "text"} value={editData[f.key] || ""} onChange={e => setEditData({...editData, [f.key]: f.type === "number" ? parseInt(e.target.value) || 0 : e.target.value})} />
               )}
             </div>
           ))}

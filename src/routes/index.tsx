@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Link } from "@tanstack/react-router";
 import { useLang, t, KINDS, KIND_LABEL_KEY } from "@/lib/i18n";
+import { ServerStatus } from "@/components/server-status";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -35,6 +36,9 @@ function Index() {
         >
           {t("heroSub", lang)}
         </p>
+        <div className="mt-8 max-w-sm mx-auto text-left">
+          <ServerStatus />
+        </div>
       </section>
       <section>
         <h2 className="text-xs uppercase tracking-widest text-accent mb-4">

@@ -229,12 +229,48 @@ export const getTabModulesData = createServerFn({ method: "GET" })
   });
 
 export const saveRecipe = createServerFn({ method: "POST" })
-  .validator((d: { id?: string; nameDe: string; slug: string; shaped: boolean; station: string; grid: any; resultCount: number }) => d)
+  .validator((d: { id?: string; nameDe: string; slug: string; shaped: boolean; station: string; grid: any; resultCount: number; resultItem?: any }) => d)
   .handler(async ({ data }) => {
-    if (data.id && data.id !== "new") {
-      return prisma.recipe.update({ where: { id: data.id }, data });
+    let resultItemId = null;
+    
+    // If we received a resultItem, we either link it to DB or create a new Item!
+    if (data.resultItem) {
+      if (data.resultItem.type === "db") {
+        resultItemId = data.resultItem.item_id;
+      } else if (data.resultItem.type === "vanilla") {
+        // Find if this vanilla custom item already exists
+        let customItem = await prisma.item.findFirst({
+          where: { nameDe: data.resultItem.name, oraxenId: data.resultItem.mc_id }
+        });
+        if (!customItem) {
+          customItem = await prisma.item.create({
+            data: {
+              slug: data.slug + "-result",
+              nameDe: data.resultItem.name,
+              oraxenId: data.resultItem.mc_id,
+              imageUrl: `/items/${data.resultItem.mc_id}.png`,
+              enchanted: data.resultItem.enchanted || false,
+            }
+          });
+        }
+        resultItemId = customItem.id;
+      }
     }
-    return prisma.recipe.create({ data });
+
+    const recipeData = {
+      nameDe: data.nameDe,
+      slug: data.slug,
+      shaped: data.shaped,
+      station: data.station,
+      grid: data.grid,
+      resultCount: data.resultCount,
+      resultItemId: resultItemId,
+    };
+
+    if (data.id && data.id !== "new") {
+      return prisma.recipe.update({ where: { id: data.id }, data: recipeData });
+    }
+    return prisma.recipe.create({ data: recipeData });
   });
 
 export const saveTab = createServerFn({ method: "POST" })
@@ -281,3 +317,22 @@ export const getVanillaItems = createServerFn({ method: "GET" }).handler(async (
       return { id, name, url: `/items/${f}` };
     });
 });
+
+export const uploadImageFn = createServerFn({ method: "POST" })
+  .validator((d: FormData) => d)
+  .handler(async ({ data }) => {
+    const file = data.get("file") as File;
+    if (!file) throw new Error("No file uploaded");
+    
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const ext = path.extname(file.name) || ".png";
+    const filename = `${Date.now()}-${Math.round(Math.random()*1000)}${ext}`;
+    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    const filePath = path.join(uploadDir, filename);
+    fs.writeFileSync(filePath, buffer);
+    
+    return { url: `/uploads/${filename}` };
+  });

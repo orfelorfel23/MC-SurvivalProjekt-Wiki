@@ -33,6 +33,18 @@ function RecipeEditorDetail() {
     if (id !== "new") {
       getKindItem({ data: { kindId: "rezepte", slug: id } }).then((r: any) => {
         if (r) {
+          // Map the resultItemId to a format ItemPicker understands
+          let resultItem = null;
+          if (r.resultItemId) {
+            // Find it in resolved items if possible, or just create a db reference
+            const resolved = r._resolvedItems?.find((i: any) => i.id === r.resultItemId);
+            if (resolved && resolved.oraxenId) {
+              resultItem = { type: "vanilla", mc_id: resolved.oraxenId, name: resolved.nameDe, enchanted: resolved.enchanted };
+            } else {
+              resultItem = { type: "db", item_id: r.resultItemId };
+            }
+          }
+
           setRecipe({
             id: r.id,
             nameDe: r.nameDe || "",
@@ -41,7 +53,8 @@ function RecipeEditorDetail() {
             station: r.station || "workbench",
             resultCount: r.resultCount || 1,
             grid: Array.isArray(r.grid) && r.grid.length === 9 ? r.grid : Array(9).fill(null),
-          });
+            resultItem: resultItem as any,
+          } as any);
         } else {
           // It's passing ID as slug to getKindItem, wait, getKindItem expects slug.
           // But our list passed id? Let's check `editor.recipes.tsx` -> params={{ id: r.id }} but getKindItem uses slug usually.
@@ -85,25 +98,47 @@ function RecipeEditorDetail() {
           </div>
         </div>
 
-        <div className="mc-panel p-6 self-start flex flex-col gap-4">
-          <h3 className="text-sm font-bold text-accent">Crafting Grid</h3>
-          <div className="grid grid-cols-3 gap-2 w-max">
-            {recipe.grid.map((slot, i) => (
+        <div className="flex gap-8 flex-wrap">
+          <div className="mc-panel p-6 self-start flex flex-col gap-4">
+            <h3 className="text-sm font-bold text-accent">Crafting Grid</h3>
+            <div className="grid grid-cols-3 gap-2 w-max">
+              {recipe.grid.map((slot, i) => (
+                <ItemPicker 
+                  key={i} 
+                  slot={slot} 
+                  onChange={(s) => {
+                    const newGrid = [...recipe.grid];
+                    newGrid[i] = s;
+                    setRecipe({...recipe, grid: newGrid});
+                  }}
+                  onClear={() => {
+                    const newGrid = [...recipe.grid];
+                    newGrid[i] = null;
+                    setRecipe({...recipe, grid: newGrid});
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+          
+          <div className="mc-panel p-6 self-start flex flex-col gap-4">
+            <h3 className="text-sm font-bold text-accent">Ergebnis (Result)</h3>
+            <div className="flex items-center gap-4">
+              <span className="text-2xl text-muted-foreground">→</span>
               <ItemPicker 
-                key={i} 
-                slot={slot} 
-                onChange={(s) => {
-                  const newGrid = [...recipe.grid];
-                  newGrid[i] = s;
-                  setRecipe({...recipe, grid: newGrid});
-                }}
-                onClear={() => {
-                  const newGrid = [...recipe.grid];
-                  newGrid[i] = null;
-                  setRecipe({...recipe, grid: newGrid});
-                }}
+                slot={(recipe as any).resultItem} 
+                onChange={(s) => setRecipe({...recipe, resultItem: s})}
+                onClear={() => setRecipe({...recipe, resultItem: null})}
               />
-            ))}
+              <Input 
+                type="number" 
+                value={recipe.resultCount} 
+                onChange={e => setRecipe({...recipe, resultCount: parseInt(e.target.value) || 1})}
+                className="w-20"
+                min={1}
+                max={64}
+              />
+            </div>
           </div>
         </div>
       </div>
