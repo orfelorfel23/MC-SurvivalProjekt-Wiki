@@ -45,3 +45,6 @@ scratch/
 # Python virtual environments
 .venv/
 venv/
+
+# Temporary scripts
+create-temp-admin.mjs
