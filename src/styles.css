@@ -111,11 +111,11 @@
 
   /* Minecraft block surface tokens based on icon.png primary: 32 9% 43% */
   /* Converting HSL to oklch approx for dirt: */
-  --dirt-1: oklch(0.40 0.08 60);
+  --dirt-1: oklch(0.4 0.08 60);
   --dirt-2: oklch(0.32 0.07 55);
   /* Make grass match the primary color (orange/brown hue) */
   --grass-1: oklch(0.55 0.12 40);
-  --grass-2: oklch(0.45 0.10 40);
+  --grass-2: oklch(0.45 0.1 40);
   --stone-1: oklch(0.45 0.005 145);
   --stone-2: oklch(0.32 0.005 145);
 }
@@ -189,10 +189,18 @@
     line-height: 1.4;
   }
 
-  h1 { font-size: 1.5rem; }
-  h2 { font-size: 1.125rem; }
-  h3 { font-size: 0.95rem; }
-  h4 { font-size: 0.8rem; }
+  h1 {
+    font-size: 1.5rem;
+  }
+  h2 {
+    font-size: 1.125rem;
+  }
+  h3 {
+    font-size: 0.95rem;
+  }
+  h4 {
+    font-size: 0.8rem;
+  }
 
   button,
   a,

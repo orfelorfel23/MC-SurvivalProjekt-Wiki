@@ -43,7 +43,12 @@ function RecipeEditorDetail() {
             // Find it in resolved items if possible, or just create a db reference
             const resolved = r._resolvedItems?.find((i: any) => i.id === r.resultItemId);
             if (resolved && resolved.oraxenId) {
-              resultItem = { type: "vanilla", mc_id: resolved.oraxenId, name: resolved.nameDe, enchanted: resolved.enchanted };
+              resultItem = {
+                type: "vanilla",
+                mc_id: resolved.oraxenId,
+                name: resolved.nameDe,
+                enchanted: resolved.enchanted,
+              };
             } else {
               resultItem = { type: "db", item_id: r.resultItemId };
             }
@@ -92,22 +97,33 @@ function RecipeEditorDetail() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <div className="flex justify-between mb-6">
-        <h1 className="text-2xl text-primary">{id === "new" ? "Neues Rezept" : "Rezept bearbeiten"}</h1>
+        <h1 className="text-2xl text-primary">
+          {id === "new" ? "Neues Rezept" : "Rezept bearbeiten"}
+        </h1>
         <Button onClick={handleSaveInit}>Überprüfen & Speichern</Button>
       </div>
 
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label>Name</Label>
-          <Input value={recipe.nameDe} onChange={e => setRecipe({...recipe, nameDe: e.target.value})} />
+          <Input
+            value={recipe.nameDe}
+            onChange={(e) => setRecipe({ ...recipe, nameDe: e.target.value })}
+          />
         </div>
         <div className="grid gap-2">
           <Label>Slug (URL)</Label>
-          <Input value={recipe.slug} onChange={e => setRecipe({...recipe, slug: e.target.value})} />
+          <Input
+            value={recipe.slug}
+            onChange={(e) => setRecipe({ ...recipe, slug: e.target.value })}
+          />
         </div>
         <div className="flex gap-4">
           <div className="flex items-center gap-2">
-            <Switch checked={recipe.shaped} onCheckedChange={v => setRecipe({...recipe, shaped: v})} />
+            <Switch
+              checked={recipe.shaped}
+              onCheckedChange={(v) => setRecipe({ ...recipe, shaped: v })}
+            />
             <Label>Geformt (Shaped)</Label>
           </div>
         </div>
@@ -117,37 +133,39 @@ function RecipeEditorDetail() {
             <h3 className="text-sm font-bold text-accent">Crafting Grid</h3>
             <div className="grid grid-cols-3 gap-2 w-max">
               {recipe.grid.map((slot, i) => (
-                <ItemPicker 
-                  key={i} 
-                  slot={slot} 
+                <ItemPicker
+                  key={i}
+                  slot={slot}
                   onChange={(s) => {
                     const newGrid = [...recipe.grid];
                     newGrid[i] = s;
-                    setRecipe({...recipe, grid: newGrid});
+                    setRecipe({ ...recipe, grid: newGrid });
                   }}
                   onClear={() => {
                     const newGrid = [...recipe.grid];
                     newGrid[i] = null;
-                    setRecipe({...recipe, grid: newGrid});
+                    setRecipe({ ...recipe, grid: newGrid });
                   }}
                 />
               ))}
             </div>
           </div>
-          
+
           <div className="mc-panel p-6 self-start flex flex-col gap-4">
             <h3 className="text-sm font-bold text-accent">Ergebnis (Result)</h3>
             <div className="flex items-center gap-4">
               <span className="text-2xl text-muted-foreground">→</span>
-              <ItemPicker 
-                slot={recipe.resultItem} 
-                onChange={(s) => setRecipe({...recipe, resultItem: s})}
-                onClear={() => setRecipe({...recipe, resultItem: null})}
+              <ItemPicker
+                slot={recipe.resultItem}
+                onChange={(s) => setRecipe({ ...recipe, resultItem: s })}
+                onClear={() => setRecipe({ ...recipe, resultItem: null })}
               />
-              <Input 
-                type="number" 
-                value={recipe.resultCount} 
-                onChange={e => setRecipe({...recipe, resultCount: parseInt(e.target.value) || 1})}
+              <Input
+                type="number"
+                value={recipe.resultCount}
+                onChange={(e) =>
+                  setRecipe({ ...recipe, resultCount: parseInt(e.target.value) || 1 })
+                }
                 className="w-20"
                 min={1}
                 max={64}
@@ -156,13 +174,13 @@ function RecipeEditorDetail() {
           </div>
         </div>
       </div>
-      
-      <DiffModal 
-        isOpen={showDiff} 
-        onClose={() => setShowDiff(false)} 
-        onConfirm={confirmSave} 
-        oldData={originalRecipe || {}} 
-        newData={recipe} 
+
+      <DiffModal
+        isOpen={showDiff}
+        onClose={() => setShowDiff(false)}
+        onConfirm={confirmSave}
+        oldData={originalRecipe || {}}
+        newData={recipe}
       />
     </div>
   );

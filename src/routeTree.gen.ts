@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EditorIndexRouteImport } from './routes/editor.index'
 import { Route as KindIndexRouteImport } from './routes/$kind.index'
 import { Route as AdminTrashRouteImport } from './routes/admin.trash'
+import { Route as AdminBrokenLinksRouteImport } from './routes/admin.broken-links'
 import { Route as KindSlugRouteImport } from './routes/$kind.$slug'
 import { Route as EditorTabsIndexRouteImport } from './routes/editor.tabs.index'
 import { Route as EditorRecipesIndexRouteImport } from './routes/editor.recipes.index'
@@ -69,6 +70,11 @@ const AdminTrashRoute = AdminTrashRouteImport.update({
   path: '/trash',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBrokenLinksRoute = AdminBrokenLinksRouteImport.update({
+  id: '/broken-links',
+  path: '/broken-links',
+  getParentRoute: () => AdminRoute,
+} as any)
 const KindSlugRoute = KindSlugRouteImport.update({
   id: '/$kind/$slug',
   path: '/$kind/$slug',
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/karte': typeof KarteRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
+  '/admin/broken-links': typeof AdminBrokenLinksRoute
   '/admin/trash': typeof AdminTrashRoute
   '/$kind/': typeof KindIndexRoute
   '/editor/': typeof EditorIndexRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/karte': typeof KarteRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
+  '/admin/broken-links': typeof AdminBrokenLinksRoute
   '/admin/trash': typeof AdminTrashRoute
   '/$kind': typeof KindIndexRoute
   '/editor': typeof EditorIndexRoute
@@ -135,6 +143,7 @@ export interface FileRoutesById {
   '/karte': typeof KarteRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
+  '/admin/broken-links': typeof AdminBrokenLinksRoute
   '/admin/trash': typeof AdminTrashRoute
   '/$kind/': typeof KindIndexRoute
   '/editor/': typeof EditorIndexRoute
@@ -153,6 +162,7 @@ export interface FileRouteTypes {
     | '/karte'
     | '/search'
     | '/$kind/$slug'
+    | '/admin/broken-links'
     | '/admin/trash'
     | '/$kind/'
     | '/editor/'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/karte'
     | '/search'
     | '/$kind/$slug'
+    | '/admin/broken-links'
     | '/admin/trash'
     | '/$kind'
     | '/editor'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/karte'
     | '/search'
     | '/$kind/$slug'
+    | '/admin/broken-links'
     | '/admin/trash'
     | '/$kind/'
     | '/editor/'
@@ -269,6 +281,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTrashRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/broken-links': {
+      id: '/admin/broken-links'
+      path: '/broken-links'
+      fullPath: '/admin/broken-links'
+      preLoaderRoute: typeof AdminBrokenLinksRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/$kind/$slug': {
       id: '/$kind/$slug'
       path: '/$kind/$slug'
@@ -308,10 +327,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
+  AdminBrokenLinksRoute: typeof AdminBrokenLinksRoute
   AdminTrashRoute: typeof AdminTrashRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminBrokenLinksRoute: AdminBrokenLinksRoute,
   AdminTrashRoute: AdminTrashRoute,
 }
 

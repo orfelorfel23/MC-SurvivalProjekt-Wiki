@@ -11,7 +11,7 @@ export function useSound() {
       }
     };
     window.addEventListener("click", init, { once: true });
-    
+
     // Global click listener for sounds
     const handleGlobalClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -31,23 +31,23 @@ export function useSound() {
   const playClick = useCallback(() => {
     if (!audioCtx.current) return;
     const ctx = audioCtx.current;
-    
+
     // Simple synthesized "click/pop" sound
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    
+
     osc.connect(gain);
     gain.connect(ctx.destination);
-    
+
     osc.type = "sine";
     // Quick pitch drop
     osc.frequency.setValueAtTime(800, ctx.currentTime);
     osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.05);
-    
+
     // Quick fade out
     gain.gain.setValueAtTime(0.3, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
-    
+
     osc.start();
     osc.stop(ctx.currentTime + 0.05);
   }, []);

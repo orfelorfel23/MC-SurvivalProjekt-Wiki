@@ -51,18 +51,18 @@ export function CommentSection({ recipeId }: { recipeId: string }) {
   return (
     <section className="mt-8 border-t border-border pt-6">
       <h3 className="text-lg font-bold text-primary mb-4">Kommentare</h3>
-      
+
       {user ? (
         <div className="mb-6 flex flex-col gap-2">
-          <Textarea 
-            placeholder="Schreibe einen Kommentar..." 
-            value={content} 
-            onChange={(e) => setContent(e.target.value)} 
+          <Textarea
+            placeholder="Schreibe einen Kommentar..."
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             rows={3}
           />
-          <Button 
-            className="self-end" 
-            onClick={handleSubmit} 
+          <Button
+            className="self-end"
+            onClick={handleSubmit}
             disabled={submitting || !content.trim()}
           >
             Senden
@@ -84,7 +84,11 @@ export function CommentSection({ recipeId }: { recipeId: string }) {
             <div key={c.id} className="mc-panel p-4 flex gap-4">
               <div className="w-10 h-10 rounded overflow-hidden flex-shrink-0 bg-muted">
                 {c.author.image ? (
-                  <img src={c.author.image} alt={c.author.name} className="w-full h-full object-cover" />
+                  <img
+                    src={c.author.image}
+                    alt={c.author.name}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-accent font-bold">
                     {c.author.name.charAt(0).toUpperCase()}
@@ -95,15 +99,26 @@ export function CommentSection({ recipeId }: { recipeId: string }) {
                 <div className="flex justify-between items-start mb-1">
                   <div>
                     <span className="font-bold text-sm text-primary">{c.author.name}</span>
-                    {c.author.roles?.some(r => r.role === "MODERATOR" || r.role === "ADMIN") && (
-                      <span className="ml-2 text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/50">TEAM</span>
+                    {c.author.roles?.some((r) => r.role === "MODERATOR" || r.role === "ADMIN") && (
+                      <span className="ml-2 text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/50">
+                        TEAM
+                      </span>
                     )}
                     <span className="text-xs text-muted-foreground ml-2">
-                      {new Date(c.createdAt).toLocaleDateString("de-DE", { day: '2-digit', month: 'short', year: 'numeric' })}
+                      {new Date(c.createdAt).toLocaleDateString("de-DE", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
                     </span>
                   </div>
                   {isModerator && (
-                    <Button variant="ghost" size="icon" className="h-6 w-6 text-red-400 hover:text-red-300 hover:bg-red-500/10" onClick={() => handleDelete(c.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                      onClick={() => handleDelete(c.id)}
+                    >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   )}

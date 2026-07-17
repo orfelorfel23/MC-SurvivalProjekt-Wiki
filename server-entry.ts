@@ -1,11 +1,11 @@
-import express from 'express';
-import handler from './dist/server/server.js';
-import { auth } from './src/lib/auth.js';
-import { toNodeHandler } from 'better-auth/node';
+import express from "express";
+import handler from "./dist/server/server.js";
+import { auth } from "./src/lib/auth.js";
+import { toNodeHandler } from "better-auth/node";
 
 const app = express();
 const port = process.env.PORT || 3000;
-const host = process.env.HOST || '0.0.0.0';
+const host = process.env.HOST || "0.0.0.0";
 
 // Handle Better Auth API routes natively
 app.use("/api/auth", (req, res, next) => {
@@ -14,14 +14,14 @@ app.use("/api/auth", (req, res, next) => {
 });
 
 // Serve static assets from dist/client
-app.use(express.static('dist/client'));
+app.use(express.static("dist/client"));
 
 // Forward all other requests to TanStack Start's SSR handler
 app.use(async (req, res) => {
-  const protocol = req.protocol || 'http';
-  const reqHost = req.get('host') || 'localhost';
+  const protocol = req.protocol || "http";
+  const reqHost = req.get("host") || "localhost";
   const url = new URL(req.originalUrl, `${protocol}://${reqHost}`);
-  
+
   const headers = new Headers();
   for (const [key, value] of Object.entries(req.headers)) {
     if (Array.isArray(value)) {
@@ -36,11 +36,11 @@ app.use(async (req, res) => {
     headers,
   };
 
-  if (req.method !== 'GET' && req.method !== 'HEAD') {
+  if (req.method !== "GET" && req.method !== "HEAD") {
     const body = await new Promise((resolve) => {
       const data = [];
-      req.on('data', chunk => data.push(chunk));
-      req.on('end', () => resolve(Buffer.concat(data)));
+      req.on("data", (chunk) => data.push(chunk));
+      req.on("end", () => resolve(Buffer.concat(data)));
     });
     init.body = body;
   }
@@ -55,7 +55,7 @@ app.use(async (req, res) => {
       res.setHeader(key, value);
     });
     res.status(response.status);
-    
+
     if (response.body) {
       const reader = response.body.getReader();
       async function read() {
@@ -78,7 +78,7 @@ app.use(async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 });
 

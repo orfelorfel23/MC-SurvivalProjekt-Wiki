@@ -21,7 +21,7 @@ export const getKindList = createServerFn({ method: "GET" })
   .validator((d: { kindId: string }) => d)
   .handler(async ({ data }) => {
     let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
-    
+
     // Fallback: If not a builtin kind, treat it as a dynamic wiki tab (query wiki_pages by category)
     if (!tableName) {
       const isDynamicTab = await prisma.wikiTab.findUnique({ where: { slug: data.kindId } });
@@ -53,7 +53,7 @@ export const getKindItem = createServerFn({ method: "GET" })
   .validator((d: { kindId: string; slug: string }) => d)
   .handler(async ({ data }) => {
     let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
-    
+
     if (!tableName) {
       // Dynamic wiki page logic
       const isDynamicTab = await prisma.wikiTab.findUnique({ where: { slug: data.kindId } });
@@ -141,43 +141,120 @@ export const searchWiki = createServerFn({ method: "GET" })
       const pages = await prisma.wikiPage.findMany({ where: { deletedAt: null } });
 
       searchCache = [
-        ...commands.map(c => ({ kind: 'befehle', slug: c.slug, title: c.nameDe, snippet: c.descriptionDe, imageUrl: null, category: c.category, aliases: [] })),
-        ...worlds.map(w => ({ kind: 'welten', slug: w.slug, title: w.nameDe, snippet: w.descriptionDe, imageUrl: w.imageUrl, category: null, aliases: [] })),
-        ...items.map(i => ({ kind: 'items', slug: i.slug, title: i.nameDe, snippet: i.descriptionDe, imageUrl: i.imageUrl, category: i.category, rarity: i.rarity, aliases: i.aliases })),
-        ...recipes.map(r => ({ kind: 'rezepte', slug: r.slug, title: r.nameDe, snippet: r.descriptionDe, imageUrl: null, category: null, aliases: r.aliases })),
-        ...bosses.map(b => ({ kind: 'bosse', slug: b.slug, title: b.nameDe, snippet: b.descriptionDe, imageUrl: b.imageUrl, category: null, aliases: [] })),
-        ...tasks.map(t => ({ kind: 'aufgaben', slug: t.slug, title: t.nameDe, snippet: t.descriptionDe, imageUrl: null, category: t.category, aliases: [] })),
-        ...shops.map(s => ({ kind: 'shop', slug: s.slug, title: s.nameDe, snippet: s.descriptionDe, imageUrl: s.imageUrl, category: s.category, aliases: [] })),
-        ...pets.map(p => ({ kind: 'pets', slug: p.slug, title: p.nameDe, snippet: p.descriptionDe, imageUrl: p.imageUrl, category: null, aliases: [] })),
-        ...pages.map(p => ({ kind: 'wiki', slug: p.slug, title: p.titleDe, snippet: p.bodyDe, imageUrl: null, category: p.category, aliases: p.aliases }))
+        ...commands.map((c) => ({
+          kind: "befehle",
+          slug: c.slug,
+          title: c.nameDe,
+          snippet: c.descriptionDe,
+          imageUrl: null,
+          category: c.category,
+          aliases: [],
+        })),
+        ...worlds.map((w) => ({
+          kind: "welten",
+          slug: w.slug,
+          title: w.nameDe,
+          snippet: w.descriptionDe,
+          imageUrl: w.imageUrl,
+          category: null,
+          aliases: [],
+        })),
+        ...items.map((i) => ({
+          kind: "items",
+          slug: i.slug,
+          title: i.nameDe,
+          snippet: i.descriptionDe,
+          imageUrl: i.imageUrl,
+          category: i.category,
+          rarity: i.rarity,
+          aliases: i.aliases,
+        })),
+        ...recipes.map((r) => ({
+          kind: "rezepte",
+          slug: r.slug,
+          title: r.nameDe,
+          snippet: r.descriptionDe,
+          imageUrl: null,
+          category: null,
+          aliases: r.aliases,
+        })),
+        ...bosses.map((b) => ({
+          kind: "bosse",
+          slug: b.slug,
+          title: b.nameDe,
+          snippet: b.descriptionDe,
+          imageUrl: b.imageUrl,
+          category: null,
+          aliases: [],
+        })),
+        ...tasks.map((t) => ({
+          kind: "aufgaben",
+          slug: t.slug,
+          title: t.nameDe,
+          snippet: t.descriptionDe,
+          imageUrl: null,
+          category: t.category,
+          aliases: [],
+        })),
+        ...shops.map((s) => ({
+          kind: "shop",
+          slug: s.slug,
+          title: s.nameDe,
+          snippet: s.descriptionDe,
+          imageUrl: s.imageUrl,
+          category: s.category,
+          aliases: [],
+        })),
+        ...pets.map((p) => ({
+          kind: "pets",
+          slug: p.slug,
+          title: p.nameDe,
+          snippet: p.descriptionDe,
+          imageUrl: p.imageUrl,
+          category: null,
+          aliases: [],
+        })),
+        ...pages.map((p) => ({
+          kind: "wiki",
+          slug: p.slug,
+          title: p.titleDe,
+          snippet: p.bodyDe,
+          imageUrl: null,
+          category: p.category,
+          aliases: p.aliases,
+        })),
       ];
       searchCacheTime = Date.now();
     }
 
     let itemsToSearch = searchCache;
-    if (data.category) itemsToSearch = itemsToSearch.filter(i => i.category === data.category);
-    if (data.rarity) itemsToSearch = itemsToSearch.filter(i => i.rarity === data.rarity);
+    if (data.category) itemsToSearch = itemsToSearch.filter((i) => i.category === data.category);
+    if (data.rarity) itemsToSearch = itemsToSearch.filter((i) => i.rarity === data.rarity);
 
-    if (!data.q) return itemsToSearch.slice(0, 50).map(r => ({
-      kind: r.kind,
-      slug: r.slug,
-      title: r.title,
-      snippet: r.snippet?.slice(0, 100) ?? "",
-      imageUrl: r.imageUrl
-    }));
+    if (!data.q)
+      return itemsToSearch.slice(0, 50).map((r) => ({
+        kind: r.kind,
+        slug: r.slug,
+        title: r.title,
+        snippet: r.snippet?.slice(0, 100) ?? "",
+        imageUrl: r.imageUrl,
+      }));
 
     const fuse = new Fuse(itemsToSearch, {
       keys: ["title", "aliases", "snippet"],
       threshold: 0.3,
     });
-    
-    return fuse.search(data.q).map(result => ({
-      kind: result.item.kind,
-      slug: result.item.slug,
-      title: result.item.title,
-      snippet: result.item.snippet?.slice(0, 100) ?? "",
-      imageUrl: result.item.imageUrl,
-    })).slice(0, 50);
+
+    return fuse
+      .search(data.q)
+      .map((result) => ({
+        kind: result.item.kind,
+        slug: result.item.slug,
+        title: result.item.title,
+        snippet: result.item.snippet?.slice(0, 100) ?? "",
+        imageUrl: result.item.imageUrl,
+      }))
+      .slice(0, 50);
   });
 
 export const getUserRoles = createServerFn({ method: "GET" })
@@ -225,13 +302,15 @@ export const getTabModulesData = createServerFn({ method: "GET" })
     if (!tab || tab.isBuiltin) return [];
 
     const modules = Array.isArray(tab.modules) ? tab.modules : [];
-    
+
     // Hydrate modules
     const hydratedModules = await Promise.all(
       modules.map(async (mod: any) => {
         try {
           if (mod.type === "recipe" && mod.id) {
-            const recipe = await prisma.recipe.findFirst({ where: { id: mod.id, deletedAt: null } });
+            const recipe = await prisma.recipe.findFirst({
+              where: { id: mod.id, deletedAt: null },
+            });
             return { ...mod, data: recipe };
           }
           if (mod.type === "boss" && mod.id) {
@@ -250,17 +329,28 @@ export const getTabModulesData = createServerFn({ method: "GET" })
           console.error("Failed to hydrate module", mod);
         }
         return mod; // return as is (for text modules, etc)
-      })
+      }),
     );
 
     return hydratedModules;
   });
 
 export const saveRecipe = createServerFn({ method: "POST" })
-  .validator((d: { id?: string; nameDe: string; slug: string; shaped: boolean; station: string; grid: any; resultCount: number; resultItem?: any }) => d)
+  .validator(
+    (d: {
+      id?: string;
+      nameDe: string;
+      slug: string;
+      shaped: boolean;
+      station: string;
+      grid: any;
+      resultCount: number;
+      resultItem?: any;
+    }) => d,
+  )
   .handler(async ({ data }) => {
     let resultItemId = null;
-    
+
     // If we received a resultItem, we either link it to DB or create a new Item!
     if (data.resultItem) {
       if (data.resultItem.type === "db") {
@@ -268,7 +358,7 @@ export const saveRecipe = createServerFn({ method: "POST" })
       } else if (data.resultItem.type === "vanilla") {
         // Find if this vanilla custom item already exists
         let customItem = await prisma.item.findFirst({
-          where: { nameDe: data.resultItem.name, oraxenId: data.resultItem.mc_id }
+          where: { nameDe: data.resultItem.name, oraxenId: data.resultItem.mc_id },
         });
         if (!customItem) {
           customItem = await prisma.item.create({
@@ -278,7 +368,7 @@ export const saveRecipe = createServerFn({ method: "POST" })
               oraxenId: data.resultItem.mc_id,
               imageUrl: `/items/${data.resultItem.mc_id}.png`,
               enchanted: data.resultItem.enchanted || false,
-            }
+            },
           });
         }
         resultItemId = customItem.id;
@@ -293,8 +383,8 @@ export const saveRecipe = createServerFn({ method: "POST" })
       },
     });
 
-    const isDuplicate = existingRecipes.some(r => 
-      r.id !== data.id && JSON.stringify(r.grid) === JSON.stringify(data.grid)
+    const isDuplicate = existingRecipes.some(
+      (r) => r.id !== data.id && JSON.stringify(r.grid) === JSON.stringify(data.grid),
     );
 
     if (isDuplicate) {
@@ -318,7 +408,17 @@ export const saveRecipe = createServerFn({ method: "POST" })
   });
 
 export const saveTab = createServerFn({ method: "POST" })
-  .validator((d: { id?: string; nameDe: string; slug: string; isBuiltin: boolean; modules: any; isVisible: boolean; order: number }) => d)
+  .validator(
+    (d: {
+      id?: string;
+      nameDe: string;
+      slug: string;
+      isBuiltin: boolean;
+      modules: any;
+      isVisible: boolean;
+      order: number;
+    }) => d,
+  )
   .handler(async ({ data }) => {
     if (data.id && data.id !== "new") {
       return prisma.wikiTab.update({ where: { id: data.id }, data });
@@ -347,16 +447,16 @@ export const saveGenericEntity = createServerFn({ method: "POST" })
 export const getVanillaItems = createServerFn({ method: "GET" }).handler(async () => {
   const itemsDir = path.join(process.cwd(), "public", "items");
   if (!fs.existsSync(itemsDir)) return [];
-  
+
   const files = fs.readdirSync(itemsDir);
   return files
-    .filter(f => f.endsWith(".png"))
-    .map(f => {
+    .filter((f) => f.endsWith(".png"))
+    .map((f) => {
       const id = f.replace(".png", "");
       // Format "diamond_sword" to "Diamond Sword"
       const name = id
         .split("_")
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
       return { id, name, url: `/items/${f}` };
     });
@@ -367,17 +467,17 @@ export const uploadImageFn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const file = data.get("file") as File;
     if (!file) throw new Error("No file uploaded");
-    
+
     const buffer = Buffer.from(await file.arrayBuffer());
     const ext = path.extname(file.name) || ".png";
-    const filename = `${Date.now()}-${Math.round(Math.random()*1000)}${ext}`;
+    const filename = `${Date.now()}-${Math.round(Math.random() * 1000)}${ext}`;
     const uploadDir = path.join(process.cwd(), "public", "uploads");
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir, { recursive: true });
     }
     const filePath = path.join(uploadDir, filename);
     fs.writeFileSync(filePath, buffer);
-    
+
     return { url: `/uploads/${filename}` };
   });
 
@@ -398,28 +498,29 @@ export const softDeleteGenericEntity = createServerFn({ method: "POST" })
     });
   });
 
-export const getDeletedItems = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const results = [];
-    
-    for (const [kind, table] of Object.entries(KIND_TABLE)) {
-      const modelName = prismaModels[table] as keyof typeof prisma;
-      if (!modelName) continue;
-      const model = prisma[modelName] as any;
-      const deleted = await model.findMany({ where: { deletedAt: { not: null } } });
-      results.push(...deleted.map((d: any) => ({ ...d, _kind: kind })));
-    }
-    
-    // Also check wikiPages not in KIND_TABLE
-    const deletedPages = await prisma.wikiPage.findMany({ where: { deletedAt: { not: null } } });
-    // Filter out those that belong to a built-in kind (already caught above if category matches, actually wait, getKindList maps kindId -> category for custom tabs)
-    results.push(...deletedPages.map((d: any) => ({ ...d, _kind: d.category })));
-    
-    // Deduplicate by id just in case
-    const unique = Array.from(new Map(results.map(item => [item.id, item])).values());
-    
-    return unique.sort((a: any, b: any) => new Date(b.deletedAt).getTime() - new Date(a.deletedAt).getTime());
-  });
+export const getDeletedItems = createServerFn({ method: "GET" }).handler(async () => {
+  const results = [];
+
+  for (const [kind, table] of Object.entries(KIND_TABLE)) {
+    const modelName = prismaModels[table] as keyof typeof prisma;
+    if (!modelName) continue;
+    const model = prisma[modelName] as any;
+    const deleted = await model.findMany({ where: { deletedAt: { not: null } } });
+    results.push(...deleted.map((d: any) => ({ ...d, _kind: kind })));
+  }
+
+  // Also check wikiPages not in KIND_TABLE
+  const deletedPages = await prisma.wikiPage.findMany({ where: { deletedAt: { not: null } } });
+  // Filter out those that belong to a built-in kind (already caught above if category matches, actually wait, getKindList maps kindId -> category for custom tabs)
+  results.push(...deletedPages.map((d: any) => ({ ...d, _kind: d.category })));
+
+  // Deduplicate by id just in case
+  const unique = Array.from(new Map(results.map((item) => [item.id, item])).values());
+
+  return unique.sort(
+    (a: any, b: any) => new Date(b.deletedAt).getTime() - new Date(a.deletedAt).getTime(),
+  );
+});
 
 export const restoreItem = createServerFn({ method: "POST" })
   .validator((d: { kindId: string; id: string }) => d)
@@ -469,91 +570,90 @@ export const deleteComment = createServerFn({ method: "POST" })
     });
   });
 
-export const checkBrokenLinks = createServerFn({ method: "POST" })
-  .handler(async () => {
-    const results: { location: string; text: string; link: string; valid: boolean }[] = [];
-    
-    // Helper to find links in markdown text
-    const extractLinks = (text: string | null | undefined, location: string) => {
-      if (!text) return;
-      const regex = /\[([^\]]+)\]\((\/[^\)]+)\)/g;
-      let match;
-      while ((match = regex.exec(text)) !== null) {
-        results.push({ location, text: match[1], link: match[2], valid: false });
-      }
-    };
+export const checkBrokenLinks = createServerFn({ method: "POST" }).handler(async () => {
+  const results: { location: string; text: string; link: string; valid: boolean }[] = [];
 
-    // 1. Fetch all Items
-    const items = await prisma.item.findMany({ where: { deletedAt: null } });
-    items.forEach(i => {
-      extractLinks(i.descriptionDe, `Item: ${i.nameDe}`);
-      extractLinks(i.descriptionEn, `Item: ${i.nameDe}`);
-    });
+  // Helper to find links in markdown text
+  const extractLinks = (text: string | null | undefined, location: string) => {
+    if (!text) return;
+    const regex = /\[([^\]]+)\]\((\/[^\)]+)\)/g;
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      results.push({ location, text: match[1], link: match[2], valid: false });
+    }
+  };
 
-    // 2. Fetch all Recipes
-    const recipes = await prisma.recipe.findMany({ where: { deletedAt: null } });
-    recipes.forEach(r => {
-      extractLinks(r.descriptionDe, `Recipe: ${r.nameDe}`);
-      extractLinks(r.descriptionEn, `Recipe: ${r.nameDe}`);
-    });
+  // 1. Fetch all Items
+  const items = await prisma.item.findMany({ where: { deletedAt: null } });
+  items.forEach((i) => {
+    extractLinks(i.descriptionDe, `Item: ${i.nameDe}`);
+    extractLinks(i.descriptionEn, `Item: ${i.nameDe}`);
+  });
 
-    // 3. Fetch all Bosses
-    const bosses = await prisma.boss.findMany({ where: { deletedAt: null } });
-    bosses.forEach(b => {
-      extractLinks(b.descriptionDe, `Boss: ${b.nameDe}`);
-      extractLinks(b.strategyDe, `Boss: ${b.nameDe}`);
-    });
+  // 2. Fetch all Recipes
+  const recipes = await prisma.recipe.findMany({ where: { deletedAt: null } });
+  recipes.forEach((r) => {
+    extractLinks(r.descriptionDe, `Recipe: ${r.nameDe}`);
+    extractLinks(r.descriptionEn, `Recipe: ${r.nameDe}`);
+  });
 
-    // 4. Fetch all Wiki Pages
-    const pages = await prisma.wikiPage.findMany({ where: { deletedAt: null } });
-    pages.forEach(p => {
-      extractLinks(p.bodyDe, `WikiPage: ${p.titleDe}`);
-    });
+  // 3. Fetch all Bosses
+  const bosses = await prisma.boss.findMany({ where: { deletedAt: null } });
+  bosses.forEach((b) => {
+    extractLinks(b.descriptionDe, `Boss: ${b.nameDe}`);
+    extractLinks(b.strategyDe, `Boss: ${b.nameDe}`);
+  });
 
-    // Determine validity
-    for (const res of results) {
-      if (!res.link.startsWith("/")) {
-        res.valid = true; // external or weird
-        continue;
-      }
-      
-      const parts = res.link.split("/");
-      if (parts.length >= 3) {
-        const kind = parts[1]; // e.g. "items"
-        const slug = parts[2]; // e.g. "diamond_sword"
-        
-        // Find if this slug exists in the respective table
-        try {
-          // A very naive check by calling the DB directly
-          let table = KIND_TABLE[kind as keyof typeof KIND_TABLE];
-          if (!table) table = "wikiPage" as any;
-          const modelName = prismaModels[table as keyof typeof prismaModels] as keyof typeof prisma;
-          if (modelName) {
-            const model = prisma[modelName] as any;
-            const exists = await model.findFirst({ where: { slug, deletedAt: null } });
-            if (exists) {
-              res.valid = true;
-            }
-          }
-        } catch(e) {
-          // ignore
-        }
-      }
+  // 4. Fetch all Wiki Pages
+  const pages = await prisma.wikiPage.findMany({ where: { deletedAt: null } });
+  pages.forEach((p) => {
+    extractLinks(p.bodyDe, `WikiPage: ${p.titleDe}`);
+  });
+
+  // Determine validity
+  for (const res of results) {
+    if (!res.link.startsWith("/")) {
+      res.valid = true; // external or weird
+      continue;
     }
 
-    return results;
-  });
+    const parts = res.link.split("/");
+    if (parts.length >= 3) {
+      const kind = parts[1]; // e.g. "items"
+      const slug = parts[2]; // e.g. "diamond_sword"
+
+      // Find if this slug exists in the respective table
+      try {
+        // A very naive check by calling the DB directly
+        let table = KIND_TABLE[kind as keyof typeof KIND_TABLE];
+        if (!table) table = "wikiPage" as any;
+        const modelName = prismaModels[table as keyof typeof prismaModels] as keyof typeof prisma;
+        if (modelName) {
+          const model = prisma[modelName] as any;
+          const exists = await model.findFirst({ where: { slug, deletedAt: null } });
+          if (exists) {
+            res.valid = true;
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+  }
+
+  return results;
+});
 export const getRecentlyViewed = createServerFn({ method: "GET" })
   .validator((d: { userId: string }) => d)
   .handler(async ({ data }) => {
-    const user = await prisma.user.findUnique({ where: { id: data.userId }, select: { recentlyViewed: true } });
+    const user = (await prisma.user.findUnique({ where: { id: data.userId } })) as any;
     return user?.recentlyViewed || [];
   });
 
 export const saveRecentlyViewed = createServerFn({ method: "POST" })
   .validator((d: { userId: string; history: any }) => d)
   .handler(async ({ data }) => {
-    return prisma.user.update({
+    return (prisma.user as any).update({
       where: { id: data.userId },
       data: { recentlyViewed: data.history },
     });

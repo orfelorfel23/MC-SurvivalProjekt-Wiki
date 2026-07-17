@@ -51,12 +51,15 @@ export function ServerStatus() {
           {SERVER_IP}
         </div>
       </div>
-      
+
       <div className="flex justify-between text-xs text-muted-foreground">
-        <span>Players: <strong className="text-accent">{status.players?.online || 0}</strong> / {status.players?.max || 0}</span>
+        <span>
+          Players: <strong className="text-accent">{status.players?.online || 0}</strong> /{" "}
+          {status.players?.max || 0}
+        </span>
         <span>Version: {status.version}</span>
       </div>
-      
+
       {status.motd?.clean && status.motd.clean.length > 0 && (
         <div className="mt-2 text-[10px] font-mono whitespace-pre-wrap opacity-80 border-t border-border/50 pt-2">
           {status.motd.clean.join("\n")}

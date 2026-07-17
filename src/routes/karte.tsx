@@ -7,7 +7,7 @@ export const Route = createFileRoute("/karte")({
 
 function MapPage() {
   const { lang } = useLang();
-  
+
   // Replace this with the actual Dynmap or BlueMap URL
   const MAP_URL = "https://map.hypixel.net"; // Example demo map
 
@@ -15,8 +15,8 @@ function MapPage() {
     <div className="container mx-auto px-4 py-8 h-[80vh] flex flex-col">
       <h1 className="text-2xl text-primary mb-4">Live Server Karte</h1>
       <div className="flex-1 bg-black/50 border border-border rounded-lg overflow-hidden relative mc-panel p-1">
-        <iframe 
-          src={MAP_URL} 
+        <iframe
+          src={MAP_URL}
           className="w-full h-full border-0"
           title="Server Map"
           allowFullScreen

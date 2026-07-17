@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   const recipe = await prisma.recipe.findUnique({ where: { slug: "magic-sword-recipe" } });
-  
+
   if (recipe) {
     const grid = Array(9).fill(null);
     grid[1] = { type: "vanilla", mc_id: "gold_nugget" };
@@ -16,7 +16,7 @@ async function main() {
       data: {
         nameDe: "Göttliches Schwert",
         grid: grid,
-      }
+      },
     });
 
     console.log("Recipe updated successfully!");

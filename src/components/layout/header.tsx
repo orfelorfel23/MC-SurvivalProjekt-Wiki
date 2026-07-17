@@ -47,28 +47,31 @@ export function Header() {
           <span className="font-bold text-sm uppercase tracking-wider">Server Wiki</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1 ml-4 text-sm flex-wrap">
-          {tabs?.filter(t => t.isVisible).map((t) => (
-            <Link
-              key={t.slug}
-              to={"/$kind" as never}
-              params={{ kind: t.slug } as never}
-              className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
-              activeProps={{ className: "text-accent" }}
-            >
-              {lang === "de" ? t.nameDe : (t.nameEn || t.nameDe)}
-            </Link>
-          ))}
-          {!tabs && KINDS.map((k) => (
-            <Link
-              key={k}
-              to={"/$kind" as never}
-              params={{ kind: k } as never}
-              className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
-              activeProps={{ className: "text-accent" }}
-            >
-              {t(KIND_LABEL_KEY[k], lang)}
-            </Link>
-          ))}
+          {tabs
+            ?.filter((t) => t.isVisible)
+            .map((t) => (
+              <Link
+                key={t.slug}
+                to={"/$kind" as never}
+                params={{ kind: t.slug } as never}
+                className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
+                activeProps={{ className: "text-accent" }}
+              >
+                {lang === "de" ? t.nameDe : t.nameEn || t.nameDe}
+              </Link>
+            ))}
+          {!tabs &&
+            KINDS.map((k) => (
+              <Link
+                key={k}
+                to={"/$kind" as never}
+                params={{ kind: k } as never}
+                className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
+                activeProps={{ className: "text-accent" }}
+              >
+                {t(KIND_LABEL_KEY[k], lang)}
+              </Link>
+            ))}
           <Link
             to="/karte"
             className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
@@ -80,7 +83,8 @@ export function Header() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (q.trim()) navigate({ to: "/search", search: { q: q.trim() } });
+            if (q.trim())
+              navigate({ to: "/search", search: { q: q.trim(), category: "", rarity: "" } });
           }}
           className="flex items-center gap-2 ml-auto flex-1 md:flex-initial md:w-72"
         >

@@ -36,7 +36,9 @@ function RecipeEditorList() {
               <div className="text-xs text-muted-foreground">{r.slug}</div>
             </div>
             <Link to="/editor/recipes/$id" params={{ id: r.slug }}>
-              <Button variant="outline" size="sm">Bearbeiten</Button>
+              <Button variant="outline" size="sm">
+                Bearbeiten
+              </Button>
             </Link>
           </div>
         ))}

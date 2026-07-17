@@ -12,11 +12,14 @@ export const Route = createFileRoute("/admin/broken-links")({
 
 function AdminBrokenLinksPage() {
   const { user, isAdmin, loading } = useAuth();
-  const [results, setResults] = useState<{ location: string; text: string; link: string; valid: boolean }[] | null>(null);
+  const [results, setResults] = useState<
+    { location: string; text: string; link: string; valid: boolean }[] | null
+  >(null);
   const [isRunning, setIsRunning] = useState(false);
 
   if (loading) return <div className="container mx-auto px-4 py-8">...</div>;
-  if (!user || !isAdmin) return <div className="container mx-auto px-4 py-8">Kein Admin-Zugriff.</div>;
+  if (!user || !isAdmin)
+    return <div className="container mx-auto px-4 py-8">Kein Admin-Zugriff.</div>;
 
   const handleRun = async () => {
     setIsRunning(true);
@@ -31,7 +34,7 @@ function AdminBrokenLinksPage() {
     setIsRunning(false);
   };
 
-  const brokenLinks = results?.filter(r => !r.valid) || [];
+  const brokenLinks = results?.filter((r) => !r.valid) || [];
   const validLinksCount = (results?.length || 0) - brokenLinks.length;
 
   return (
@@ -47,8 +50,9 @@ function AdminBrokenLinksPage() {
 
       <div className="mc-panel p-6 mb-8 flex flex-col gap-4">
         <p className="text-sm text-muted-foreground">
-          Dieses Tool durchsucht alle Markdown-Texte in der Datenbank (Beschreibungen, Seiteninhalte)
-          nach lokalen Links und prüft, ob die referenzierten Seiten (z. B. Items oder Rezepte) existieren.
+          Dieses Tool durchsucht alle Markdown-Texte in der Datenbank (Beschreibungen,
+          Seiteninhalte) nach lokalen Links und prüft, ob die referenzierten Seiten (z. B. Items
+          oder Rezepte) existieren.
         </p>
         <Button onClick={handleRun} disabled={isRunning} className="w-max">
           {isRunning ? "Prüfung läuft..." : "Prüfung starten"}

@@ -2,13 +2,13 @@ import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
 import { ItemTooltip } from "@/components/item-tooltip";
 
-export type GridSlot = { 
+export type GridSlot = {
   type?: "db" | "vanilla";
-  item_id?: string | null; 
+  item_id?: string | null;
   mc_id?: string;
   name?: string;
   enchanted?: boolean;
-  count?: number; 
+  count?: number;
 } | null;
 
 export type GridItem = {
@@ -47,18 +47,35 @@ export function CraftingGrid({
         </div>
         <div className="text-2xl text-muted-foreground">→</div>
         <div className="mc-panel p-3 relative">
-          <Slot slot={result ? { type: "db", item_id: result.id, count: resultCount } : null} dbItems={{[result?.id || '']: result as any}} large />
+          <Slot
+            slot={result ? { type: "db", item_id: result.id, count: resultCount } : null}
+            dbItems={{ [result?.id || ""]: result as any }}
+            large
+          />
         </div>
       </div>
       <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-        <span className={cn("inline-block w-2 h-2 rounded-full", shaped ? "bg-blue-500/80" : "bg-orange-500/80")} />
+        <span
+          className={cn(
+            "inline-block w-2 h-2 rounded-full",
+            shaped ? "bg-blue-500/80" : "bg-orange-500/80",
+          )}
+        />
         {shaped ? "Geformtes Rezept (Anordnung wichtig)" : "Ungeformtes Rezept (Anordnung egal)"}
       </div>
     </div>
   );
 }
 
-function Slot({ slot, dbItems, large }: { slot: GridSlot; dbItems?: Record<string, GridItem>; large?: boolean }) {
+function Slot({
+  slot,
+  dbItems,
+  large,
+}: {
+  slot: GridSlot;
+  dbItems?: Record<string, GridItem>;
+  large?: boolean;
+}) {
   const size = large ? "w-20 h-20" : "w-14 h-14";
   if (!slot) {
     return <div className={cn("mc-slot", size)} />;
@@ -67,8 +84,8 @@ function Slot({ slot, dbItems, large }: { slot: GridSlot; dbItems?: Record<strin
   let isVanilla = slot.type === "vanilla" || !!slot.mc_id;
   let dbItem = !isVanilla && slot.item_id && dbItems ? dbItems[slot.item_id] : null;
 
-  let imageUrl = isVanilla ? `/items/${slot.mc_id}.png` : (dbItem?.image_url || dbItem?.imageUrl);
-  let name = isVanilla ? slot.name || slot.mc_id : (dbItem?.name_de || dbItem?.nameDe);
+  let imageUrl = isVanilla ? `/items/${slot.mc_id}.png` : dbItem?.image_url || dbItem?.imageUrl;
+  let name = isVanilla ? slot.name || slot.mc_id : dbItem?.name_de || dbItem?.nameDe;
   let enchanted = isVanilla ? slot.enchanted : dbItem?.enchanted;
   let count = slot.count;
 
@@ -117,11 +134,7 @@ function Slot({ slot, dbItems, large }: { slot: GridSlot; dbItems?: Record<strin
 
   return (
     <ItemTooltip item={dbItem}>
-      <Link
-        to="/$kind/$slug"
-        params={{ kind: "items", slug: dbItem.slug }}
-        className={className}
-      >
+      <Link to="/$kind/$slug" params={{ kind: "items", slug: dbItem.slug }} className={className}>
         {inner}
       </Link>
     </ItemTooltip>

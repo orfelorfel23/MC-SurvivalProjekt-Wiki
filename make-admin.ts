@@ -15,7 +15,9 @@ async function main() {
   });
 
   if (!user) {
-    console.error(`User with email ${email} not found. Please log in to the website first to create an account.`);
+    console.error(
+      `User with email ${email} not found. Please log in to the website first to create an account.`,
+    );
     process.exit(1);
   }
 
@@ -24,9 +26,9 @@ async function main() {
     where: {
       userId_role: {
         userId: user.id,
-        role: "ADMIN"
-      }
-    }
+        role: "ADMIN",
+      },
+    },
   });
 
   if (existingRole) {
@@ -35,8 +37,8 @@ async function main() {
     await prisma.userRole.create({
       data: {
         userId: user.id,
-        role: "ADMIN"
-      }
+        role: "ADMIN",
+      },
     });
     console.log(`Successfully granted ADMIN role to ${email}.`);
   }

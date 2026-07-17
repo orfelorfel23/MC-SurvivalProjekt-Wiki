@@ -16,7 +16,7 @@ export function useRecentlyViewed(currentItem?: { kind: string; slug: string; ti
 
   useEffect(() => {
     let initial: ViewedItem[] = [];
-    
+
     const init = async () => {
       if (user) {
         try {
@@ -31,10 +31,12 @@ export function useRecentlyViewed(currentItem?: { kind: string; slug: string; ti
       }
 
       if (currentItem) {
-        initial = initial.filter((i) => !(i.kind === currentItem.kind && i.slug === currentItem.slug));
+        initial = initial.filter(
+          (i) => !(i.kind === currentItem.kind && i.slug === currentItem.slug),
+        );
         initial.unshift({ ...currentItem, timestamp: Date.now() });
         if (initial.length > 5) initial = initial.slice(0, 5);
-        
+
         if (user) {
           saveRecentlyViewed({ data: { userId: user.id, history: initial } }).catch(console.error);
         } else {

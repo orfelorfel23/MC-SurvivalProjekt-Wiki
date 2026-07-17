@@ -8,14 +8,14 @@ import { auth } from "./src/lib/auth";
 export default defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [
-    tailwindcss(), 
-    tanstackStart(), 
+    tailwindcss(),
+    tanstackStart(),
     viteReact(),
     {
       name: "better-auth-dev",
       configureServer(server) {
         server.middlewares.use("/api/auth", toNodeHandler(auth));
-      }
-    }
+      },
+    },
   ],
 });

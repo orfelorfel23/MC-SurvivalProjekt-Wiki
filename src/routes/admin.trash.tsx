@@ -25,7 +25,7 @@ function AdminTrashPage() {
     },
     onError: () => {
       toast.error("Fehler beim Wiederherstellen.");
-    }
+    },
   });
 
   if (isLoading) return <div className="p-8">Lade Papierkorb...</div>;
@@ -50,7 +50,10 @@ function AdminTrashPage() {
                 <div className="text-sm text-muted-foreground flex gap-3">
                   <span>Modul: {item._kind}</span>
                   <span>Slug: {item.slug}</span>
-                  <span>Gelöscht am: {item.deletedAt ? format(new Date(item.deletedAt), "dd.MM.yyyy HH:mm") : "-"}</span>
+                  <span>
+                    Gelöscht am:{" "}
+                    {item.deletedAt ? format(new Date(item.deletedAt), "dd.MM.yyyy HH:mm") : "-"}
+                  </span>
                 </div>
               </div>
               <Button

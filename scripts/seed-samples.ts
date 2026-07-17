@@ -17,8 +17,8 @@ async function main() {
       descriptionDe: "Ein mystisches Schwert, das nur von den mutigsten Kriegern getragen wird.",
       imageUrl: "/items/diamond_sword.png",
       enchanted: true,
-      category: "weapon"
-    }
+      category: "weapon",
+    },
   });
 
   // Create a recipe
@@ -32,12 +32,18 @@ async function main() {
       shaped: true,
       station: "workbench",
       grid: [
-        null, { type: "vanilla", item_id: "diamond" }, null,
-        null, { type: "vanilla", item_id: "diamond" }, null,
-        null, { type: "vanilla", item_id: "stick" }, null
+        null,
+        { type: "vanilla", item_id: "diamond" },
+        null,
+        null,
+        { type: "vanilla", item_id: "diamond" },
+        null,
+        null,
+        { type: "vanilla", item_id: "stick" },
+        null,
       ],
-      descriptionDe: "Dieses Rezept erfordert eine Werkbank."
-    }
+      descriptionDe: "Dieses Rezept erfordert eine Werkbank.",
+    },
   });
 
   // Create a boss
@@ -52,8 +58,11 @@ async function main() {
       descriptionDe: "Ein unglaublich starker Wither, der in den tiefsten Höhlen spawnt.",
       strategyDe: "Benutze Bögen aus der Ferne und vermeide direkte Nahkampfangriffe.",
       imageUrl: "/items/wither_skeleton_skull.png",
-      drops: [{ item: "Netherstern", chance: "100%" }, { item: "Verzauberter Goldapfel", chance: "10%" }]
-    }
+      drops: [
+        { item: "Netherstern", chance: "100%" },
+        { item: "Verzauberter Goldapfel", chance: "10%" },
+      ],
+    },
   });
 
   // Create a command
@@ -65,8 +74,8 @@ async function main() {
       nameDe: "Spawn",
       syntax: "/spawn",
       descriptionDe: "Teleportiert den Spieler sofort zum Server-Spawn.",
-      category: "general"
-    }
+      category: "general",
+    },
   });
 
   // Create a world
@@ -77,10 +86,11 @@ async function main() {
       slug: "farmwelt",
       nameDe: "Farmwelt",
       worldType: "survival",
-      descriptionDe: "Eine Welt, die alle 30 Tage zurückgesetzt wird. Ideal zum Sammeln von Ressourcen.",
+      descriptionDe:
+        "Eine Welt, die alle 30 Tage zurückgesetzt wird. Ideal zum Sammeln von Ressourcen.",
       rulesDe: "Kein Griefing von aktiven Spieler-Außenposten.",
-      imageUrl: "/items/grass_block.png"
-    }
+      imageUrl: "/items/grass_block.png",
+    },
   });
 
   // Create a dynamic Wiki Tab
@@ -94,9 +104,13 @@ async function main() {
       isVisible: true,
       order: 1,
       modules: [
-        { type: "text", contentDe: "# Willkommen auf dem Server!\nDies ist ein Beispieltext für einen eigenen Reiter." }
-      ]
-    }
+        {
+          type: "text",
+          contentDe:
+            "# Willkommen auf dem Server!\nDies ist ein Beispieltext für einen eigenen Reiter.",
+        },
+      ],
+    },
   });
 
   // Create a Task
@@ -112,8 +126,8 @@ async function main() {
       rewardAmount: 500,
       rewardCurrency: "Coins",
       rewardExtraDe: "1x Verzauberter Apfel",
-      category: "farming"
-    }
+      category: "farming",
+    },
   });
 
   // Create a ShopOffer
@@ -127,8 +141,8 @@ async function main() {
       currency: "Coins",
       descriptionDe: "Kaufe einen wertvollen Diamanten im Admin-Shop.",
       imageUrl: "/items/diamond.png",
-      category: "materials"
-    }
+      category: "materials",
+    },
   });
 
   // Create a Pet
@@ -143,8 +157,8 @@ async function main() {
       descriptionDe: "Ein feuriger kleiner Begleiter, der dir im Kampf hilft.",
       skillsDe: "Gibt dir dauerhaft Feuerresistenz I.",
       imageUrl: "/items/dragon_egg.png",
-      acquireDe: "Kann mit einer 1% Chance aus der legendären Kiste gezogen werden."
-    }
+      acquireDe: "Kann mit einer 1% Chance aus der legendären Kiste gezogen werden.",
+    },
   });
 
   // Create a WikiPage (for the Allgemeines Tab or other uses)
@@ -154,9 +168,10 @@ async function main() {
     create: {
       slug: "server-regeln",
       titleDe: "Server Regeln",
-      bodyDe: "1. Kein Griefing\n2. Kein Spam\n3. Respektiert das Team\n\nVerstöße führen zu einem permanenten Bann.",
-      category: "allgemeines"
-    }
+      bodyDe:
+        "1. Kein Griefing\n2. Kein Spam\n3. Respektiert das Team\n\nVerstöße führen zu einem permanenten Bann.",
+      category: "allgemeines",
+    },
   });
 
   console.log("Seeding complete!");

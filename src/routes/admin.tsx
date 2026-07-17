@@ -85,7 +85,11 @@ function AdminPage() {
                   </Button>
                 )}
                 {!userRoles.find((r: any) => r.role === "MODERATOR") && (
-                  <Button size="sm" variant="outline" onClick={() => handleGrant(u.id, "MODERATOR")}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleGrant(u.id, "MODERATOR")}
+                  >
                     + Moderator
                   </Button>
                 )}

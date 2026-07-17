@@ -21,7 +21,9 @@ export function useAuth() {
       .then((roles) => {
         setIsAdmin(roles.includes("ADMIN"));
         setIsModerator(roles.includes("ADMIN") || roles.includes("MODERATOR"));
-        setIsEditor(roles.includes("ADMIN") || roles.includes("MODERATOR") || roles.includes("EDITOR"));
+        setIsEditor(
+          roles.includes("ADMIN") || roles.includes("MODERATOR") || roles.includes("EDITOR"),
+        );
       })
       .catch(console.error);
   }, [user]);

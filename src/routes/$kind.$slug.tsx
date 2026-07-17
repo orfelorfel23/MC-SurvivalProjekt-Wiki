@@ -104,13 +104,13 @@ function DetailPage() {
       delete payload.world;
       delete payload.spawnItem;
       // remove undefined/null just in case
-      Object.keys(payload).forEach(key => payload[key] === undefined && delete payload[key]);
+      Object.keys(payload).forEach((key) => payload[key] === undefined && delete payload[key]);
 
       await saveGenericEntity({ data: { kindId: k, slug, data: payload } });
       setRow(payload);
       setIsEditing(false);
       toast.success("Gespeichert!");
-    } catch(e) {
+    } catch (e) {
       toast.error("Fehler beim Speichern");
     }
     setSaving(false);
@@ -131,7 +131,7 @@ function DetailPage() {
       { key: "syntax", label: "Syntax" },
       { key: "permission", label: "Permission" },
       { key: "examples", label: "Beispiele", textarea: true },
-      { key: "strategyDe", label: "Strategie (DE)", textarea: true }
+      { key: "strategyDe", label: "Strategie (DE)", textarea: true },
     ];
 
     return (
@@ -139,40 +139,56 @@ function DetailPage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl text-primary">Bearbeiten: {slug}</h1>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setIsEditing(false)}>Abbrechen</Button>
-            <Button onClick={handleSaveInit} disabled={saving}>{saving ? "Speichert..." : "Überprüfen & Speichern"}</Button>
+            <Button variant="outline" onClick={() => setIsEditing(false)}>
+              Abbrechen
+            </Button>
+            <Button onClick={handleSaveInit} disabled={saving}>
+              {saving ? "Speichert..." : "Überprüfen & Speichern"}
+            </Button>
           </div>
         </div>
         <div className="grid gap-4 bg-card p-6 border border-border">
-          {fields.filter(f => editData[f.key] !== undefined).map(f => (
-            <div key={f.key} className="grid gap-2">
-              <Label>{f.label}</Label>
-              {f.textarea ? (
-                <div data-color-mode="dark">
-                  <MDEditor
-                    value={editData[f.key] || ""}
-                    onChange={val => setEditData({...editData, [f.key]: val})}
-                    previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
-                    height={300}
+          {fields
+            .filter((f) => editData[f.key] !== undefined)
+            .map((f) => (
+              <div key={f.key} className="grid gap-2">
+                <Label>{f.label}</Label>
+                {f.textarea ? (
+                  <div data-color-mode="dark">
+                    <MDEditor
+                      value={editData[f.key] || ""}
+                      onChange={(val) => setEditData({ ...editData, [f.key]: val })}
+                      previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
+                      height={300}
+                    />
+                  </div>
+                ) : f.key === "imageUrl" ? (
+                  <ImageUpload
+                    value={editData[f.key]}
+                    onChange={(url) => setEditData({ ...editData, [f.key]: url })}
                   />
-                </div>
-              ) : f.key === "imageUrl" ? (
-                <ImageUpload 
-                  value={editData[f.key]} 
-                  onChange={url => setEditData({...editData, [f.key]: url})} 
-                />
-              ) : (
-                <Input type={f.type || "text"} value={editData[f.key] || ""} onChange={e => setEditData({...editData, [f.key]: f.type === "number" ? parseInt(e.target.value) || 0 : e.target.value})} />
-              )}
-            </div>
-          ))}
+                ) : (
+                  <Input
+                    type={f.type || "text"}
+                    value={editData[f.key] || ""}
+                    onChange={(e) =>
+                      setEditData({
+                        ...editData,
+                        [f.key]:
+                          f.type === "number" ? parseInt(e.target.value) || 0 : e.target.value,
+                      })
+                    }
+                  />
+                )}
+              </div>
+            ))}
         </div>
-        <DiffModal 
-          isOpen={showDiff} 
-          onClose={() => setShowDiff(false)} 
-          onConfirm={confirmSave} 
-          oldData={row} 
-          newData={editData} 
+        <DiffModal
+          isOpen={showDiff}
+          onClose={() => setShowDiff(false)}
+          onConfirm={confirmSave}
+          oldData={row}
+          newData={editData}
         />
       </article>
     );
@@ -191,198 +207,205 @@ function DetailPage() {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Main Content */}
         <article className="flex-1 relative">
-      <div className="flex justify-between items-start">
-        <Link
-          to="/$kind"
-          params={{ kind: k }}
-          className="text-xs text-muted-foreground hover:text-foreground inline-block mb-4"
-        >
-          ← {t(KIND_LABEL_KEY[k], lang)}
-        </Link>
-        {isEditor && (
-          <Button variant="outline" size="sm" onClick={handleEditClick}>Bearbeiten</Button>
-        )}
-      </div>
-      <header className="my-2 flex flex-wrap items-start gap-4">
-        {row.imageUrl && (
-          <div
-            className={`mc-slot w-24 h-24 flex items-center justify-center ${row.enchanted ? "mc-glint" : ""}`}
-          >
-            <img
-              src={row.imageUrl}
-              alt={title}
-              className="w-20 h-20 object-contain"
-              style={{ imageRendering: "pixelated" }}
-            />
+          <div className="flex justify-between items-start">
+            <Link
+              to="/$kind"
+              params={{ kind: k }}
+              className="text-xs text-muted-foreground hover:text-foreground inline-block mb-4"
+            >
+              ← {t(KIND_LABEL_KEY[k], lang)}
+            </Link>
+            {isEditor && (
+              <Button variant="outline" size="sm" onClick={handleEditClick}>
+                Bearbeiten
+              </Button>
+            )}
           </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <h1 className="text-2xl md:text-3xl text-primary mb-2">{title}</h1>
-          <div className="flex gap-2 flex-wrap text-xs">
-            {row.rarity && (
-              <RarityBadge rarity={row.rarity} className="px-2 py-0.5 rounded border border-border" />
-            )}
-            {row.category && <span className="px-2 py-0.5 rounded bg-muted">{row.category}</span>}
-            {row.difficulty && (
-              <span className="px-2 py-0.5 rounded border border-border">{row.difficulty}</span>
-            )}
-            {row.frequency && (
-              <span className="px-2 py-0.5 rounded border border-border">{row.frequency}</span>
-            )}
-            {row.worldType && (
-              <span className="px-2 py-0.5 rounded border border-border">{row.worldType}</span>
-            )}
-            {row.kind && (
-              <span className="px-2 py-0.5 rounded border border-border">{row.kind}</span>
-            )}
-            {row.oraxenId && (
-              <span className="px-2 py-0.5 rounded bg-accent/20 text-accent font-mono">
-                {row.oraxenId}
-              </span>
-            )}
-            {row.tags?.map((tag: string) => (
-              <span key={tag} className="px-2 py-0.5 rounded bg-muted">
-                #{tag}
-              </span>
-            ))}
-          </div>
-        </div>
-      </header>
-
-      {k === "befehle" && (
-        <div className="mc-panel p-4 mb-6">
-          <div className="text-xs text-accent uppercase mb-1">{t("syntax", lang)}</div>
-          <code className="text-sm font-mono">{row.syntax}</code>
-          {row.permission && (
-            <div className="mt-2 text-xs text-muted-foreground">
-              {t("permission", lang)}: <code>{row.permission}</code>
-            </div>
-          )}
-        </div>
-      )}
-
-      {k === "shop" && (
-        <div className="mb-4 text-lg">
-          <span className="text-accent font-bold">{row.price}</span> {row.currency}
-        </div>
-      )}
-
-      {k === "aufgaben" && row.rewardAmount && (
-        <div className="mb-4 text-lg">
-          {t("reward", lang)}:{" "}
-          <span className="text-accent font-bold">
-            {row.rewardAmount} {row.rewardCurrency}
-          </span>
-        </div>
-      )}
-
-      {description && (
-        <section className="prose prose-invert max-w-none mb-6">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{description}</ReactMarkdown>
-        </section>
-      )}
-
-      {k === "wiki" && row.bodyDe && (
-        <section className="prose prose-invert max-w-none">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {pickLocalized(row.bodyDe, row.bodyEn, lang)}
-          </ReactMarkdown>
-        </section>
-      )}
-
-      {k === "befehle" && row.examples && (
-        <section className="mc-panel p-4 mt-4">
-          <div className="text-xs text-accent uppercase mb-2">{t("examples", lang)}</div>
-          <pre className="text-sm font-mono whitespace-pre-wrap">{row.examples}</pre>
-        </section>
-      )}
-
-      {k === "bosse" && (
-        <div className="space-y-3 mb-6">
-          {extras.world && (
-            <div>
-              {t("world", lang)}:{" "}
-              <Link
-                to="/$kind/$slug"
-                params={{ kind: "welten", slug: extras.world.slug }}
-                className="text-accent"
+          <header className="my-2 flex flex-wrap items-start gap-4">
+            {row.imageUrl && (
+              <div
+                className={`mc-slot w-24 h-24 flex items-center justify-center ${row.enchanted ? "mc-glint" : ""}`}
               >
-                {pickLocalized(extras.world.nameDe, extras.world.nameEn, lang)}
-              </Link>
-            </div>
-          )}
-          {extras.spawnItem && (
-            <div>
-              {t("spawnItem", lang)}:{" "}
-              <Link
-                to="/$kind/$slug"
-                params={{ kind: "items", slug: extras.spawnItem.slug }}
-                className="text-accent"
-              >
-                {pickLocalized(extras.spawnItem.nameDe, extras.spawnItem.nameEn, lang)}
-              </Link>
-            </div>
-          )}
-          {row.strategyDe && (
-            <div>
-              <h3 className="text-sm uppercase tracking-widest text-accent mb-2">
-                {t("strategy", lang)}
-              </h3>
-              <div className="prose prose-invert max-w-none">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {pickLocalized(row.strategyDe, row.strategyEn, lang)}
-                </ReactMarkdown>
+                <img
+                  src={row.imageUrl}
+                  alt={title}
+                  className="w-20 h-20 object-contain"
+                  style={{ imageRendering: "pixelated" }}
+                />
+              </div>
+            )}
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl md:text-3xl text-primary mb-2">{title}</h1>
+              <div className="flex gap-2 flex-wrap text-xs">
+                {row.rarity && (
+                  <RarityBadge
+                    rarity={row.rarity}
+                    className="px-2 py-0.5 rounded border border-border"
+                  />
+                )}
+                {row.category && (
+                  <span className="px-2 py-0.5 rounded bg-muted">{row.category}</span>
+                )}
+                {row.difficulty && (
+                  <span className="px-2 py-0.5 rounded border border-border">{row.difficulty}</span>
+                )}
+                {row.frequency && (
+                  <span className="px-2 py-0.5 rounded border border-border">{row.frequency}</span>
+                )}
+                {row.worldType && (
+                  <span className="px-2 py-0.5 rounded border border-border">{row.worldType}</span>
+                )}
+                {row.kind && (
+                  <span className="px-2 py-0.5 rounded border border-border">{row.kind}</span>
+                )}
+                {row.oraxenId && (
+                  <span className="px-2 py-0.5 rounded bg-accent/20 text-accent font-mono">
+                    {row.oraxenId}
+                  </span>
+                )}
+                {row.tags?.map((tag: string) => (
+                  <span key={tag} className="px-2 py-0.5 rounded bg-muted">
+                    #{tag}
+                  </span>
+                ))}
               </div>
             </div>
+          </header>
+
+          {k === "befehle" && (
+            <div className="mc-panel p-4 mb-6">
+              <div className="text-xs text-accent uppercase mb-1">{t("syntax", lang)}</div>
+              <code className="text-sm font-mono">{row.syntax}</code>
+              {row.permission && (
+                <div className="mt-2 text-xs text-muted-foreground">
+                  {t("permission", lang)}: <code>{row.permission}</code>
+                </div>
+              )}
+            </div>
           )}
-        </div>
-      )}
 
-      {k === "rezepte" && extras.items && (
-        <div className="mb-6">
-          <div className="text-xs text-muted-foreground mb-3">
-            {row.shaped ? t("recipeShaped", lang) : t("recipeShapeless", lang)} ·{" "}
-            {t("station", lang)}: {row.station}
-          </div>
-          <CraftingGrid
-            grid={row.grid}
-            items={extras.items}
-            result={extras.result}
-            resultCount={row.resultCount}
-            shaped={row.shaped}
-          />
-        </div>
-      )}
+          {k === "shop" && (
+            <div className="mb-4 text-lg">
+              <span className="text-accent font-bold">{row.price}</span> {row.currency}
+            </div>
+          )}
 
-      {k === "items" && extras.recipes && extras.recipes.length > 0 && (
-        <section className="mt-8">
-          <h3 className="text-sm uppercase tracking-widest text-accent mb-3">
-            {t("craftedBy", lang)}
-          </h3>
-          <div className="grid gap-2">
-            {extras.recipes.map((r: any) => (
-              <Link
-                key={r.id}
-                to="/$kind/$slug"
-                params={{ kind: "rezepte", slug: r.slug }}
-                className="mc-panel p-3 hover:bg-accent/10 text-sm"
-              >
-                {pickLocalized(r.nameDe, r.nameEn, lang)}
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+          {k === "aufgaben" && row.rewardAmount && (
+            <div className="mb-4 text-lg">
+              {t("reward", lang)}:{" "}
+              <span className="text-accent font-bold">
+                {row.rewardAmount} {row.rewardCurrency}
+              </span>
+            </div>
+          )}
 
-      {k === "rezepte" && row.id && (
-        <CommentSection recipeId={row.id} />
-      )}
+          {description && (
+            <section className="prose prose-invert max-w-none mb-6">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{description}</ReactMarkdown>
+            </section>
+          )}
+
+          {k === "wiki" && row.bodyDe && (
+            <section className="prose prose-invert max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {pickLocalized(row.bodyDe, row.bodyEn, lang)}
+              </ReactMarkdown>
+            </section>
+          )}
+
+          {k === "befehle" && row.examples && (
+            <section className="mc-panel p-4 mt-4">
+              <div className="text-xs text-accent uppercase mb-2">{t("examples", lang)}</div>
+              <pre className="text-sm font-mono whitespace-pre-wrap">{row.examples}</pre>
+            </section>
+          )}
+
+          {k === "bosse" && (
+            <div className="space-y-3 mb-6">
+              {extras.world && (
+                <div>
+                  {t("world", lang)}:{" "}
+                  <Link
+                    to="/$kind/$slug"
+                    params={{ kind: "welten", slug: extras.world.slug }}
+                    className="text-accent"
+                  >
+                    {pickLocalized(extras.world.nameDe, extras.world.nameEn, lang)}
+                  </Link>
+                </div>
+              )}
+              {extras.spawnItem && (
+                <div>
+                  {t("spawnItem", lang)}:{" "}
+                  <Link
+                    to="/$kind/$slug"
+                    params={{ kind: "items", slug: extras.spawnItem.slug }}
+                    className="text-accent"
+                  >
+                    {pickLocalized(extras.spawnItem.nameDe, extras.spawnItem.nameEn, lang)}
+                  </Link>
+                </div>
+              )}
+              {row.strategyDe && (
+                <div>
+                  <h3 className="text-sm uppercase tracking-widest text-accent mb-2">
+                    {t("strategy", lang)}
+                  </h3>
+                  <div className="prose prose-invert max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {pickLocalized(row.strategyDe, row.strategyEn, lang)}
+                    </ReactMarkdown>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {k === "rezepte" && extras.items && (
+            <div className="mb-6">
+              <div className="text-xs text-muted-foreground mb-3">
+                {row.shaped ? t("recipeShaped", lang) : t("recipeShapeless", lang)} ·{" "}
+                {t("station", lang)}: {row.station}
+              </div>
+              <CraftingGrid
+                grid={row.grid}
+                items={extras.items}
+                result={extras.result}
+                resultCount={row.resultCount}
+                shaped={row.shaped}
+              />
+            </div>
+          )}
+
+          {k === "items" && extras.recipes && extras.recipes.length > 0 && (
+            <section className="mt-8">
+              <h3 className="text-sm uppercase tracking-widest text-accent mb-3">
+                {t("craftedBy", lang)}
+              </h3>
+              <div className="grid gap-2">
+                {extras.recipes.map((r: any) => (
+                  <Link
+                    key={r.id}
+                    to="/$kind/$slug"
+                    params={{ kind: "rezepte", slug: r.slug }}
+                    className="mc-panel p-3 hover:bg-accent/10 text-sm"
+                  >
+                    {pickLocalized(r.nameDe, r.nameEn, lang)}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {k === "rezepte" && row.id && <CommentSection recipeId={row.id} />}
         </article>
 
         {/* Sidebar */}
         <aside className="w-full lg:w-72 flex-shrink-0">
           <div className="mc-panel p-4 sticky top-24">
-            <h3 className="text-sm uppercase tracking-widest text-accent mb-4">Zuletzt angesehen</h3>
+            <h3 className="text-sm uppercase tracking-widest text-accent mb-4">
+              Zuletzt angesehen
+            </h3>
             {history.length === 0 ? (
               <p className="text-xs text-muted-foreground">Noch keine Einträge.</p>
             ) : (
@@ -395,7 +418,9 @@ function DetailPage() {
                     className="p-2 -mx-2 hover:bg-accent/10 rounded transition-colors"
                   >
                     <div className="text-sm font-medium truncate">{h.title}</div>
-                    <div className="text-xs text-muted-foreground uppercase">{t(KIND_LABEL_KEY[h.kind as Kind], lang) || h.kind}</div>
+                    <div className="text-xs text-muted-foreground uppercase">
+                      {t(KIND_LABEL_KEY[h.kind as Kind], lang) || h.kind}
+                    </div>
                   </Link>
                 ))}
               </div>
