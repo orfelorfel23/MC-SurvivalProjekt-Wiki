@@ -44,7 +44,7 @@ function TabEditorDetail() {
     if (id !== "new" && tabs) {
       const existing = tabs.find(t => t.slug === id);
       if (existing) {
-        setTab({
+        const mapped = {
           id: existing.id,
           slug: existing.slug,
           nameDe: existing.nameDe,
