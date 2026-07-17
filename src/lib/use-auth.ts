@@ -8,20 +8,23 @@ export function useAuth() {
 
   const [isEditor, setIsEditor] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
 
   useEffect(() => {
     if (!user) {
       setIsEditor(false);
       setIsAdmin(false);
+      setIsModerator(false);
       return;
     }
     getUserRoles({ data: { userId: user.id } })
       .then((roles) => {
         setIsAdmin(roles.includes("ADMIN"));
-        setIsEditor(roles.includes("ADMIN") || roles.includes("EDITOR"));
+        setIsModerator(roles.includes("ADMIN") || roles.includes("MODERATOR"));
+        setIsEditor(roles.includes("ADMIN") || roles.includes("MODERATOR") || roles.includes("EDITOR"));
       })
       .catch(console.error);
   }, [user]);
 
-  return { user, isEditor, isAdmin, loading: isPending };
+  return { user, isEditor, isAdmin, isModerator, loading: isPending };
 }

@@ -37,16 +37,22 @@ export function CraftingGrid({
   shaped?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-4 flex-wrap">
-      <div className={cn("mc-panel p-3 grid grid-cols-3 gap-1.5", !shaped && "opacity-95")}>
-        {Array.from({ length: 9 }).map((_, i) => {
-          const slot = grid[i];
-          return <Slot key={i} slot={slot} dbItems={items} />;
-        })}
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-4 flex-wrap">
+        <div className={cn("mc-panel p-3 grid grid-cols-3 gap-1.5", !shaped && "opacity-95")}>
+          {Array.from({ length: 9 }).map((_, i) => {
+            const slot = grid[i];
+            return <Slot key={i} slot={slot} dbItems={items} />;
+          })}
+        </div>
+        <div className="text-2xl text-muted-foreground">→</div>
+        <div className="mc-panel p-3 relative">
+          <Slot slot={result ? { type: "db", item_id: result.id, count: resultCount } : null} dbItems={{[result?.id || '']: result as any}} large />
+        </div>
       </div>
-      <div className="text-2xl text-muted-foreground">→</div>
-      <div className="mc-panel p-3">
-        <Slot slot={result ? { type: "db", item_id: result.id } : null} dbItems={{[result?.id || '']: result as any}} large />
+      <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+        <span className={cn("inline-block w-2 h-2 rounded-full", shaped ? "bg-blue-500/80" : "bg-orange-500/80")} />
+        {shaped ? "Geformtes Rezept (Anordnung wichtig)" : "Ungeformtes Rezept (Anordnung egal)"}
       </div>
     </div>
   );

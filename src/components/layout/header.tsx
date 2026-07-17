@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, LogIn, LogOut, Shield, Languages } from "lucide-react";
+import { Search, LogIn, LogOut, Shield, Languages, Moon, Sun } from "lucide-react";
 import { useAuth } from "@/lib/use-auth";
 import { useLang, t, KINDS, KIND_LABEL_KEY } from "@/lib/i18n";
 import { authClient } from "@/lib/auth-client";
@@ -19,7 +19,24 @@ export function Header() {
     queryFn: () => getWikiTabs(),
   });
 
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== "undefined") {
+      return document.documentElement.classList.contains("dark");
+    }
+    return false;
+  });
 
+  const toggleDark = () => {
+    const next = !isDark;
+    setIsDark(next);
+    if (next) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  };
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
       <div className="container mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
@@ -84,6 +101,9 @@ export function Header() {
           title="Sprache wechseln"
         >
           <Languages className="w-4 h-4" /> {lang.toUpperCase()}
+        </Button>
+        <Button variant="ghost" size="icon" onClick={toggleDark} title="Dark Mode umschalten">
+          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </Button>
         {isEditor && (
           <Link to="/editor">

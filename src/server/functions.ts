@@ -27,7 +27,7 @@ export const getKindList = createServerFn({ method: "GET" })
       const isDynamicTab = await prisma.wikiTab.findUnique({ where: { slug: data.kindId } });
       if (isDynamicTab && !isDynamicTab.isBuiltin) {
         return prisma.wikiPage.findMany({
-          where: { category: data.kindId },
+          where: { category: data.kindId, deletedAt: null },
           orderBy: { updatedAt: "desc" },
           take: 200,
         });
@@ -41,6 +41,7 @@ export const getKindList = createServerFn({ method: "GET" })
     const model = prisma[modelName] as any;
 
     const results = await model.findMany({
+      where: { deletedAt: null },
       orderBy: { updatedAt: "desc" },
       take: 200,
     });
@@ -57,8 +58,8 @@ export const getKindItem = createServerFn({ method: "GET" })
       // Dynamic wiki page logic
       const isDynamicTab = await prisma.wikiTab.findUnique({ where: { slug: data.kindId } });
       if (isDynamicTab && !isDynamicTab.isBuiltin) {
-        return prisma.wikiPage.findUnique({
-          where: { slug: data.slug },
+        return prisma.wikiPage.findFirst({
+          where: { slug: data.slug, deletedAt: null },
         });
       }
       return null;
@@ -69,8 +70,8 @@ export const getKindItem = createServerFn({ method: "GET" })
 
     const model = prisma[modelName] as any;
 
-    const item = await model.findUnique({
-      where: { slug: data.slug },
+    const item = await model.findFirst({
+      where: { slug: data.slug, deletedAt: null },
     });
 
     if (!item) return null;
@@ -103,14 +104,15 @@ export const getKindItem = createServerFn({ method: "GET" })
       const relatedRecipes = await prisma.recipe.findMany({
         where: {
           OR: [{ resultItemId: item.id }, { grid: { array_contains: [{ item_id: item.id }] } }],
+          deletedAt: null,
         },
       });
       return { ...item, recipes: relatedRecipes };
     }
 
     if (data.kindId === "bosse" && item.spawnItemId) {
-      const spawnItem = await prisma.item.findUnique({
-        where: { id: item.spawnItemId },
+      const spawnItem = await prisma.item.findFirst({
+        where: { id: item.spawnItemId, deletedAt: null },
       });
       return { ...item, spawnItem };
     }
@@ -118,38 +120,64 @@ export const getKindItem = createServerFn({ method: "GET" })
     return item;
   });
 
-export const searchWiki = createServerFn({ method: "GET" })
-  .validator((d: { q: string }) => d)
-  .handler(async ({ data }) => {
-    const q = `%${data.q}%`;
-    const results: any[] = await prisma.$queryRaw`
-      SELECT 'befehle' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, null as "imageUrl" FROM commands WHERE "nameDe" ILIKE ${q} OR "descriptionDe" ILIKE ${q}
-      UNION ALL
-      SELECT 'welten' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, "imageUrl" FROM worlds WHERE "nameDe" ILIKE ${q} OR "descriptionDe" ILIKE ${q}
-      UNION ALL
-      SELECT 'items' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, "imageUrl" FROM items WHERE "nameDe" ILIKE ${q} OR "descriptionDe" ILIKE ${q}
-      UNION ALL
-      SELECT 'rezepte' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, null as "imageUrl" FROM recipes WHERE "nameDe" ILIKE ${q}
-      UNION ALL
-      SELECT 'bosse' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, "imageUrl" FROM bosses WHERE "nameDe" ILIKE ${q}
-      UNION ALL
-      SELECT 'aufgaben' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, null as "imageUrl" FROM tasks WHERE "nameDe" ILIKE ${q} OR "descriptionDe" ILIKE ${q}
-      UNION ALL
-      SELECT 'shop' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, "imageUrl" FROM shop_offers WHERE "nameDe" ILIKE ${q} OR "descriptionDe" ILIKE ${q}
-      UNION ALL
-      SELECT 'pets' as kind, slug, "nameDe" as title, "descriptionDe" as snippet, "imageUrl" FROM pets WHERE "nameDe" ILIKE ${q} OR "descriptionDe" ILIKE ${q}
-      UNION ALL
-      SELECT 'wiki' as kind, slug, "titleDe" as title, "bodyDe" as snippet, null as "imageUrl" FROM wiki_pages WHERE "titleDe" ILIKE ${q} OR "bodyDe" ILIKE ${q}
-      LIMIT 50;
-    `;
+import Fuse from "fuse.js";
 
-    return results.map((r) => ({
+let searchCache: any[] = [];
+let searchCacheTime = 0;
+
+export const searchWiki = createServerFn({ method: "GET" })
+  .validator((d: { q: string; category?: string; rarity?: string }) => d)
+  .handler(async ({ data }) => {
+    // Refresh cache if older than 30 seconds
+    if (Date.now() - searchCacheTime > 30000) {
+      const commands = await prisma.command.findMany({ where: { deletedAt: null } });
+      const worlds = await prisma.world.findMany({ where: { deletedAt: null } });
+      const items = await prisma.item.findMany({ where: { deletedAt: null } });
+      const recipes = await prisma.recipe.findMany({ where: { deletedAt: null } });
+      const bosses = await prisma.boss.findMany({ where: { deletedAt: null } });
+      const tasks = await prisma.task.findMany({ where: { deletedAt: null } });
+      const shops = await prisma.shopOffer.findMany({ where: { deletedAt: null } });
+      const pets = await prisma.pet.findMany({ where: { deletedAt: null } });
+      const pages = await prisma.wikiPage.findMany({ where: { deletedAt: null } });
+
+      searchCache = [
+        ...commands.map(c => ({ kind: 'befehle', slug: c.slug, title: c.nameDe, snippet: c.descriptionDe, imageUrl: null, category: c.category, aliases: [] })),
+        ...worlds.map(w => ({ kind: 'welten', slug: w.slug, title: w.nameDe, snippet: w.descriptionDe, imageUrl: w.imageUrl, category: null, aliases: [] })),
+        ...items.map(i => ({ kind: 'items', slug: i.slug, title: i.nameDe, snippet: i.descriptionDe, imageUrl: i.imageUrl, category: i.category, rarity: i.rarity, aliases: i.aliases })),
+        ...recipes.map(r => ({ kind: 'rezepte', slug: r.slug, title: r.nameDe, snippet: r.descriptionDe, imageUrl: null, category: null, aliases: r.aliases })),
+        ...bosses.map(b => ({ kind: 'bosse', slug: b.slug, title: b.nameDe, snippet: b.descriptionDe, imageUrl: b.imageUrl, category: null, aliases: [] })),
+        ...tasks.map(t => ({ kind: 'aufgaben', slug: t.slug, title: t.nameDe, snippet: t.descriptionDe, imageUrl: null, category: t.category, aliases: [] })),
+        ...shops.map(s => ({ kind: 'shop', slug: s.slug, title: s.nameDe, snippet: s.descriptionDe, imageUrl: s.imageUrl, category: s.category, aliases: [] })),
+        ...pets.map(p => ({ kind: 'pets', slug: p.slug, title: p.nameDe, snippet: p.descriptionDe, imageUrl: p.imageUrl, category: null, aliases: [] })),
+        ...pages.map(p => ({ kind: 'wiki', slug: p.slug, title: p.titleDe, snippet: p.bodyDe, imageUrl: null, category: p.category, aliases: p.aliases }))
+      ];
+      searchCacheTime = Date.now();
+    }
+
+    let itemsToSearch = searchCache;
+    if (data.category) itemsToSearch = itemsToSearch.filter(i => i.category === data.category);
+    if (data.rarity) itemsToSearch = itemsToSearch.filter(i => i.rarity === data.rarity);
+
+    if (!data.q) return itemsToSearch.slice(0, 50).map(r => ({
       kind: r.kind,
       slug: r.slug,
       title: r.title,
       snippet: r.snippet?.slice(0, 100) ?? "",
-      imageUrl: r.imageUrl,
+      imageUrl: r.imageUrl
     }));
+
+    const fuse = new Fuse(itemsToSearch, {
+      keys: ["title", "aliases", "snippet"],
+      threshold: 0.3,
+    });
+    
+    return fuse.search(data.q).map(result => ({
+      kind: result.item.kind,
+      slug: result.item.slug,
+      title: result.item.title,
+      snippet: result.item.snippet?.slice(0, 100) ?? "",
+      imageUrl: result.item.imageUrl,
+    })).slice(0, 50);
   });
 
 export const getUserRoles = createServerFn({ method: "GET" })
@@ -169,7 +197,7 @@ export const getUsersAndRoles = createServerFn({ method: "GET" }).handler(async 
 });
 
 export const grantRole = createServerFn({ method: "POST" })
-  .validator((d: { userId: string; role: "ADMIN" | "EDITOR" }) => d)
+  .validator((d: { userId: string; role: "ADMIN" | "EDITOR" | "MODERATOR" }) => d)
   .handler(async ({ data }) => {
     return prisma.userRole.create({
       data: { userId: data.userId, role: data.role },
@@ -203,19 +231,19 @@ export const getTabModulesData = createServerFn({ method: "GET" })
       modules.map(async (mod: any) => {
         try {
           if (mod.type === "recipe" && mod.id) {
-            const recipe = await prisma.recipe.findUnique({ where: { id: mod.id } });
+            const recipe = await prisma.recipe.findFirst({ where: { id: mod.id, deletedAt: null } });
             return { ...mod, data: recipe };
           }
           if (mod.type === "boss" && mod.id) {
-            const boss = await prisma.boss.findUnique({ where: { id: mod.id } });
+            const boss = await prisma.boss.findFirst({ where: { id: mod.id, deletedAt: null } });
             return { ...mod, data: boss };
           }
           if (mod.type === "item" && mod.id) {
-            const item = await prisma.item.findUnique({ where: { id: mod.id } });
+            const item = await prisma.item.findFirst({ where: { id: mod.id, deletedAt: null } });
             return { ...mod, data: item };
           }
           if (mod.type === "command" && mod.id) {
-            const cmd = await prisma.command.findUnique({ where: { id: mod.id } });
+            const cmd = await prisma.command.findFirst({ where: { id: mod.id, deletedAt: null } });
             return { ...mod, data: cmd };
           }
         } catch (e) {
@@ -255,6 +283,22 @@ export const saveRecipe = createServerFn({ method: "POST" })
         }
         resultItemId = customItem.id;
       }
+    }
+
+    const existingRecipes = await prisma.recipe.findMany({
+      where: {
+        station: data.station,
+        shaped: data.shaped,
+        deletedAt: null,
+      },
+    });
+
+    const isDuplicate = existingRecipes.some(r => 
+      r.id !== data.id && JSON.stringify(r.grid) === JSON.stringify(data.grid)
+    );
+
+    if (isDuplicate) {
+      throw new Error("DUPLICATE_RECIPE");
     }
 
     const recipeData = {
@@ -335,4 +379,181 @@ export const uploadImageFn = createServerFn({ method: "POST" })
     fs.writeFileSync(filePath, buffer);
     
     return { url: `/uploads/${filename}` };
+  });
+
+export const softDeleteGenericEntity = createServerFn({ method: "POST" })
+  .validator((d: { kindId: string; slug: string }) => d)
+  .handler(async ({ data }) => {
+    let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
+    let modelName = prismaModels[tableName] as keyof typeof prisma;
+
+    if (!modelName) {
+      modelName = "wikiPage" as keyof typeof prisma;
+    }
+
+    const model = prisma[modelName] as any;
+    return model.update({
+      where: { slug: data.slug },
+      data: { deletedAt: new Date() },
+    });
+  });
+
+export const getDeletedItems = createServerFn({ method: "GET" })
+  .handler(async () => {
+    const results = [];
+    
+    for (const [kind, table] of Object.entries(KIND_TABLE)) {
+      const modelName = prismaModels[table] as keyof typeof prisma;
+      if (!modelName) continue;
+      const model = prisma[modelName] as any;
+      const deleted = await model.findMany({ where: { deletedAt: { not: null } } });
+      results.push(...deleted.map((d: any) => ({ ...d, _kind: kind })));
+    }
+    
+    // Also check wikiPages not in KIND_TABLE
+    const deletedPages = await prisma.wikiPage.findMany({ where: { deletedAt: { not: null } } });
+    // Filter out those that belong to a built-in kind (already caught above if category matches, actually wait, getKindList maps kindId -> category for custom tabs)
+    results.push(...deletedPages.map((d: any) => ({ ...d, _kind: d.category })));
+    
+    // Deduplicate by id just in case
+    const unique = Array.from(new Map(results.map(item => [item.id, item])).values());
+    
+    return unique.sort((a: any, b: any) => new Date(b.deletedAt).getTime() - new Date(a.deletedAt).getTime());
+  });
+
+export const restoreItem = createServerFn({ method: "POST" })
+  .validator((d: { kindId: string; id: string }) => d)
+  .handler(async ({ data }) => {
+    let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
+    let modelName = prismaModels[tableName] as keyof typeof prisma;
+
+    if (!modelName) {
+      modelName = "wikiPage" as keyof typeof prisma;
+    }
+
+    const model = prisma[modelName] as any;
+    return model.update({
+      where: { id: data.id },
+      data: { deletedAt: null },
+  });
+
+export const getComments = createServerFn({ method: "GET" })
+  .validator((d: { recipeId: string }) => d)
+  .handler(async ({ data }) => {
+    return prisma.comment.findMany({
+      where: { recipeId: data.recipeId, deletedAt: null },
+      include: { author: { select: { id: true, name: true, image: true, roles: true } } },
+      orderBy: { createdAt: "desc" },
+    });
+  });
+
+export const postComment = createServerFn({ method: "POST" })
+  .validator((d: { recipeId: string; content: string; authorId: string }) => d)
+  .handler(async ({ data }) => {
+    return prisma.comment.create({
+      data: {
+        content: data.content,
+        recipeId: data.recipeId,
+        authorId: data.authorId,
+      },
+    });
+  });
+
+export const deleteComment = createServerFn({ method: "POST" })
+  .validator((d: { commentId: string }) => d)
+  .handler(async ({ data }) => {
+    return prisma.comment.update({
+      where: { id: data.commentId },
+      data: { deletedAt: new Date() },
+    });
+  });
+
+export const checkBrokenLinks = createServerFn({ method: "POST" })
+  .handler(async () => {
+    const results: { location: string; text: string; link: string; valid: boolean }[] = [];
+    
+    // Helper to find links in markdown text
+    const extractLinks = (text: string | null | undefined, location: string) => {
+      if (!text) return;
+      const regex = /\[([^\]]+)\]\((/[^\)]+)\)/g;
+      let match;
+      while ((match = regex.exec(text)) !== null) {
+        results.push({ location, text: match[1], link: match[2], valid: false });
+      }
+    };
+
+    // 1. Fetch all Items
+    const items = await prisma.item.findMany({ where: { deletedAt: null } });
+    items.forEach(i => {
+      extractLinks(i.descriptionDe, `Item: ${i.nameDe}`);
+      extractLinks(i.descriptionEn, `Item: ${i.nameDe}`);
+    });
+
+    // 2. Fetch all Recipes
+    const recipes = await prisma.recipe.findMany({ where: { deletedAt: null } });
+    recipes.forEach(r => {
+      extractLinks(r.descriptionDe, `Recipe: ${r.nameDe}`);
+      extractLinks(r.descriptionEn, `Recipe: ${r.nameDe}`);
+    });
+
+    // 3. Fetch all Bosses
+    const bosses = await prisma.boss.findMany({ where: { deletedAt: null } });
+    bosses.forEach(b => {
+      extractLinks(b.descriptionDe, `Boss: ${b.nameDe}`);
+      extractLinks(b.strategyDe, `Boss: ${b.nameDe}`);
+    });
+
+    // 4. Fetch all Wiki Pages
+    const pages = await prisma.wikiPage.findMany({ where: { deletedAt: null } });
+    pages.forEach(p => {
+      extractLinks(p.bodyDe, `WikiPage: ${p.titleDe}`);
+    });
+
+    // Determine validity
+    for (const res of results) {
+      if (!res.link.startsWith("/")) {
+        res.valid = true; // external or weird
+        continue;
+      }
+      
+      const parts = res.link.split("/");
+      if (parts.length >= 3) {
+        const kind = parts[1]; // e.g. "items"
+        const slug = parts[2]; // e.g. "diamond_sword"
+        
+        // Find if this slug exists in the respective table
+        try {
+          // A very naive check by calling the DB directly
+          let table = KIND_TABLE[kind as keyof typeof KIND_TABLE];
+          if (!table) table = "wikiPage" as any;
+          const modelName = prismaModels[table as keyof typeof prismaModels] as keyof typeof prisma;
+          if (modelName) {
+            const model = prisma[modelName] as any;
+            const exists = await model.findFirst({ where: { slug, deletedAt: null } });
+            if (exists) {
+              res.valid = true;
+            }
+          }
+        } catch(e) {
+          // ignore
+        }
+      }
+    }
+
+    return results;
+  });
+export const getRecentlyViewed = createServerFn({ method: "GET" })
+  .validator((d: { userId: string }) => d)
+  .handler(async ({ data }) => {
+    const user = await prisma.user.findUnique({ where: { id: data.userId }, select: { recentlyViewed: true } });
+    return user?.recentlyViewed || [];
+  });
+
+export const saveRecentlyViewed = createServerFn({ method: "POST" })
+  .validator((d: { userId: string; history: any }) => d)
+  .handler(async ({ data }) => {
+    return prisma.user.update({
+      where: { id: data.userId },
+      data: { recentlyViewed: data.history },
+    });
   });

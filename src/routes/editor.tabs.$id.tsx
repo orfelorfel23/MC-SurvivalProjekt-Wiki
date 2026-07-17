@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Textarea } from "@/components/ui/textarea";
+import MDEditor from "@uiw/react-md-editor";
+import rehypeSanitize from "rehype-sanitize";
+import { DiffModal } from "@/components/diff-modal";
 
 export const Route = createFileRoute("/editor/tabs/$id")({
   component: TabEditorDetail,
@@ -35,6 +37,8 @@ function TabEditorDetail() {
     order: 0,
     modules: [] as any[],
   });
+  const [originalTab, setOriginalTab] = useState<any>(null);
+  const [showDiff, setShowDiff] = useState(false);
 
   useEffect(() => {
     if (id !== "new" && tabs) {
@@ -49,12 +53,18 @@ function TabEditorDetail() {
           isVisible: existing.isVisible,
           order: existing.order,
           modules: Array.isArray(existing.modules) ? existing.modules : [],
-        });
+        };
+        setTab(mapped);
+        setOriginalTab(mapped);
       }
     }
   }, [id, tabs]);
 
-  const handleSave = async () => {
+  const handleSaveInit = () => {
+    setShowDiff(true);
+  };
+
+  const confirmSave = async () => {
     try {
       await saveTab({ data: tab });
       toast.success("Tab gespeichert!");
@@ -85,7 +95,7 @@ function TabEditorDetail() {
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <div className="flex justify-between mb-6">
         <h1 className="text-2xl text-primary">{id === "new" ? "Neuer Tab" : "Tab bearbeiten"}</h1>
-        <Button onClick={handleSave}>Speichern</Button>
+        <Button onClick={handleSaveInit}>Überprüfen & Speichern</Button>
       </div>
 
       <div className="grid gap-6">
@@ -123,7 +133,14 @@ function TabEditorDetail() {
                 <Button variant="destructive" size="sm" className="absolute top-2 right-2 opacity-0 group-hover:opacity-100" onClick={() => removeModule(i)}>X</Button>
                 <div className="text-xs text-accent font-bold uppercase">{m.type}</div>
                 {m.type === "text" ? (
-                  <Textarea placeholder="Markdown Text..." value={m.contentDe} onChange={e => updateModule(i, { contentDe: e.target.value })} />
+                  <div data-color-mode="dark">
+                    <MDEditor
+                      value={m.contentDe || ""}
+                      onChange={val => updateModule(i, { contentDe: val })}
+                      previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
+                      height={200}
+                    />
+                  </div>
                 ) : (
                   <div className="grid gap-1">
                     <Label className="text-xs">{m.type} ID (aus der Datenbank)</Label>
@@ -143,6 +160,14 @@ function TabEditorDetail() {
           </div>
         )}
       </div>
+
+      <DiffModal 
+        isOpen={showDiff} 
+        onClose={() => setShowDiff(false)} 
+        onConfirm={confirmSave} 
+        oldData={originalTab || {}} 
+        newData={tab} 
+      />
     </div>
   );
 }

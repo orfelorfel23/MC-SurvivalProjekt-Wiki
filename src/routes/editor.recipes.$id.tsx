@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { ItemPicker } from "@/components/item-picker";
 import type { GridSlot } from "@/components/crafting-grid";
 import { toast } from "sonner";
+import { DiffModal } from "@/components/diff-modal";
 
 export const Route = createFileRoute("/editor/recipes/$id")({
   component: RecipeEditorDetail,
@@ -29,6 +30,8 @@ function RecipeEditorDetail() {
     grid: Array(9).fill(null) as GridSlot[],
     resultItem: null as GridSlot | null,
   });
+  const [originalRecipe, setOriginalRecipe] = useState<any>(null);
+  const [showDiff, setShowDiff] = useState(false);
 
   useEffect(() => {
     if (id !== "new") {
@@ -46,7 +49,7 @@ function RecipeEditorDetail() {
             }
           }
 
-          setRecipe({
+          const mapped = {
             id: r.id,
             nameDe: r.nameDe || "",
             slug: r.slug || "",
@@ -55,7 +58,9 @@ function RecipeEditorDetail() {
             resultCount: r.resultCount || 1,
             grid: Array.isArray(r.grid) && r.grid.length === 9 ? r.grid : Array(9).fill(null),
             resultItem: resultItem as any,
-          } as any);
+          };
+          setRecipe(mapped as any);
+          setOriginalRecipe(mapped as any);
         } else {
           // It's passing ID as slug to getKindItem, wait, getKindItem expects slug.
           // But our list passed id? Let's check `editor.recipes.tsx` -> params={{ id: r.id }} but getKindItem uses slug usually.
@@ -66,13 +71,21 @@ function RecipeEditorDetail() {
     }
   }, [id]);
 
-  const handleSave = async () => {
+  const handleSaveInit = () => {
+    setShowDiff(true);
+  };
+
+  const confirmSave = async () => {
     try {
       await saveRecipe({ data: { ...recipe, id: recipe.id } });
       toast.success("Rezept gespeichert!");
       navigate({ to: "/editor/recipes" });
-    } catch (e) {
-      toast.error("Fehler beim Speichern.");
+    } catch (e: any) {
+      if (e?.message?.includes("DUPLICATE_RECIPE")) {
+        toast.error("Ein Rezept mit genau diesem Crafting Grid existiert bereits!");
+      } else {
+        toast.error("Fehler beim Speichern.");
+      }
     }
   };
 
@@ -80,7 +93,7 @@ function RecipeEditorDetail() {
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <div className="flex justify-between mb-6">
         <h1 className="text-2xl text-primary">{id === "new" ? "Neues Rezept" : "Rezept bearbeiten"}</h1>
-        <Button onClick={handleSave}>Speichern</Button>
+        <Button onClick={handleSaveInit}>Überprüfen & Speichern</Button>
       </div>
 
       <div className="grid gap-6">
@@ -143,6 +156,14 @@ function RecipeEditorDetail() {
           </div>
         </div>
       </div>
+      
+      <DiffModal 
+        isOpen={showDiff} 
+        onClose={() => setShowDiff(false)} 
+        onConfirm={confirmSave} 
+        oldData={originalRecipe || {}} 
+        newData={recipe} 
+      />
     </div>
   );
 }

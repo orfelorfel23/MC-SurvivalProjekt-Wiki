@@ -15,6 +15,10 @@ import { toast } from "sonner";
 import { useLang, pickLocalized, t, KIND_TABLE, KIND_LABEL_KEY, type Kind } from "@/lib/i18n";
 import { CraftingGrid, type GridItem, type GridSlot } from "@/components/crafting-grid";
 import { ImageUpload } from "@/components/image-upload";
+import { RarityBadge } from "@/components/rarity-badge";
+import { useRecentlyViewed } from "@/lib/use-recently-viewed";
+import { DiffModal } from "@/components/diff-modal";
+import { CommentSection } from "@/components/comment-section";
 
 export const Route = createFileRoute("/$kind/$slug")({
   beforeLoad: ({ params }) => {
@@ -42,6 +46,7 @@ function DetailPage() {
     spawnItem?: GridItem | null;
   }>({});
   const [loading, setLoading] = useState(true);
+  const [showDiff, setShowDiff] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -85,7 +90,11 @@ function DetailPage() {
     }
   };
 
-  const handleSave = async () => {
+  const handleSaveInit = () => {
+    setShowDiff(true);
+  };
+
+  const confirmSave = async () => {
     setSaving(true);
     try {
       const payload = { ...editData };
@@ -131,7 +140,7 @@ function DetailPage() {
           <h1 className="text-2xl text-primary">Bearbeiten: {slug}</h1>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setIsEditing(false)}>Abbrechen</Button>
-            <Button onClick={handleSave} disabled={saving}>{saving ? "Speichert..." : "Speichern"}</Button>
+            <Button onClick={handleSaveInit} disabled={saving}>{saving ? "Speichert..." : "Überprüfen & Speichern"}</Button>
           </div>
         </div>
         <div className="grid gap-4 bg-card p-6 border border-border">
@@ -158,6 +167,13 @@ function DetailPage() {
             </div>
           ))}
         </div>
+        <DiffModal 
+          isOpen={showDiff} 
+          onClose={() => setShowDiff(false)} 
+          onConfirm={confirmSave} 
+          oldData={row} 
+          newData={editData} 
+        />
       </article>
     );
   }
@@ -168,8 +184,13 @@ function DetailPage() {
       : pickLocalized(row.nameDe, row.nameEn, lang);
   const description = pickLocalized(row.descriptionDe, row.descriptionEn, lang);
 
+  const { history } = useRecentlyViewed(row ? { kind: k, slug, title: title || slug } : undefined);
+
   return (
-    <article className="container mx-auto px-4 py-8 max-w-4xl relative">
+    <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="flex flex-col lg:flex-row gap-8">
+        {/* Main Content */}
+        <article className="flex-1 relative">
       <div className="flex justify-between items-start">
         <Link
           to="/$kind"
@@ -199,7 +220,7 @@ function DetailPage() {
           <h1 className="text-2xl md:text-3xl text-primary mb-2">{title}</h1>
           <div className="flex gap-2 flex-wrap text-xs">
             {row.rarity && (
-              <span className="px-2 py-0.5 rounded border border-border">{row.rarity}</span>
+              <RarityBadge rarity={row.rarity} className="px-2 py-0.5 rounded border border-border" />
             )}
             {row.category && <span className="px-2 py-0.5 rounded bg-muted">{row.category}</span>}
             {row.difficulty && (
@@ -352,6 +373,36 @@ function DetailPage() {
           </div>
         </section>
       )}
-    </article>
+
+      {k === "rezepte" && row.id && (
+        <CommentSection recipeId={row.id} />
+      )}
+        </article>
+
+        {/* Sidebar */}
+        <aside className="w-full lg:w-72 flex-shrink-0">
+          <div className="mc-panel p-4 sticky top-24">
+            <h3 className="text-sm uppercase tracking-widest text-accent mb-4">Zuletzt angesehen</h3>
+            {history.length === 0 ? (
+              <p className="text-xs text-muted-foreground">Noch keine Einträge.</p>
+            ) : (
+              <div className="flex flex-col gap-2">
+                {history.map((h, i) => (
+                  <Link
+                    key={h.slug + i}
+                    to="/$kind/$slug"
+                    params={{ kind: h.kind, slug: h.slug }}
+                    className="p-2 -mx-2 hover:bg-accent/10 rounded transition-colors"
+                  >
+                    <div className="text-sm font-medium truncate">{h.title}</div>
+                    <div className="text-xs text-muted-foreground uppercase">{t(KIND_LABEL_KEY[h.kind as Kind], lang) || h.kind}</div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </aside>
+      </div>
+    </div>
   );
 }

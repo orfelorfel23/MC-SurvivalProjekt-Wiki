@@ -17,6 +17,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EditorIndexRouteImport } from './routes/editor.index'
 import { Route as KindIndexRouteImport } from './routes/$kind.index'
+import { Route as AdminTrashRouteImport } from './routes/admin.trash'
 import { Route as KindSlugRouteImport } from './routes/$kind.$slug'
 import { Route as EditorTabsIndexRouteImport } from './routes/editor.tabs.index'
 import { Route as EditorRecipesIndexRouteImport } from './routes/editor.recipes.index'
@@ -63,6 +64,11 @@ const KindIndexRoute = KindIndexRouteImport.update({
   path: '/$kind/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminTrashRoute = AdminTrashRouteImport.update({
+  id: '/trash',
+  path: '/trash',
+  getParentRoute: () => AdminRoute,
+} as any)
 const KindSlugRoute = KindSlugRouteImport.update({
   id: '/$kind/$slug',
   path: '/$kind/$slug',
@@ -91,12 +97,13 @@ const EditorRecipesIdRoute = EditorRecipesIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/editor': typeof EditorRouteWithChildren
   '/karte': typeof KarteRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
+  '/admin/trash': typeof AdminTrashRoute
   '/$kind/': typeof KindIndexRoute
   '/editor/': typeof EditorIndexRoute
   '/editor/recipes/$id': typeof EditorRecipesIdRoute
@@ -106,11 +113,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/karte': typeof KarteRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
+  '/admin/trash': typeof AdminTrashRoute
   '/$kind': typeof KindIndexRoute
   '/editor': typeof EditorIndexRoute
   '/editor/recipes/$id': typeof EditorRecipesIdRoute
@@ -121,12 +129,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/editor': typeof EditorRouteWithChildren
   '/karte': typeof KarteRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
+  '/admin/trash': typeof AdminTrashRoute
   '/$kind/': typeof KindIndexRoute
   '/editor/': typeof EditorIndexRoute
   '/editor/recipes/$id': typeof EditorRecipesIdRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/karte'
     | '/search'
     | '/$kind/$slug'
+    | '/admin/trash'
     | '/$kind/'
     | '/editor/'
     | '/editor/recipes/$id'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/karte'
     | '/search'
     | '/$kind/$slug'
+    | '/admin/trash'
     | '/$kind'
     | '/editor'
     | '/editor/recipes/$id'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/karte'
     | '/search'
     | '/$kind/$slug'
+    | '/admin/trash'
     | '/$kind/'
     | '/editor/'
     | '/editor/recipes/$id'
@@ -183,7 +195,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   EditorRoute: typeof EditorRouteWithChildren
   KarteRoute: typeof KarteRoute
@@ -250,6 +262,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KindIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/trash': {
+      id: '/admin/trash'
+      path: '/trash'
+      fullPath: '/admin/trash'
+      preLoaderRoute: typeof AdminTrashRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/$kind/$slug': {
       id: '/$kind/$slug'
       path: '/$kind/$slug'
@@ -288,6 +307,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteChildren {
+  AdminTrashRoute: typeof AdminTrashRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminTrashRoute: AdminTrashRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 interface EditorRouteChildren {
   EditorIndexRoute: typeof EditorIndexRoute
   EditorRecipesIdRoute: typeof EditorRecipesIdRoute
@@ -309,7 +338,7 @@ const EditorRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
+  AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   EditorRoute: EditorRouteWithChildren,
   KarteRoute: KarteRoute,

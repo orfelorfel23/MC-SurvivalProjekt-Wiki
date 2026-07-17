@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/use-auth";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Link } from "@tanstack/react-router";
 import { getUsersAndRoles, grantRole, revokeRole } from "@/server/functions";
 
 export const Route = createFileRoute("/admin")({ component: AdminPage });
@@ -28,7 +29,7 @@ function AdminPage() {
   if (!user) return <div className="container mx-auto px-4 py-8">Bitte anmelden.</div>;
   if (!isAdmin) return <div className="container mx-auto px-4 py-8">Kein Admin-Zugriff.</div>;
 
-  const handleGrant = async (userId: string, role: "ADMIN" | "EDITOR") => {
+  const handleGrant = async (userId: string, role: "ADMIN" | "MODERATOR" | "EDITOR") => {
     try {
       await grantRole({ data: { userId, role } });
       toast.success("Rolle vergeben");
@@ -50,7 +51,17 @@ function AdminPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <h1 className="text-2xl text-primary mb-6">Admin</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl text-primary">Admin</h1>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link to="/admin/broken-links">Broken Links</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/admin/trash">Papierkorb öffnen</Link>
+          </Button>
+        </div>
+      </div>
       <section className="mc-panel p-4 mb-6">
         <h2 className="text-sm uppercase text-accent mb-3">Editor ernennen</h2>
         <p className="text-xs text-muted-foreground mb-3">
@@ -71,6 +82,11 @@ function AdminPage() {
                 {!userRoles.find((r: any) => r.role === "EDITOR") && (
                   <Button size="sm" variant="outline" onClick={() => handleGrant(u.id, "EDITOR")}>
                     + Editor
+                  </Button>
+                )}
+                {!userRoles.find((r: any) => r.role === "MODERATOR") && (
+                  <Button size="sm" variant="outline" onClick={() => handleGrant(u.id, "MODERATOR")}>
+                    + Moderator
                   </Button>
                 )}
                 {!userRoles.find((r: any) => r.role === "ADMIN") && (
