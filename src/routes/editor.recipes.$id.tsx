@@ -27,6 +27,7 @@ function RecipeEditorDetail() {
     station: "workbench",
     resultCount: 1,
     grid: Array(9).fill(null) as GridSlot[],
+    resultItem: null as GridSlot | null,
   });
 
   useEffect(() => {
@@ -126,7 +127,7 @@ function RecipeEditorDetail() {
             <div className="flex items-center gap-4">
               <span className="text-2xl text-muted-foreground">→</span>
               <ItemPicker 
-                slot={(recipe as any).resultItem} 
+                slot={recipe.resultItem} 
                 onChange={(s) => setRecipe({...recipe, resultItem: s})}
                 onClear={() => setRecipe({...recipe, resultItem: null})}
               />

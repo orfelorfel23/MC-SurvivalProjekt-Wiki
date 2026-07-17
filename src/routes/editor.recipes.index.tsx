@@ -24,7 +24,7 @@ function RecipeEditorList() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl text-primary">Rezepte verwalten</h1>
-        <Link to="/editor/recipes/new">
+        <Link to="/editor/recipes/$id" params={{ id: "new" }}>
           <Button>Neues Rezept</Button>
         </Link>
       </div>
