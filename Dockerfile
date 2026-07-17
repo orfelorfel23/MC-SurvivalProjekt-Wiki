@@ -15,7 +15,7 @@ COPY . .
 # Generate prisma client
 RUN npx prisma generate
 # Build the application
-RUN npm run build
+RUN BETTER_AUTH_SECRET=dummy_secret_for_build_step BETTER_AUTH_URL=http://localhost npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
