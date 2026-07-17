@@ -435,6 +435,7 @@ export const restoreItem = createServerFn({ method: "POST" })
     return model.update({
       where: { id: data.id },
       data: { deletedAt: null },
+    });
   });
 
 export const getComments = createServerFn({ method: "GET" })
@@ -475,7 +476,7 @@ export const checkBrokenLinks = createServerFn({ method: "POST" })
     // Helper to find links in markdown text
     const extractLinks = (text: string | null | undefined, location: string) => {
       if (!text) return;
-      const regex = /\[([^\]]+)\]\((/[^\)]+)\)/g;
+      const regex = /\[([^\]]+)\]\((\/[^\)]+)\)/g;
       let match;
       while ((match = regex.exec(text)) !== null) {
         results.push({ location, text: match[1], link: match[2], valid: false });
