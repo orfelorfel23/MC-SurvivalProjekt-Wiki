@@ -82,10 +82,13 @@ function KindList() {
         )}
       </div>
       {loading && <p className="text-muted-foreground">{t("loading", lang)}</p>}
+      {!loading && !currentTab && (
+        <p className="text-muted-foreground">Unbekannte Kategorie.</p>
+      )}
       {!loading && currentTab?.isBuiltin && rows.length === 0 && (
         <p className="text-muted-foreground">{t("noResults", lang)}</p>
       )}
-      {!loading && !currentTab?.isBuiltin && modules.length === 0 && (
+      {!loading && currentTab && !currentTab?.isBuiltin && modules.length === 0 && (
         <p className="text-muted-foreground">Diese Seite hat noch keine Module.</p>
       )}
 
@@ -136,7 +139,7 @@ function KindList() {
         </div>
       )}
 
-      {!currentTab?.isBuiltin && (
+      {currentTab && !currentTab?.isBuiltin && (
         <div className="flex flex-col gap-6">
           {modules.map((mod, i) => {
             if (mod.type === "text") {

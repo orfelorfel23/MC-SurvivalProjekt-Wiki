@@ -1,8 +1,30 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
+import { auth } from "../lib/auth";
 import { prisma } from "./db";
 import { KIND_TABLE } from "../lib/i18n";
 import * as fs from "fs";
 import * as path from "path";
+
+// ---------------------------------------------------------------------------
+// Auth helpers
+// ---------------------------------------------------------------------------
+async function getSessionOrThrow() {
+  const request = getRequest();
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session?.user) throw new Error("UNAUTHORIZED");
+  return session;
+}
+
+async function requireRole(...roles: ("ADMIN" | "MODERATOR" | "EDITOR")[]) {
+  const session = await getSessionOrThrow();
+  const userRoles = await prisma.userRole.findMany({
+    where: { userId: session.user.id },
+  });
+  const roleSet = new Set(userRoles.map((r) => r.role));
+  if (!roles.some((r) => roleSet.has(r))) throw new Error("FORBIDDEN");
+  return session;
+}
 
 // Map KIND_TABLE names to Prisma model names
 const prismaModels: Record<string, keyof typeof prisma> = {
@@ -124,12 +146,14 @@ import Fuse from "fuse.js";
 
 let searchCache: any[] = [];
 let searchCacheTime = 0;
+let searchCacheLock = false;
 
 export const searchWiki = createServerFn({ method: "GET" })
   .validator((d: { q: string; category?: string; rarity?: string }) => d)
   .handler(async ({ data }) => {
-    // Refresh cache if older than 30 seconds
-    if (Date.now() - searchCacheTime > 30000) {
+    // Refresh cache if older than 30 seconds (with simple lock to avoid stampede)
+    if (Date.now() - searchCacheTime > 30000 && !searchCacheLock) {
+      searchCacheLock = true;
       const commands = await prisma.command.findMany({ where: { deletedAt: null } });
       const worlds = await prisma.world.findMany({ where: { deletedAt: null } });
       const items = await prisma.item.findMany({ where: { deletedAt: null } });
@@ -225,6 +249,7 @@ export const searchWiki = createServerFn({ method: "GET" })
         })),
       ];
       searchCacheTime = Date.now();
+      searchCacheLock = false;
     }
 
     let itemsToSearch = searchCache;
@@ -267,6 +292,7 @@ export const getUserRoles = createServerFn({ method: "GET" })
   });
 
 export const getUsersAndRoles = createServerFn({ method: "GET" }).handler(async () => {
+  await requireRole("ADMIN");
   const users = await prisma.user.findMany({
     select: { id: true, name: true, roles: true },
   });
@@ -276,6 +302,7 @@ export const getUsersAndRoles = createServerFn({ method: "GET" }).handler(async 
 export const grantRole = createServerFn({ method: "POST" })
   .validator((d: { userId: string; role: "ADMIN" | "EDITOR" | "MODERATOR" }) => d)
   .handler(async ({ data }) => {
+    await requireRole("ADMIN");
     return prisma.userRole.create({
       data: { userId: data.userId, role: data.role },
     });
@@ -284,6 +311,7 @@ export const grantRole = createServerFn({ method: "POST" })
 export const revokeRole = createServerFn({ method: "POST" })
   .validator((d: { id: string }) => d)
   .handler(async ({ data }) => {
+    await requireRole("ADMIN");
     return prisma.userRole.delete({
       where: { id: data.id },
     });
@@ -349,6 +377,7 @@ export const saveRecipe = createServerFn({ method: "POST" })
     }) => d,
   )
   .handler(async ({ data }) => {
+    await requireRole("ADMIN", "MODERATOR", "EDITOR");
     let resultItemId = null;
 
     // If we received a resultItem, we either link it to DB or create a new Item!
@@ -420,15 +449,19 @@ export const saveTab = createServerFn({ method: "POST" })
     }) => d,
   )
   .handler(async ({ data }) => {
-    if (data.id && data.id !== "new") {
-      return prisma.wikiTab.update({ where: { id: data.id }, data });
+    await requireRole("ADMIN", "EDITOR");
+    const { id, ...createData } = data;
+    if (id && id !== "new") {
+      // Strip id from the update payload — only use it as a WHERE key
+      return prisma.wikiTab.update({ where: { id }, data: createData });
     }
-    return prisma.wikiTab.create({ data });
+    return prisma.wikiTab.create({ data: createData });
   });
 
 export const saveGenericEntity = createServerFn({ method: "POST" })
   .validator((d: { kindId: string; slug: string; data: any }) => d)
   .handler(async ({ data }) => {
+    await requireRole("ADMIN", "MODERATOR", "EDITOR");
     let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
     let modelName = prismaModels[tableName] as keyof typeof prisma;
 
@@ -484,6 +517,7 @@ export const uploadImageFn = createServerFn({ method: "POST" })
 export const softDeleteGenericEntity = createServerFn({ method: "POST" })
   .validator((d: { kindId: string; slug: string }) => d)
   .handler(async ({ data }) => {
+    await requireRole("ADMIN", "MODERATOR", "EDITOR");
     let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
     let modelName = prismaModels[tableName] as keyof typeof prisma;
 
@@ -499,19 +533,23 @@ export const softDeleteGenericEntity = createServerFn({ method: "POST" })
   });
 
 export const getDeletedItems = createServerFn({ method: "GET" }).handler(async () => {
+  await requireRole("ADMIN", "MODERATOR");
+  // Only show items deleted within the last 30 days
+  const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const results = [];
 
   for (const [kind, table] of Object.entries(KIND_TABLE)) {
     const modelName = prismaModels[table] as keyof typeof prisma;
     if (!modelName) continue;
     const model = prisma[modelName] as any;
-    const deleted = await model.findMany({ where: { deletedAt: { not: null } } });
+    const deleted = await model.findMany({ where: { deletedAt: { not: null, gte: cutoff } } });
     results.push(...deleted.map((d: any) => ({ ...d, _kind: kind })));
   }
 
   // Also check wikiPages not in KIND_TABLE
-  const deletedPages = await prisma.wikiPage.findMany({ where: { deletedAt: { not: null } } });
-  // Filter out those that belong to a built-in kind (already caught above if category matches, actually wait, getKindList maps kindId -> category for custom tabs)
+  const deletedPages = await prisma.wikiPage.findMany({
+    where: { deletedAt: { not: null, gte: cutoff } },
+  });
   results.push(...deletedPages.map((d: any) => ({ ...d, _kind: d.category })));
 
   // Deduplicate by id just in case
@@ -525,6 +563,7 @@ export const getDeletedItems = createServerFn({ method: "GET" }).handler(async (
 export const restoreItem = createServerFn({ method: "POST" })
   .validator((d: { kindId: string; id: string }) => d)
   .handler(async ({ data }) => {
+    await requireRole("ADMIN", "MODERATOR");
     let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
     let modelName = prismaModels[tableName] as keyof typeof prisma;
 
@@ -552,11 +591,12 @@ export const getComments = createServerFn({ method: "GET" })
 export const postComment = createServerFn({ method: "POST" })
   .validator((d: { recipeId: string; content: string; authorId: string }) => d)
   .handler(async ({ data }) => {
+    const session = await getSessionOrThrow();
     return prisma.comment.create({
       data: {
         content: data.content,
         recipeId: data.recipeId,
-        authorId: data.authorId,
+        authorId: session.user.id, // Always use the server-side session, ignore client-provided authorId
       },
     });
   });
@@ -564,6 +604,13 @@ export const postComment = createServerFn({ method: "POST" })
 export const deleteComment = createServerFn({ method: "POST" })
   .validator((d: { commentId: string }) => d)
   .handler(async ({ data }) => {
+    const session = await getSessionOrThrow();
+    // Allow deletion by the comment author or any moderator/admin
+    const comment = await prisma.comment.findUnique({ where: { id: data.commentId } });
+    if (!comment) throw new Error("NOT_FOUND");
+    if (comment.authorId !== session.user.id) {
+      await requireRole("ADMIN", "MODERATOR");
+    }
     return prisma.comment.update({
       where: { id: data.commentId },
       data: { deletedAt: new Date() },
@@ -646,15 +693,16 @@ export const checkBrokenLinks = createServerFn({ method: "POST" }).handler(async
 export const getRecentlyViewed = createServerFn({ method: "GET" })
   .validator((d: { userId: string }) => d)
   .handler(async ({ data }) => {
-    const user = (await prisma.user.findUnique({ where: { id: data.userId } })) as any;
-    return user?.recentlyViewed || [];
+    const profile = await prisma.profile.findUnique({ where: { id: data.userId } });
+    return (profile?.recentlyViewed as any[]) || [];
   });
 
 export const saveRecentlyViewed = createServerFn({ method: "POST" })
   .validator((d: { userId: string; history: any }) => d)
   .handler(async ({ data }) => {
-    return (prisma.user as any).update({
+    return prisma.profile.upsert({
       where: { id: data.userId },
-      data: { recentlyViewed: data.history },
+      update: { recentlyViewed: data.history },
+      create: { id: data.userId, recentlyViewed: data.history },
     });
   });

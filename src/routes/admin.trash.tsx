@@ -4,6 +4,7 @@ import { getDeletedItems, restoreItem } from "../server/functions";
 import { Button } from "../components/ui/button";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { useAuth } from "@/lib/use-auth";
 
 export const Route = createFileRoute("/admin/trash")({
   component: AdminTrashPage,
@@ -11,10 +12,12 @@ export const Route = createFileRoute("/admin/trash")({
 
 function AdminTrashPage() {
   const queryClient = useQueryClient();
+  const { user, isModerator, isAdmin, loading } = useAuth();
 
   const { data: items, isLoading } = useQuery({
     queryKey: ["deletedItems"],
     queryFn: () => getDeletedItems(),
+    enabled: isModerator || isAdmin,
   });
 
   const restoreMutation = useMutation({
@@ -27,6 +30,10 @@ function AdminTrashPage() {
       toast.error("Fehler beim Wiederherstellen.");
     },
   });
+
+  if (loading) return <div className="p-8">...</div>;
+  if (!user || (!isModerator && !isAdmin))
+    return <div className="p-8 container mx-auto">Kein Zugriff. Nur Moderatoren und Admins können den Papierkorb einsehen.</div>;
 
   if (isLoading) return <div className="p-8">Lade Papierkorb...</div>;
 

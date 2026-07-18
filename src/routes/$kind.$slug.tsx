@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -21,9 +21,6 @@ import { DiffModal } from "@/components/diff-modal";
 import { CommentSection } from "@/components/comment-section";
 
 export const Route = createFileRoute("/$kind/$slug")({
-  beforeLoad: ({ params }) => {
-    if (!(params.kind in KIND_TABLE)) throw notFound();
-  },
   component: DetailPage,
   notFoundComponent: () => <div className="container mx-auto px-4 py-8">Nicht gefunden.</div>,
 });

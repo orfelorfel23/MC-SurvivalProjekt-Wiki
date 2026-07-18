@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/use-auth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getWikiTabs, saveTab } from "@/server/functions";
+import { getWikiTabs, saveTab, getKindList } from "@/server/functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,75 @@ import { toast } from "sonner";
 import MDEditor from "@uiw/react-md-editor";
 import rehypeSanitize from "rehype-sanitize";
 import { DiffModal } from "@/components/diff-modal";
+
+// Map module type -> kind slug used by getKindList
+const MODULE_KIND: Record<string, string> = {
+  recipe: "rezepte",
+  boss: "bosse",
+  item: "items",
+  command: "befehle",
+};
+
+function EntityPicker({
+  type,
+  value,
+  onChange,
+}: {
+  type: string;
+  value: string;
+  onChange: (id: string, label: string) => void;
+}) {
+  const kindSlug = MODULE_KIND[type];
+  const [search, setSearch] = useState("");
+  const [label, setLabel] = useState(value ? `ID: ${value.slice(0, 8)}...` : "");
+
+  const { data: entities } = useQuery({
+    queryKey: ["kindList", kindSlug],
+    queryFn: () => getKindList({ data: { kindId: kindSlug } }),
+    enabled: !!kindSlug,
+    staleTime: 60_000,
+  });
+
+  const filtered = (entities as any[] | undefined)
+    ?.filter((e: any) =>
+      (e.nameDe || e.titleDe || "").toLowerCase().includes(search.toLowerCase()),
+    )
+    .slice(0, 8);
+
+  return (
+    <div className="grid gap-1">
+      <Label className="text-xs">{type} – Suche nach Name</Label>
+      <Input
+        placeholder={`${type} suchen...`}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      {label && <p className="text-xs text-accent">Ausgewählt: {label}</p>}
+      {search.length > 0 && filtered && filtered.length > 0 && (
+        <div className="border border-border rounded bg-popover">
+          {filtered.map((e: any) => (
+            <button
+              key={e.id}
+              type="button"
+              className="w-full text-left px-3 py-2 text-sm hover:bg-accent/20 transition-colors"
+              onClick={() => {
+                onChange(e.id, e.nameDe || e.titleDe);
+                setLabel(e.nameDe || e.titleDe);
+                setSearch("");
+              }}
+            >
+              <span className="font-medium">{e.nameDe || e.titleDe}</span>
+              <span className="text-xs text-muted-foreground ml-2">{e.slug}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {search.length > 0 && (!filtered || filtered.length === 0) && (
+        <p className="text-xs text-muted-foreground px-1">Keine Treffer.</p>
+      )}
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/editor/tabs/$id")({
   component: TabEditorDetail,
@@ -160,10 +229,11 @@ function TabEditorDetail() {
                     />
                   </div>
                 ) : (
-                  <div className="grid gap-1">
-                    <Label className="text-xs">{m.type} ID (aus der Datenbank)</Label>
-                    <Input value={m.id} onChange={(e) => updateModule(i, { id: e.target.value })} />
-                  </div>
+                  <EntityPicker
+                    type={m.type}
+                    value={m.id || ""}
+                    onChange={(id, label) => updateModule(i, { id })}
+                  />
                 )}
               </div>
             ))}
