@@ -72,7 +72,7 @@ export function ItemPicker({
               <div className="text-[10px] truncate max-w-full px-1">DB Item</div>
             ) : (
               <img
-                src={`/items/${slot.mc_id}.png`}
+                src={`/item-icons/${slot.mc_id}.png`}
                 className={`w-8 h-8 object-contain ${slot.enchanted ? "mc-glint" : ""}`}
                 alt={slot.name || slot.mc_id}
                 title={slot.name || slot.mc_id}

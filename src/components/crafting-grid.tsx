@@ -84,7 +84,7 @@ function Slot({
   let isVanilla = slot.type === "vanilla" || !!slot.mc_id;
   let dbItem = !isVanilla && slot.item_id && dbItems ? dbItems[slot.item_id] : null;
 
-  let imageUrl = isVanilla ? `/items/${slot.mc_id}.png` : dbItem?.image_url || dbItem?.imageUrl;
+  let imageUrl = isVanilla ? `/item-icons/${slot.mc_id}.png` : dbItem?.image_url || dbItem?.imageUrl;
   let name = isVanilla ? slot.name || slot.mc_id : dbItem?.name_de || dbItem?.nameDe;
   let enchanted = isVanilla ? slot.enchanted : dbItem?.enchanted;
   let count = slot.count;

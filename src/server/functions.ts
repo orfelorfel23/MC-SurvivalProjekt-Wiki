@@ -366,7 +366,7 @@ export const saveRecipe = createServerFn({ method: "POST" })
               slug: data.slug + "-result",
               nameDe: data.resultItem.name,
               oraxenId: data.resultItem.mc_id,
-              imageUrl: `/items/${data.resultItem.mc_id}.png`,
+              imageUrl: `/item-icons/${data.resultItem.mc_id}.png`,
               enchanted: data.resultItem.enchanted || false,
             },
           });
@@ -445,7 +445,7 @@ export const saveGenericEntity = createServerFn({ method: "POST" })
   });
 
 export const getVanillaItems = createServerFn({ method: "GET" }).handler(async () => {
-  const itemsDir = path.join(process.cwd(), "public", "items");
+  const itemsDir = path.join(process.cwd(), "public", "item-icons");
   if (!fs.existsSync(itemsDir)) return [];
 
   const files = fs.readdirSync(itemsDir);
@@ -458,7 +458,7 @@ export const getVanillaItems = createServerFn({ method: "GET" }).handler(async (
         .split("_")
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");
-      return { id, name, url: `/items/${f}` };
+      return { id, name, url: `/item-icons/${f}` };
     });
 });
 

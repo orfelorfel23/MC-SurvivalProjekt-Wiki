@@ -22,14 +22,19 @@ function KindList() {
   const [modules, setModules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { data: tabs } = useQuery({
+  const { data: tabs, isLoading: isTabsLoading } = useQuery({
     queryKey: ["wikiTabs"],
     queryFn: () => getWikiTabs(),
   });
-  const currentTab = tabs?.find((t: any) => t.slug === k);
+  const currentTab = tabs?.find((t: any) => t.slug === k) ||
+    (k in KIND_TABLE ? { slug: k, isBuiltin: true } : undefined);
 
   useEffect(() => {
-    if (!currentTab) return;
+    if (isTabsLoading) return;
+    if (!currentTab) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     if (currentTab.isBuiltin) {
       getKindList({ data: { kindId: k } })
