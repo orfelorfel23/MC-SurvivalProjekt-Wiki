@@ -26,8 +26,8 @@ function KindList() {
     queryKey: ["wikiTabs"],
     queryFn: () => getWikiTabs(),
   });
-  const currentTab = tabs?.find((t: any) => t.slug === k) ||
-    (k in KIND_TABLE ? { slug: k, isBuiltin: true } : undefined);
+  const currentTab = React.useMemo(() => tabs?.find((t: any) => t.slug === k) ||
+    (k in KIND_TABLE ? { slug: k, isBuiltin: true } : undefined), [tabs, k]);
 
   useEffect(() => {
     if (isTabsLoading) return;
