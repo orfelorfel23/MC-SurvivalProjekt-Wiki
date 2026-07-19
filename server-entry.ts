@@ -2,6 +2,8 @@ import express from "express";
 import handler from "./dist/server/server.js";
 
 const app = express();
+app.set("trust proxy", true);
+
 const port = process.env.PORT || 3000;
 const host = process.env.HOST || "0.0.0.0";
 
