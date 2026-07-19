@@ -1,10 +1,11 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { getKindList, getWikiTabs, getTabModulesData } from "@/server/functions";
 import { useLang, pickLocalized, t, KIND_TABLE, KIND_LABEL_KEY } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/use-auth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/$kind/")({
@@ -18,7 +19,18 @@ function KindList() {
   const { lang } = useLang();
   const { isEditor } = useAuth();
   const navigate = useNavigate();
+  const [filterQuery, setFilterQuery] = useState("");
   const [rows, setRows] = useState<any[]>([]);
+
+  const filteredRows = useMemo(() => {
+    if (!filterQuery.trim()) return rows;
+    const lowerQ = filterQuery.toLowerCase();
+    return rows.filter((r) => {
+      const titleDe = r.titleDe || r.nameDe || "";
+      const titleEn = r.titleEn || r.nameEn || "";
+      return titleDe.toLowerCase().includes(lowerQ) || titleEn.toLowerCase().includes(lowerQ);
+    });
+  }, [rows, filterQuery]);
   const [modules, setModules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,7 +38,7 @@ function KindList() {
     queryKey: ["wikiTabs"],
     queryFn: () => getWikiTabs(),
   });
-  const currentTab = React.useMemo(() => tabs?.find((t: any) => t.slug === k) ||
+  const currentTab = useMemo(() => tabs?.find((t: any) => t.slug === k) ||
     (k in KIND_TABLE ? { slug: k, isBuiltin: true } : undefined), [tabs, k]);
 
   useEffect(() => {
@@ -61,8 +73,8 @@ function KindList() {
 
   const label = currentTab
     ? lang === "de"
-      ? currentTab.nameDe
-      : currentTab.nameEn || currentTab.nameDe
+      ? (currentTab as any).nameDe
+      : (currentTab as any).nameEn || (currentTab as any).nameDe
     : k in KIND_LABEL_KEY
       ? t(KIND_LABEL_KEY[k as keyof typeof KIND_LABEL_KEY], lang)
       : k;
@@ -77,7 +89,7 @@ function KindList() {
             size="sm"
             onClick={() => navigate({ to: "/editor/tabs/$id", params: { id: currentTab.slug } })}
           >
-            Tab Bearbeiten
+            Tab {t("edit", lang)}
           </Button>
         )}
       </div>
@@ -85,16 +97,26 @@ function KindList() {
       {!loading && !currentTab && (
         <p className="text-muted-foreground">Unbekannte Kategorie.</p>
       )}
-      {!loading && currentTab?.isBuiltin && rows.length === 0 && (
+      {!loading && currentTab?.isBuiltin && filteredRows.length === 0 && (
         <p className="text-muted-foreground">{t("noResults", lang)}</p>
       )}
       {!loading && currentTab && !currentTab?.isBuiltin && modules.length === 0 && (
         <p className="text-muted-foreground">Diese Seite hat noch keine Module.</p>
       )}
 
+      {currentTab?.isBuiltin && rows.length > 0 && (
+        <div className="mb-6 max-w-sm">
+          <Input
+            placeholder={`${label} durchsuchen...`}
+            value={filterQuery}
+            onChange={(e) => setFilterQuery(e.target.value)}
+          />
+        </div>
+      )}
+
       {currentTab?.isBuiltin && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {rows.map((r) => {
+          {filteredRows.map((r) => {
             const title =
               k === "wiki" || !currentTab?.isBuiltin
                 ? pickLocalized(r.titleDe, r.titleEn, lang)

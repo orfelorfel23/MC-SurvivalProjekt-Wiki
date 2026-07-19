@@ -2,15 +2,18 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getWikiTabs } from "@/server/functions";
 import { Button } from "@/components/ui/button";
+import { useLang, t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/editor/tabs/")({
   component: TabsList,
 });
 
 function TabsList() {
+  const { lang } = useLang();
   const { data: tabs, isLoading } = useQuery({
     queryKey: ["wikiTabs"],
     queryFn: () => getWikiTabs(),
+    staleTime: 5 * 60 * 1000,
   });
 
   return (
@@ -18,11 +21,11 @@ function TabsList() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl text-primary">Tabs verwalten</h1>
         <Link to="/editor/tabs/$id" params={{ id: "new" }}>
-          <Button>Neuer Tab (Topic)</Button>
+          <Button>{t("new", lang)} Tab (Topic)</Button>
         </Link>
       </div>
 
-      {isLoading && <p>Lädt...</p>}
+      {isLoading && <p>{t("loading", lang)}</p>}
 
       <div className="flex flex-col gap-2">
         {tabs?.map((t) => (
@@ -45,7 +48,7 @@ function TabsList() {
             </div>
             <Link to="/editor/tabs/$id" params={{ id: t.slug }}>
               <Button variant="outline" size="sm">
-                Bearbeiten
+                {t("edit", lang)}
               </Button>
             </Link>
           </div>

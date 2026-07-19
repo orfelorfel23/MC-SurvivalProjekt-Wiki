@@ -36,6 +36,7 @@ model User {
   createdPets   Pet[]
   createdPages  WikiPage[]
   createdTabs   WikiTab[]
+  createdPois   WikiPoi[]
   comments      Comment[]
 
   @@map("user")
@@ -141,6 +142,7 @@ model World {
 
   author        User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
   bosses        Boss[]
+  pois          WikiPoi[]
 
   @@map("worlds")
 }
@@ -376,4 +378,29 @@ model Comment {
   recipe    Recipe?   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   
   @@map("comments")
+}
+
+model WikiPoi {
+  id            String   @id @default(uuid())
+  slug          String   @unique
+  nameDe        String
+  nameEn        String?
+  descriptionDe String?
+  descriptionEn String?
+  x             Float
+  y             Float    @default(64)
+  z             Float
+  icon          String   @default("default")
+  imageUrl      String?
+  worldId       String?
+  
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  author        User?    @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  world         World?   @relation(fields: [worldId], references: [id], onDelete: SetNull)
+
+  @@map("wiki_pois")
 }

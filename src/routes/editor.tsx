@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Navigate, useLocation } from "@tanstack/react-router";
 import { useAuth } from "@/lib/use-auth";
 
 export const Route = createFileRoute("/editor")({
@@ -6,9 +6,13 @@ export const Route = createFileRoute("/editor")({
 });
 
 function EditorLayout() {
-  const { isEditor, loading } = useAuth();
+  const { user, isEditor, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) return <div className="container mx-auto px-4 py-8">...</div>;
+  if (!user) {
+    return <Navigate to="/auth" search={{ from: location.pathname }} />;
+  }
   if (!isEditor) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-md mc-panel">

@@ -1,10 +1,17 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/use-auth";
-import { getKindItem, saveRecipe } from "@/server/functions";
+import { useLang, t } from "@/lib/i18n";
+import {
+  saveGenericEntity,
+  getKindItem,
+  getKindList,
+  deleteGenericEntity,
+} from "@/server/functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Switch } from "@/components/ui/switch";
 import { ItemPicker } from "@/components/item-picker";
 import type { GridSlot } from "@/components/crafting-grid";
@@ -18,6 +25,7 @@ export const Route = createFileRoute("/editor/recipes/$id")({
 function RecipeEditorDetail() {
   const { id } = Route.useParams();
   const { isEditor } = useAuth();
+  const { lang } = useLang();
   const navigate = useNavigate();
 
   const [recipe, setRecipe] = useState({
@@ -33,48 +41,47 @@ function RecipeEditorDetail() {
   const [originalRecipe, setOriginalRecipe] = useState<any>(null);
   const [showDiff, setShowDiff] = useState(false);
 
-  useEffect(() => {
-    if (id !== "new") {
-      getKindItem({ data: { kindId: "rezepte", slug: id } }).then((r: any) => {
-        if (r) {
-          // Map the resultItemId to a format ItemPicker understands
-          let resultItem = null;
-          if (r.resultItemId) {
-            // Find it in resolved items if possible, or just create a db reference
-            const resolved = r._resolvedItems?.find((i: any) => i.id === r.resultItemId);
-            if (resolved && resolved.oraxenId) {
-              resultItem = {
-                type: "vanilla",
-                mc_id: resolved.oraxenId,
-                name: resolved.nameDe,
-                enchanted: resolved.enchanted,
-              };
-            } else {
-              resultItem = { type: "db", item_id: r.resultItemId };
-            }
-          }
+  const { data: fetchedRecipe } = useQuery({
+    queryKey: ["recipe", id],
+    queryFn: () => getKindItem({ data: { kindId: "rezepte", slug: id } }),
+    enabled: id !== "new",
+    staleTime: 5 * 60 * 1000,
+  });
 
-          const mapped = {
-            id: r.id,
-            nameDe: r.nameDe || "",
-            slug: r.slug || "",
-            shaped: r.shaped,
-            station: r.station || "workbench",
-            resultCount: r.resultCount || 1,
-            grid: Array.isArray(r.grid) && r.grid.length === 9 ? r.grid : Array(9).fill(null),
-            resultItem: resultItem as any,
+  useEffect(() => {
+    if (id !== "new" && fetchedRecipe) {
+      const r = fetchedRecipe as any;
+      // Map the resultItemId to a format ItemPicker understands
+      let resultItem = null;
+      if (r.resultItemId) {
+        // Find it in resolved items if possible, or just create a db reference
+        const resolved = r._resolvedItems?.find((i: any) => i.id === r.resultItemId);
+        if (resolved && resolved.oraxenId) {
+          resultItem = {
+            type: "vanilla",
+            mc_id: resolved.oraxenId,
+            name: resolved.nameDe,
+            enchanted: resolved.enchanted,
           };
-          setRecipe(mapped as any);
-          setOriginalRecipe(mapped as any);
         } else {
-          // It's passing ID as slug to getKindItem, wait, getKindItem expects slug.
-          // But our list passed id? Let's check `editor.recipes.tsx` -> params={{ id: r.id }} but getKindItem uses slug usually.
-          // Let's assume id is the id, but we need slug. Wait, getKindItem by slug is how the app works.
-          // I will fix the list to pass slug in a moment.
+          resultItem = { type: "db", item_id: r.resultItemId };
         }
-      });
+      }
+
+      const mapped = {
+        id: r.id,
+        nameDe: r.nameDe || "",
+        slug: r.slug || "",
+        shaped: r.shaped,
+        station: r.station || "workbench",
+        resultCount: r.resultCount || 1,
+        grid: Array.isArray(r.grid) && r.grid.length === 9 ? r.grid : Array(9).fill(null),
+        resultItem: resultItem as any,
+      };
+      setRecipe(mapped as any);
+      setOriginalRecipe(mapped as any);
     }
-  }, [id]);
+  }, [id, fetchedRecipe]);
 
   const handleSaveInit = () => {
     setShowDiff(true);
@@ -98,9 +105,9 @@ function RecipeEditorDetail() {
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <div className="flex justify-between mb-6">
         <h1 className="text-2xl text-primary">
-          {id === "new" ? "Neues Rezept" : "Rezept bearbeiten"}
+          {id === "new" ? t("new", lang) + " Rezept" : "Rezept " + t("edit", lang).toLowerCase()}
         </h1>
-        <Button onClick={handleSaveInit}>Überprüfen & Speichern</Button>
+        <Button onClick={handleSaveInit}>{t("save", lang)}</Button>
       </div>
 
       <div className="grid gap-6">

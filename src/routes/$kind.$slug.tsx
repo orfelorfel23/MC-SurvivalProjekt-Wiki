@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import MDEditor from "@uiw/react-md-editor";
+import "@uiw/react-md-editor/markdown-editor.css";
 import rehypeSanitize from "rehype-sanitize";
 import { getKindItem } from "@/server/functions";
 import { useAuth } from "@/lib/use-auth";
@@ -134,13 +135,13 @@ function DetailPage() {
     return (
       <article className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl text-primary">Bearbeiten: {slug}</h1>
+          <h1 className="text-2xl text-primary">{t("edit", lang)}: {slug}</h1>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setIsEditing(false)}>
-              Abbrechen
+              {t("cancel", lang)}
             </Button>
             <Button onClick={handleSaveInit} disabled={saving}>
-              {saving ? "Speichert..." : "Überprüfen & Speichern"}
+              {saving ? t("loading", lang) : t("save", lang)}
             </Button>
           </div>
         </div>
@@ -214,7 +215,7 @@ function DetailPage() {
             </Link>
             {isEditor && (
               <Button variant="outline" size="sm" onClick={handleEditClick}>
-                Bearbeiten
+                {t("edit", lang)}
               </Button>
             )}
           </div>

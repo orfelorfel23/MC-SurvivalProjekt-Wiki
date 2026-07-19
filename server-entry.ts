@@ -1,17 +1,9 @@
 import express from "express";
 import handler from "./dist/server/server.js";
-import { auth } from "./src/lib/auth.js";
-import { toNodeHandler } from "better-auth/node";
 
 const app = express();
 const port = process.env.PORT || 3000;
 const host = process.env.HOST || "0.0.0.0";
-
-// Handle Better Auth API routes natively
-app.use("/api/auth", (req, res, next) => {
-  console.log("BETTER AUTH HIT:", req.method, req.url);
-  return toNodeHandler(auth)(req, res, next);
-});
 
 // Serve static assets from dist/client
 app.use(express.static("dist/client"));

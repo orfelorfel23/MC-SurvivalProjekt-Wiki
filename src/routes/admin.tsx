@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/use-auth";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Link } from "@tanstack/react-router";
+import { Link, Navigate, useLocation } from "@tanstack/react-router";
 import { getUsersAndRoles, grantRole, revokeRole } from "@/server/functions";
 
 export const Route = createFileRoute("/admin")({ component: AdminPage });
@@ -11,6 +11,7 @@ export const Route = createFileRoute("/admin")({ component: AdminPage });
 function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
   const [users, setUsers] = useState<any[]>([]);
+  const location = useLocation();
 
   const load = async () => {
     try {
@@ -26,7 +27,7 @@ function AdminPage() {
   }, [isAdmin]);
 
   if (loading) return <div className="container mx-auto px-4 py-8">...</div>;
-  if (!user) return <div className="container mx-auto px-4 py-8">Bitte anmelden.</div>;
+  if (!user) return <Navigate to="/auth" search={{ from: location.pathname }} />;
   if (!isAdmin) return <div className="container mx-auto px-4 py-8">Kein Admin-Zugriff.</div>;
 
   const handleGrant = async (userId: string, role: "ADMIN" | "MODERATOR" | "EDITOR") => {

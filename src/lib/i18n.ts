@@ -72,6 +72,7 @@ const STRINGS = {
     backToList: "Zurück zur Übersicht",
     noImage: "Kein Bild",
     uploadImage: "Bild hochladen",
+    map: "Karte",
   },
   en: {
     home: "Home",
@@ -126,6 +127,7 @@ const STRINGS = {
     backToList: "Back to list",
     noImage: "No image",
     uploadImage: "Upload image",
+    map: "Map",
   },
 } as const;
 

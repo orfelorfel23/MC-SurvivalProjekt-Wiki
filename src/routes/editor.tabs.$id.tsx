@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/use-auth";
+import { useLang, t } from "@/lib/i18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getWikiTabs, saveTab, getKindList } from "@/server/functions";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import MDEditor from "@uiw/react-md-editor";
+import "@uiw/react-md-editor/markdown-editor.css";
 import rehypeSanitize from "rehype-sanitize";
 import { DiffModal } from "@/components/diff-modal";
 
@@ -88,12 +90,14 @@ export const Route = createFileRoute("/editor/tabs/$id")({
 function TabEditorDetail() {
   const { id } = Route.useParams();
   const { isEditor } = useAuth();
+  const { lang } = useLang();
   const navigate = useNavigate();
   const qc = useQueryClient();
 
   const { data: tabs } = useQuery({
     queryKey: ["wikiTabs"],
     queryFn: () => getWikiTabs(),
+    staleTime: 5 * 60 * 1000,
   });
 
   const [tab, setTab] = useState({
@@ -163,8 +167,8 @@ function TabEditorDetail() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <div className="flex justify-between mb-6">
-        <h1 className="text-2xl text-primary">{id === "new" ? "Neuer Tab" : "Tab bearbeiten"}</h1>
-        <Button onClick={handleSaveInit}>Überprüfen & Speichern</Button>
+        <h1 className="text-2xl text-primary">{id === "new" ? t("new", lang) + " Tab" : "Tab " + t("edit", lang).toLowerCase()}</h1>
+        <Button onClick={handleSaveInit}>{t("save", lang)}</Button>
       </div>
 
       <div className="grid gap-6">

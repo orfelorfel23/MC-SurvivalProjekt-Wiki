@@ -6,6 +6,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useLang, t } from "@/lib/i18n";
 
 function computeDiffLines(oldStr: string, newStr: string) {
   // Very simplistic diff for JSON lines
@@ -40,6 +41,7 @@ export function DiffModal({
   newData: any;
   title?: string;
 }) {
+  const { lang } = useLang();
   const getChanges = () => {
     const changes: { key: string; oldVal: string; newVal: string }[] = [];
     const allKeys = new Set([...Object.keys(oldData || {}), ...Object.keys(newData || {})]);
@@ -96,7 +98,7 @@ export function DiffModal({
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Abbrechen
+            {t("cancel", lang)}
           </Button>
           <Button
             onClick={() => {
@@ -104,7 +106,7 @@ export function DiffModal({
               onClose();
             }}
           >
-            Änderungen speichern
+            {t("save", lang)}
           </Button>
         </DialogFooter>
       </DialogContent>

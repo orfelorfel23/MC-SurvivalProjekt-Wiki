@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
+import { Route as MapRouteImport } from './routes/map'
 import { Route as KarteRouteImport } from './routes/karte'
 import { Route as EditorRouteImport } from './routes/editor'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -28,6 +29,11 @@ import { Route as EditorRecipesIdRouteImport } from './routes/editor.recipes.$id
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapRoute = MapRouteImport.update({
+  id: '/map',
+  path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
 const KarteRoute = KarteRouteImport.update({
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/editor': typeof EditorRouteWithChildren
   '/karte': typeof KarteRoute
+  '/map': typeof MapRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
   '/admin/broken-links': typeof AdminBrokenLinksRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/karte': typeof KarteRoute
+  '/map': typeof MapRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
   '/admin/broken-links': typeof AdminBrokenLinksRoute
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/editor': typeof EditorRouteWithChildren
   '/karte': typeof KarteRoute
+  '/map': typeof MapRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
   '/admin/broken-links': typeof AdminBrokenLinksRoute
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/editor'
     | '/karte'
+    | '/map'
     | '/search'
     | '/$kind/$slug'
     | '/admin/broken-links'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/karte'
+    | '/map'
     | '/search'
     | '/$kind/$slug'
     | '/admin/broken-links'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/editor'
     | '/karte'
+    | '/map'
     | '/search'
     | '/$kind/$slug'
     | '/admin/broken-links'
@@ -211,6 +223,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   EditorRoute: typeof EditorRouteWithChildren
   KarteRoute: typeof KarteRoute
+  MapRoute: typeof MapRoute
   SearchRoute: typeof SearchRoute
   KindSlugRoute: typeof KindSlugRoute
   KindIndexRoute: typeof KindIndexRoute
@@ -223,6 +236,13 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/map': {
+      id: '/map'
+      path: '/map'
+      fullPath: '/map'
+      preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/karte': {
@@ -363,6 +383,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   EditorRoute: EditorRouteWithChildren,
   KarteRoute: KarteRoute,
+  MapRoute: MapRoute,
   SearchRoute: SearchRoute,
   KindSlugRoute: KindSlugRoute,
   KindIndexRoute: KindIndexRoute,

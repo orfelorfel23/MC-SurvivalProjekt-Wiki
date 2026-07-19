@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
 import { authClient } from "./auth-client";
 import { getUserRoles } from "@/server/functions";
+import { useQuery } from "@tanstack/react-query";
 
 export function useAuth() {
-  const { data, isPending } = authClient.useSession();
-  const user = data?.user ?? null;
+  const { data: sessionData, isLoading: isPending } = useQuery({
+    queryKey: ["session"],
+    queryFn: async () => (await authClient.getSession())?.data || null,
+    staleTime: 1000 * 60 * 5,
+  });
+  const user = sessionData?.user ?? null;
 
   const [isEditor, setIsEditor] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);

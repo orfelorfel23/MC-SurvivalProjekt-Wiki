@@ -10,13 +10,14 @@ import { Button } from "@/components/ui/button";
 
 export function Header() {
   const { lang, setLang } = useLang();
-  const { user, isEditor, isAdmin } = useAuth();
+  const { user, isEditor, isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
-  const { data: tabs } = useQuery({
+  const { data: tabs, isLoading: tabsLoading } = useQuery({
     queryKey: ["wikiTabs"],
     queryFn: () => getWikiTabs(),
+    staleTime: 1000 * 60 * 60,
   });
 
   const [isDark, setIsDark] = useState(() => {
@@ -41,43 +42,51 @@ export function Header() {
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
       <div className="container mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
         <Link to="/" className="flex items-center gap-2">
-          <span className="mc-slot inline-flex items-center justify-center w-9 h-9 text-primary font-bold">
-            MC
-          </span>
-          <span className="font-bold text-sm uppercase tracking-wider">Server Wiki</span>
+          <img src="/icon.png" alt="Minecraft Server Wiki Logo" className="w-9 h-9 object-contain" />
+          <span className="font-bold text-sm uppercase tracking-wider">Minecraft Server Wiki</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1 ml-4 text-sm flex-wrap">
-          {tabs
-            ?.filter((t) => t.isVisible)
-            .map((t) => (
-              <Link
-                key={t.slug}
-                to={"/$kind" as never}
-                params={{ kind: t.slug } as never}
-                className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
-                activeProps={{ className: "text-accent" }}
-              >
-                {lang === "de" ? t.nameDe : t.nameEn || t.nameDe}
-              </Link>
-            ))}
-          {!tabs &&
-            KINDS.map((k) => (
-              <Link
-                key={k}
-                to={"/$kind" as never}
-                params={{ kind: k } as never}
-                className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
-                activeProps={{ className: "text-accent" }}
-              >
-                {t(KIND_LABEL_KEY[k], lang)}
-              </Link>
-            ))}
+          {tabsLoading ? (
+            <div className="flex gap-2">
+              <div className="w-16 h-6 bg-muted animate-pulse rounded" />
+              <div className="w-16 h-6 bg-muted animate-pulse rounded" />
+              <div className="w-16 h-6 bg-muted animate-pulse rounded" />
+            </div>
+          ) : (
+            <>
+              {tabs
+                ?.filter((t) => t.isVisible)
+                .map((t) => (
+                  <Link
+                    key={t.slug}
+                    to={"/$kind" as never}
+                    params={{ kind: t.slug } as never}
+                    className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
+                    activeProps={{ className: "text-accent" }}
+                  >
+                    {lang === "de" ? t.nameDe : t.nameEn || t.nameDe}
+                  </Link>
+                ))}
+              {(!tabs || tabs.length === 0) &&
+                KINDS.map((k) => (
+                  <Link
+                    key={k}
+                    to={"/$kind" as never}
+                    params={{ kind: k } as never}
+                    className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
+                    activeProps={{ className: "text-accent" }}
+                  >
+                    {t(KIND_LABEL_KEY[k], lang)}
+                  </Link>
+                ))}
+            </>
+          )}
           <Link
-            to="/karte"
+            to={(lang === "de" ? "/karte" : "/map") as never}
             className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
             activeProps={{ className: "text-accent" }}
           >
-            Karte
+            {t("map", lang)}
           </Link>
         </nav>
         <form
@@ -123,7 +132,9 @@ export function Header() {
             </Button>
           </Link>
         )}
-        {user ? (
+        {authLoading ? (
+          <div className="w-20 h-8 bg-muted animate-pulse rounded" />
+        ) : user ? (
           <Button
             variant="ghost"
             size="sm"

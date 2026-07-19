@@ -718,3 +718,10 @@ export const saveRecentlyViewed = createServerFn({ method: "POST" })
       create: { id: data.userId, recentlyViewed: data.history },
     });
   });
+
+export const getWikiPois = createServerFn({ method: "GET" }).handler(async () => {
+  return prisma.wikiPoi.findMany({
+    where: { deletedAt: null },
+    orderBy: { nameDe: "asc" },
+  });
+});

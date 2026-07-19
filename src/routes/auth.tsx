@@ -5,12 +5,19 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      from: search.from as string | undefined,
+    }
+  },
   head: () => ({ meta: [{ title: "Anmelden · Server Wiki" }] }),
   component: AuthPage,
 });
 
 function AuthPage() {
   const nav = useNavigate();
+  const search = Route.useSearch();
+  const from = search.from || "/";
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +35,7 @@ function AuthPage() {
         });
         if (error) throw new Error(error.message);
         toast.success("Account erstellt. Du bist jetzt angemeldet.");
-        nav({ to: "/" });
+        nav({ to: from as never });
       } else {
         const { data, error } = await authClient.signIn.email({
           email,
@@ -36,7 +43,7 @@ function AuthPage() {
         });
         if (error) throw new Error(error.message);
         toast.success("Willkommen zurück!");
-        nav({ to: "/" });
+        nav({ to: from as never });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Fehler");
