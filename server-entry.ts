@@ -1,5 +1,6 @@
 import express from "express";
 import handler from "./dist/server/server.js";
+import { auth } from "./src/lib/auth.js";
 
 const app = express();
 app.set("trust proxy", true);
@@ -25,14 +26,14 @@ app.use(async (req, res) => {
     }
   }
 
-  const init = {
+  const init: any = {
     method: req.method,
     headers,
   };
 
   if (req.method !== "GET" && req.method !== "HEAD") {
-    const body = await new Promise((resolve) => {
-      const data = [];
+    const body = await new Promise<Buffer>((resolve) => {
+      const data: any[] = [];
       req.on("data", (chunk) => data.push(chunk));
       req.on("end", () => resolve(Buffer.concat(data)));
     });
@@ -42,6 +43,24 @@ app.use(async (req, res) => {
   const request = new Request(url, init);
 
   try {
+    if (url.pathname.startsWith("/api/auth/")) {
+      const authResponse = await auth.handler(request);
+      if (authResponse) {
+        authResponse.headers.forEach((value, key) => {
+          res.setHeader(key, value);
+        });
+        res.status(authResponse.status);
+        
+        if (authResponse.body) {
+           const text = await authResponse.text();
+           res.end(text);
+        } else {
+           res.end();
+        }
+        return;
+      }
+    }
+
     console.log("Fetching handler...");
     const response = await handler.fetch(request);
     console.log("Response status:", response?.status);
