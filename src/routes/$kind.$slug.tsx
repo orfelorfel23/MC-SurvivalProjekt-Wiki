@@ -47,6 +47,14 @@ function DetailPage() {
   const [showDiff, setShowDiff] = useState(false);
 
   useEffect(() => {
+    if (slug === "new") {
+      setLoading(false);
+      setRow({});
+      setEditData({});
+      setIsEditing(true);
+      return;
+    }
+
     setLoading(true);
     getKindItem({ data: { kindId: k, slug } })
       .then((data: any) => {
@@ -88,7 +96,7 @@ function DetailPage() {
 
   if (loading)
     return <div className="container mx-auto px-4 py-8 text-muted-foreground">Lädt...</div>;
-  if (!row) return <div className="container mx-auto px-4 py-8">Nicht gefunden.</div>;
+  if (!row && slug !== "new") return <div className="container mx-auto px-4 py-8">Nicht gefunden.</div>;
 
   const handleEditClick = () => {
     if (k === "rezepte") {
@@ -114,10 +122,23 @@ function DetailPage() {
       // remove undefined/null just in case
       Object.keys(payload).forEach((key) => payload[key] === undefined && delete payload[key]);
 
+      if (slug === "new") {
+        if (!payload.slug) {
+          payload.slug = payload.nameDe?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || `new-entry-${Date.now()}`;
+        }
+      }
+
       await saveGenericEntity({ data: { kindId: k, slug, data: payload } });
+      
+      toast.success("Gespeichert!");
+      
+      if (slug === "new") {
+        navigate({ to: "/$kind/$slug", params: { kind: k, slug: payload.slug }, replace: true });
+        return;
+      }
+      
       setRow(payload);
       setIsEditing(false);
-      toast.success("Gespeichert!");
     } catch (e) {
       toast.error("Fehler beim Speichern");
     }
@@ -126,6 +147,7 @@ function DetailPage() {
 
   if (isEditing) {
     const fields = [
+      { key: "slug", label: "Slug (URL)" },
       { key: "nameDe", label: "Name (DE)" },
       { key: "titleDe", label: "Titel (DE)" },
       { key: "descriptionDe", label: "Beschreibung (DE)", textarea: true },
@@ -159,7 +181,7 @@ function DetailPage() {
         </div>
         <div className="grid gap-4 bg-card p-6 border border-border">
           {fields
-            .filter((f) => editData[f.key] !== undefined)
+            .filter((f) => editData[f.key] !== undefined || (slug === "new" && (f.key === "slug" || f.key === "nameDe" || f.key === "category" || f.key === "descriptionDe" || f.key === "imageUrl")))
             .map((f) => (
               <div key={f.key} className="grid gap-2">
                 <Label>{f.label}</Label>

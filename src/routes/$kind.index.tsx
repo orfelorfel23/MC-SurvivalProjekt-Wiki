@@ -87,15 +87,25 @@ function KindList() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-start mb-6">
         <h1 className="text-2xl text-primary">{label}</h1>
-        {isEditor && currentTab && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate({ to: "/editor/tabs/$id", params: { id: currentTab.slug } })}
-          >
-            Tab {t("edit", lang)}
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {isEditor && currentTab && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate({ to: "/editor/tabs/$id", params: { id: currentTab.slug } })}
+            >
+              Tab {t("edit", lang)}
+            </Button>
+          )}
+          {isEditor && currentTab?.isBuiltin && (
+            <Button
+              size="sm"
+              onClick={() => navigate({ to: "/$kind/$slug", params: { kind: k, slug: "new" } })}
+            >
+              Neu erstellen
+            </Button>
+          )}
+        </div>
       </div>
       {loading && <p className="text-muted-foreground">{t("loading", lang)}</p>}
       {!loading && !currentTab && <p className="text-muted-foreground">Unbekannte Kategorie.</p>}

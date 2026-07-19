@@ -482,10 +482,18 @@ export const saveGenericEntity = createServerFn({ method: "POST" })
     }
 
     const model = prisma[modelName] as any;
-    return model.update({
-      where: { slug: data.slug },
-      data: data.data,
-    });
+    if (data.slug === "new") {
+      // Create new
+      return model.create({
+        data: data.data,
+      });
+    } else {
+      // Update existing
+      return model.update({
+        where: { slug: data.slug },
+        data: data.data,
+      });
+    }
   });
 
 export const getVanillaItems = createServerFn({ method: "GET" }).handler(async () => {
