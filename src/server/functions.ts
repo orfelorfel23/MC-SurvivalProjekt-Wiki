@@ -1,23 +1,35 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
-import { auth } from "../lib/auth";
 import { prisma } from "./db";
 import { KIND_TABLE } from "../lib/i18n";
 import * as fs from "fs";
 import * as path from "path";
 
 // ---------------------------------------------------------------------------
-// Auth helpers
+// Auth helpers (direct DB lookup to avoid better-auth Zod v4 incompatibility)
 // ---------------------------------------------------------------------------
-async function getSessionOrThrow() {
-  const request = getRequest();
-  const session = await auth.api.getSession({ headers: request.headers });
-  if (!session?.user) throw new Error("UNAUTHORIZED");
-  return session;
+async function getSessionFromRequest() {
+  try {
+    const request = getRequest();
+    const cookieHeader = request?.headers?.get("cookie") ?? "";
+    // better-auth stores session token in cookie named "better-auth.session_token"
+    const match = cookieHeader.match(/better-auth\.session_token=([^;]+)/);
+    if (!match) return null;
+    const token = decodeURIComponent(match[1]);
+    // The token is "sessionId.userId" — look up by token in the session table
+    const session = await (prisma as any).session.findFirst({
+      where: { token },
+      include: { user: true },
+    });
+    return session ?? null;
+  } catch {
+    return null;
+  }
 }
 
 async function requireRole(...roles: ("ADMIN" | "MODERATOR" | "EDITOR")[]) {
-  const session = await getSessionOrThrow();
+  const session = await getSessionFromRequest();
+  if (!session?.user) throw new Error("UNAUTHORIZED");
   const userRoles = await prisma.userRole.findMany({
     where: { userId: session.user.id },
   });
@@ -591,12 +603,13 @@ export const getComments = createServerFn({ method: "GET" })
 export const postComment = createServerFn({ method: "POST" })
   .validator((d: { recipeId: string; content: string; authorId: string }) => d)
   .handler(async ({ data }) => {
-    const session = await getSessionOrThrow();
+    const session = await getSessionFromRequest();
+    if (!session?.user) throw new Error("UNAUTHORIZED");
     return prisma.comment.create({
       data: {
         content: data.content,
         recipeId: data.recipeId,
-        authorId: session.user.id, // Always use the server-side session, ignore client-provided authorId
+        authorId: session.user.id,
       },
     });
   });
@@ -604,8 +617,8 @@ export const postComment = createServerFn({ method: "POST" })
 export const deleteComment = createServerFn({ method: "POST" })
   .validator((d: { commentId: string }) => d)
   .handler(async ({ data }) => {
-    const session = await getSessionOrThrow();
-    // Allow deletion by the comment author or any moderator/admin
+    const session = await getSessionFromRequest();
+    if (!session?.user) throw new Error("UNAUTHORIZED");
     const comment = await prisma.comment.findUnique({ where: { id: data.commentId } });
     if (!comment) throw new Error("NOT_FOUND");
     if (comment.authorId !== session.user.id) {
