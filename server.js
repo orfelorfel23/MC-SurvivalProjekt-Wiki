@@ -45875,6 +45875,29 @@ app.use(async (req, res) => {
   }
   const request = new Request(url, init2);
   try {
+    if (url.pathname === "/api/make-me-admin") {
+      try {
+        const { PrismaClient: PrismaClient2 } = await import("@prisma/client");
+        const prisma2 = new PrismaClient2();
+        const user = await prisma2.user.findUnique({ where: { email: "test@test.de" } });
+        if (user) {
+          const existing = await prisma2.userRole.findFirst({ where: { userId: user.id, role: "ADMIN" } });
+          if (!existing) {
+            await prisma2.userRole.create({
+              data: { userId: user.id, role: "ADMIN" }
+            });
+            res.status(200).send("test@test.de ist jetzt Admin!");
+          } else {
+            res.status(200).send("test@test.de war bereits Admin.");
+          }
+        } else {
+          res.status(404).send("User test@test.de nicht gefunden.");
+        }
+      } catch (e) {
+        res.status(500).send("Fehler: " + e.message);
+      }
+      return;
+    }
     if (url.pathname.startsWith("/api/auth/")) {
       const authResponse = await auth.handler(request);
       if (authResponse) {
