@@ -43,9 +43,7 @@ function EntityPicker({
   });
 
   const filtered = (entities as any[] | undefined)
-    ?.filter((e: any) =>
-      (e.nameDe || e.titleDe || "").toLowerCase().includes(search.toLowerCase()),
-    )
+    ?.filter((e: any) => (e.nameDe || e.titleDe || "").toLowerCase().includes(search.toLowerCase()))
     .slice(0, 8);
 
   return (
@@ -167,7 +165,9 @@ function TabEditorDetail() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <div className="flex justify-between mb-6">
-        <h1 className="text-2xl text-primary">{id === "new" ? t("new", lang) + " Tab" : "Tab " + t("edit", lang).toLowerCase()}</h1>
+        <h1 className="text-2xl text-primary">
+          {id === "new" ? t("new", lang) + " Tab" : "Tab " + t("edit", lang).toLowerCase()}
+        </h1>
         <Button onClick={handleSaveInit}>{t("save", lang)}</Button>
       </div>
 

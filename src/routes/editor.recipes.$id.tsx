@@ -3,10 +3,9 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/use-auth";
 import { useLang, t } from "@/lib/i18n";
 import {
-  saveGenericEntity,
+  saveRecipe,
   getKindItem,
   getKindList,
-  deleteGenericEntity,
 } from "@/server/functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

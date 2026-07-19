@@ -18,9 +18,9 @@ async function main() {
     const [r, g, b] = color.value;
 
     // Convert RGB to HSL
-    let r1 = r / 255;
-    let g1 = g / 255;
-    let b1 = b / 255;
+    const r1 = r / 255;
+    const g1 = g / 255;
+    const b1 = b / 255;
     const max = Math.max(r1, g1, b1);
     const min = Math.min(r1, g1, b1);
     let h,

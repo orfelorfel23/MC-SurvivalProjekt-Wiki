@@ -76,6 +76,16 @@ function DetailPage() {
       .catch(console.error);
   }, [k, slug]);
 
+  const titleForHistory = row
+    ? k === "wiki"
+      ? pickLocalized(row.titleDe, row.titleEn, lang)
+      : pickLocalized(row.nameDe, row.nameEn, lang)
+    : "";
+
+  const { history } = useRecentlyViewed(
+    row ? { kind: k, slug, title: titleForHistory || slug } : undefined
+  );
+
   if (loading)
     return <div className="container mx-auto px-4 py-8 text-muted-foreground">Lädt...</div>;
   if (!row) return <div className="container mx-auto px-4 py-8">Nicht gefunden.</div>;
@@ -135,7 +145,9 @@ function DetailPage() {
     return (
       <article className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl text-primary">{t("edit", lang)}: {slug}</h1>
+          <h1 className="text-2xl text-primary">
+            {t("edit", lang)}: {slug}
+          </h1>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setIsEditing(false)}>
               {t("cancel", lang)}
@@ -197,8 +209,6 @@ function DetailPage() {
       ? pickLocalized(row.titleDe, row.titleEn, lang)
       : pickLocalized(row.nameDe, row.nameEn, lang);
   const description = pickLocalized(row.descriptionDe, row.descriptionEn, lang);
-
-  const { history } = useRecentlyViewed(row ? { kind: k, slug, title: title || slug } : undefined);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">

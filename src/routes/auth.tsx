@@ -8,7 +8,7 @@ export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>) => {
     return {
       from: search.from as string | undefined,
-    }
+    };
   },
   head: () => ({ meta: [{ title: "Anmelden · Server Wiki" }] }),
   component: AuthPage,

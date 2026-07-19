@@ -7,7 +7,8 @@ const POIS = [
     slug: "netherit-farm",
     nameDe: "Netherit-Farm",
     nameEn: "Netherite Farm",
-    descriptionDe: "Hier kannst du sicher Netherit farmen. Achtung, manchmal spawnen Wither-Skelette!",
+    descriptionDe:
+      "Hier kannst du sicher Netherit farmen. Achtung, manchmal spawnen Wither-Skelette!",
     descriptionEn: "Farm Netherite safely here. Beware of Wither Skeletons!",
     x: 1200,
     y: 15,
@@ -46,7 +47,7 @@ const POIS = [
     y: 70,
     z: 0,
     icon: "default",
-  }
+  },
 ];
 
 async function main() {

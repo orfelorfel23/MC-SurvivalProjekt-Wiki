@@ -53,7 +53,7 @@ const prismaModels: Record<string, keyof typeof prisma> = {
 export const getKindList = createServerFn({ method: "GET" })
   .validator((d: { kindId: string }) => d)
   .handler(async ({ data }) => {
-    let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
+    const tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
 
     // Fallback: If not a builtin kind, treat it as a dynamic wiki tab (query wiki_pages by category)
     if (!tableName) {
@@ -85,7 +85,7 @@ export const getKindList = createServerFn({ method: "GET" })
 export const getKindItem = createServerFn({ method: "GET" })
   .validator((d: { kindId: string; slug: string }) => d)
   .handler(async ({ data }) => {
-    let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
+    const tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
 
     if (!tableName) {
       // Dynamic wiki page logic
@@ -473,7 +473,7 @@ export const saveGenericEntity = createServerFn({ method: "POST" })
   .validator((d: { kindId: string; slug: string; data: any }) => d)
   .handler(async ({ data }) => {
     await requireRole("ADMIN", "MODERATOR", "EDITOR");
-    let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
+    const tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
     let modelName = prismaModels[tableName] as keyof typeof prisma;
 
     if (!modelName) {
@@ -529,7 +529,7 @@ export const softDeleteGenericEntity = createServerFn({ method: "POST" })
   .validator((d: { kindId: string; slug: string }) => d)
   .handler(async ({ data }) => {
     await requireRole("ADMIN", "MODERATOR", "EDITOR");
-    let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
+    const tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
     let modelName = prismaModels[tableName] as keyof typeof prisma;
 
     if (!modelName) {
@@ -575,7 +575,7 @@ export const restoreItem = createServerFn({ method: "POST" })
   .validator((d: { kindId: string; id: string }) => d)
   .handler(async ({ data }) => {
     await requireRole("ADMIN", "MODERATOR");
-    let tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
+    const tableName = KIND_TABLE[data.kindId as keyof typeof KIND_TABLE];
     let modelName = prismaModels[tableName] as keyof typeof prisma;
 
     if (!modelName) {

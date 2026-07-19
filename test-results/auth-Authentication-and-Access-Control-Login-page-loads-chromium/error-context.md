@@ -26,19 +26,19 @@ Call log:
 
 ```ts
   1  | import { test, expect } from '@playwright/test';
-  2  | 
+  2  |
   3  | test.describe('Authentication and Access Control', () => {
   4  |   test('Login page loads', async ({ page }) => {
 > 5  |     await page.goto('/auth');
      |                ^ Error: page.goto: net::ERR_ABORTED; maybe frame was detached?
   6  |     await expect(page.locator('text=Willkommen zurück').first()).toBeVisible();
   7  |   });
-  8  | 
+  8  |
   9  |   test('Unauthenticated user cannot access editor', async ({ page }) => {
   10 |     await page.goto('/editor');
   11 |     // Header component should show 'Kein Zugriff' message
   12 |     await expect(page.locator('text=Kein Zugriff').first()).toBeVisible();
   13 |   });
   14 | });
-  15 | 
+  15 |
 ```

@@ -38,8 +38,12 @@ function KindList() {
     queryKey: ["wikiTabs"],
     queryFn: () => getWikiTabs(),
   });
-  const currentTab = useMemo(() => tabs?.find((t: any) => t.slug === k) ||
-    (k in KIND_TABLE ? { slug: k, isBuiltin: true } : undefined), [tabs, k]);
+  const currentTab = useMemo(
+    () =>
+      tabs?.find((t: any) => t.slug === k) ||
+      (k in KIND_TABLE ? { slug: k, isBuiltin: true } : undefined),
+    [tabs, k],
+  );
 
   useEffect(() => {
     if (isTabsLoading) return;
@@ -94,9 +98,7 @@ function KindList() {
         )}
       </div>
       {loading && <p className="text-muted-foreground">{t("loading", lang)}</p>}
-      {!loading && !currentTab && (
-        <p className="text-muted-foreground">Unbekannte Kategorie.</p>
-      )}
+      {!loading && !currentTab && <p className="text-muted-foreground">Unbekannte Kategorie.</p>}
       {!loading && currentTab?.isBuiltin && filteredRows.length === 0 && (
         <p className="text-muted-foreground">{t("noResults", lang)}</p>
       )}

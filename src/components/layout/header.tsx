@@ -42,7 +42,11 @@ export function Header() {
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
       <div className="container mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
         <Link to="/" className="flex items-center gap-2">
-          <img src="/icon.png" alt="Minecraft Server Wiki Logo" className="w-9 h-9 object-contain" />
+          <img
+            src="/icon.png"
+            alt="Minecraft Server Wiki Logo"
+            className="w-9 h-9 object-contain"
+          />
           <span className="font-bold text-sm uppercase tracking-wider">Minecraft Server Wiki</span>
         </Link>
         <nav className="hidden md:flex items-center gap-1 ml-4 text-sm flex-wrap">
@@ -145,7 +149,7 @@ export function Header() {
             <LogOut className="w-4 h-4" /> {t("logout", lang)}
           </Button>
         ) : (
-          <Link to="/auth">
+          <Link to="/auth" search={{ from: undefined }}>
             <Button size="sm">
               <LogIn className="w-4 h-4" /> {t("login", lang)}
             </Button>

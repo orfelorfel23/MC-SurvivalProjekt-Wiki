@@ -14,7 +14,7 @@ function computeDiffLines(oldStr: string, newStr: string) {
   const newLines = newStr.split("\n");
 
   const diff: any[] = [];
-  let i = 0,
+  const i = 0,
     j = 0;
 
   // A naive approach: just show both if they differ, but we can do a simple alignment

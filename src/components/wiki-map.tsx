@@ -40,12 +40,7 @@ export function WikiMap({ pois }: { pois: WikiPoi[] }) {
   };
 
   return (
-    <MapContainer
-      center={[0, 0]}
-      zoom={2}
-      scrollWheelZoom={true}
-      className="w-full h-full"
-    >
+    <MapContainer center={[0, 0]} zoom={2} scrollWheelZoom={true} className="w-full h-full">
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url={TILE_URL}
@@ -76,7 +71,11 @@ export default function ClientWikiMap(props: { pois: WikiPoi[] }) {
   }, []);
 
   if (!mounted) {
-    return <div className="w-full h-full flex items-center justify-center bg-black/50 text-muted-foreground">Lade Karte...</div>;
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-black/50 text-muted-foreground">
+        Lade Karte...
+      </div>
+    );
   }
 
   return <WikiMap {...props} />;

@@ -28,25 +28,25 @@ function TabsList() {
       {isLoading && <p>{t("loading", lang)}</p>}
 
       <div className="flex flex-col gap-2">
-        {tabs?.map((t) => (
-          <div key={t.id} className="mc-panel p-4 flex justify-between items-center">
+        {tabs?.map((tab) => (
+          <div key={tab.id} className="mc-panel p-4 flex justify-between items-center">
             <div>
               <div className="font-bold flex items-center gap-2">
-                {t.nameDe}
-                {!t.isVisible && (
+                {tab.nameDe}
+                {!tab.isVisible && (
                   <span className="text-xs text-red-400 border border-red-400 px-1 rounded">
                     Versteckt
                   </span>
                 )}
-                {t.isBuiltin && (
+                {tab.isBuiltin && (
                   <span className="text-[10px] bg-accent/20 text-accent px-1 rounded">
                     Built-in
                   </span>
                 )}
               </div>
-              <div className="text-xs text-muted-foreground">/{t.slug}</div>
+              <div className="text-xs text-muted-foreground">/{tab.slug}</div>
             </div>
-            <Link to="/editor/tabs/$id" params={{ id: t.slug }}>
+            <Link to="/editor/tabs/$id" params={{ id: tab.slug }}>
               <Button variant="outline" size="sm">
                 {t("edit", lang)}
               </Button>

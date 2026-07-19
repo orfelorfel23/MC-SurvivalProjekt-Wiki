@@ -6,11 +6,7 @@ import { auth } from "./src/lib/auth";
 
 export default defineConfig({
   resolve: { tsconfigPaths: true },
-  plugins: [
-    tailwindcss(),
-    tanstackStart(),
-    viteReact(),
-  ],
+  plugins: [tailwindcss(), tanstackStart(), viteReact()],
   ssr: {
     noExternal: ["@uiw/react-md-editor"],
   },

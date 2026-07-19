@@ -19,7 +19,7 @@ app.use(async (req, res) => {
   }
   const init = {
     method: req.method,
-    headers
+    headers,
   };
   if (req.method !== "GET" && req.method !== "HEAD") {
     const body = await new Promise((resolve) => {

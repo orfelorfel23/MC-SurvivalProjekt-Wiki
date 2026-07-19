@@ -33,7 +33,11 @@ function AdminTrashPage() {
 
   if (loading) return <div className="p-8">...</div>;
   if (!user || (!isModerator && !isAdmin))
-    return <div className="p-8 container mx-auto">Kein Zugriff. Nur Moderatoren und Admins können den Papierkorb einsehen.</div>;
+    return (
+      <div className="p-8 container mx-auto">
+        Kein Zugriff. Nur Moderatoren und Admins können den Papierkorb einsehen.
+      </div>
+    );
 
   if (isLoading) return <div className="p-8">Lade Papierkorb...</div>;
 

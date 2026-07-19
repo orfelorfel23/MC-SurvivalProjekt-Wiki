@@ -13,7 +13,7 @@ export const Route = createFileRoute("/editor/recipes/")({
 function RecipeEditorList() {
   const { isEditor } = useAuth();
   const { lang } = useLang();
-  
+
   const { data: recipes } = useQuery({
     queryKey: ["kindList", "rezepte"],
     queryFn: () => getKindList({ data: { kindId: "rezepte" } }),
