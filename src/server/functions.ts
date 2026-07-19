@@ -12,11 +12,10 @@ async function getSessionFromRequest() {
   try {
     const request = getRequest();
     const cookieHeader = request?.headers?.get("cookie") ?? "";
-    // better-auth stores session token in cookie named "better-auth.session_token"
-    const match = cookieHeader.match(/better-auth\.session_token=([^;]+)/);
+    // better-auth stores "token.signature" in cookie; DB has just "token"
+    const match = cookieHeader.match(/better-auth\.session_token=([^;.]+)/);
     if (!match) return null;
     const token = decodeURIComponent(match[1]);
-    // The token is "sessionId.userId" — look up by token in the session table
     const session = await (prisma as any).session.findFirst({
       where: { token },
       include: { user: true },
