@@ -12,8 +12,8 @@ app.use(express.static("dist/client"));
 
 // Forward all other requests to TanStack Start's SSR handler
 app.use(async (req, res) => {
-  const protocol = req.protocol || "http";
-  const reqHost = req.get("host") || "localhost";
+  const protocol = req.headers["x-forwarded-proto"] || req.protocol || "http";
+  const reqHost = req.headers["x-forwarded-host"] || req.get("host") || "localhost";
   const url = new URL(req.originalUrl, `${protocol}://${reqHost}`);
 
   const headers = new Headers();
