@@ -39,7 +39,9 @@ function Index() {
         </p>
         <div className="mt-8 max-w-4xl mx-auto text-left grid md:grid-cols-2 gap-6 items-start">
           <ServerStatus />
-          <SkinViewer />
+          <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
+            <SkinViewer name="orfel" role="Server Owner" />
+          </div>
         </div>
       </section>
       <section>
