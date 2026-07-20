@@ -85,7 +85,7 @@ function Slot({
   const dbItem = !isVanilla && slot.item_id && dbItems ? dbItems[slot.item_id] : null;
 
   const imageUrl = isVanilla
-    ? `/item-icons/${slot.mc_id}.png`
+    ? `/items/${slot.mc_id}.png`
     : dbItem?.image_url || dbItem?.imageUrl;
   const name = isVanilla ? slot.name || slot.mc_id : dbItem?.name_de || dbItem?.nameDe;
   const enchanted = isVanilla ? slot.enchanted : dbItem?.enchanted;

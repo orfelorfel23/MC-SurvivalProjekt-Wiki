@@ -41,7 +41,7 @@ export function ImageUpload({
         <Input
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="/item-icons/example.png"
+          placeholder="/items/example.png"
           className="flex-1"
         />
         <div className="relative">
