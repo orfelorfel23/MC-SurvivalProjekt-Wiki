@@ -42,7 +42,7 @@ services:
       BACKUP_KEEP_WEEKS: 4
       BACKUP_KEEP_MONTHS: 6
     volumes:
-      - ./backups:/backups
+      - /mnt/Jannik-Cloud-Volume-01/mc-survival-wiki/backups:/backups
 
 volumes:
   pgdata:
