@@ -152,8 +152,8 @@ export function Header() {
                     key={k}
                     to={"/$kind" as never}
                     params={{ kind: k } as never}
-                    className={buttonVariants({ variant: "outline", size: "sm" })}
-                    activeProps={{ className: "bg-accent text-accent-foreground border-accent" }}
+                    className={cn(buttonVariants({ variant: "outline", size: "sm" }), "border-foreground/30 hover:border-primary/50")}
+                    activeProps={{ className: "bg-primary text-primary-foreground border-primary hover:bg-primary/90" }}
                   >
                     {dbTab ? (lang === "de" ? dbTab.nameDe : dbTab.nameEn || dbTab.nameDe) : t(KIND_LABEL_KEY[k], lang)}
                   </Link>
@@ -166,8 +166,8 @@ export function Header() {
                     key={t.slug}
                     to={"/$kind" as never}
                     params={{ kind: t.slug } as never}
-                    className={buttonVariants({ variant: "outline", size: "sm" })}
-                    activeProps={{ className: "bg-accent text-accent-foreground border-accent" }}
+                    className={cn(buttonVariants({ variant: "outline", size: "sm" }), "border-foreground/30 hover:border-primary/50")}
+                    activeProps={{ className: "bg-primary text-primary-foreground border-primary hover:bg-primary/90" }}
                   >
                     {lang === "de" ? t.nameDe : t.nameEn || t.nameDe}
                   </Link>
@@ -176,8 +176,8 @@ export function Header() {
           )}
           <Link
             to={(lang === "de" ? "/karte" : "/map") as never}
-            className={buttonVariants({ variant: "outline", size: "sm" })}
-            activeProps={{ className: "bg-accent text-accent-foreground border-accent" }}
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "border-foreground/30 hover:border-primary/50")}
+            activeProps={{ className: "bg-primary text-primary-foreground border-primary hover:bg-primary/90" }}
           >
             {t("map", lang)}
           </Link>
