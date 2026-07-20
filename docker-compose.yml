@@ -10,7 +10,7 @@ services:
     ports:
       - "25560:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - /mnt/Jannik-Cloud-Volume-01/mc-survival-wiki/db-data:/var/lib/postgresql/data
 
   web:
     build: .
@@ -44,5 +44,4 @@ services:
     volumes:
       - /mnt/Jannik-Cloud-Volume-01/mc-survival-wiki/backups:/backups
 
-volumes:
-  pgdata:
+
