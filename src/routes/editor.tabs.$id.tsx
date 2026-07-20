@@ -128,15 +128,15 @@ function TabEditorDetail() {
     }
   }, [id, tabs]);
 
-  const handleDeleteClick = async () => {
+  const handleDeleteClick = async (e: any) => {
+    e.preventDefault();
     if (!confirm("Wirklich komplett löschen?")) return;
     setDeleting(true);
     try {
       await softDeleteTab({ data: { slug: tab.slug } });
       toast.success("Tab gelöscht!");
-      qc.invalidateQueries({ queryKey: ["wikiTabs"] });
-      navigate({ to: "/editor/tabs", replace: true });
-    } catch (e) {
+      window.location.href = "/editor/tabs";
+    } catch (err) {
       toast.error("Fehler beim Löschen");
       setDeleting(false);
     }
@@ -177,7 +177,7 @@ function TabEditorDetail() {
         </h1>
         <div className="flex gap-2">
           {id !== "new" && !tab.isBuiltin && (
-            <Button variant="destructive" onClick={handleDeleteClick} disabled={deleting}>
+            <Button type="button" variant="destructive" onClick={handleDeleteClick} disabled={deleting}>
               {deleting ? t("loading", lang) : t("delete", lang)}
             </Button>
           )}

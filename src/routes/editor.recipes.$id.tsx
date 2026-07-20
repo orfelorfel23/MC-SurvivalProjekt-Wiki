@@ -81,14 +81,15 @@ function RecipeEditorDetail() {
     }
   }, [id, fetchedRecipe]);
 
-  const handleDeleteClick = async () => {
+  const handleDeleteClick = async (e: any) => {
+    e.preventDefault();
     if (!confirm("Wirklich komplett löschen?")) return;
     setDeleting(true);
     try {
       await softDeleteGenericEntity({ data: { kindId: "rezepte", slug: recipe.slug } });
       toast.success("Gelöscht!");
-      navigate({ to: "/$kind", params: { kind: "rezepte" }, replace: true });
-    } catch (e) {
+      window.location.href = "/editor/recipes";
+    } catch (err) {
       toast.error("Fehler beim Löschen");
       setDeleting(false);
     }
@@ -116,7 +117,7 @@ function RecipeEditorDetail() {
         </h1>
         <div className="flex gap-2">
           {id !== "new" && (
-            <Button variant="destructive" onClick={handleDeleteClick} disabled={deleting}>
+            <Button type="button" variant="destructive" onClick={handleDeleteClick} disabled={deleting}>
               {deleting ? t("loading", lang) : t("delete", lang)}
             </Button>
           )}
