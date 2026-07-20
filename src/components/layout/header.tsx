@@ -6,7 +6,8 @@ import { useLang, t, KINDS, KIND_LABEL_KEY } from "@/lib/i18n";
 import { authClient } from "@/lib/auth-client";
 import { useQuery } from "@tanstack/react-query";
 import { getWikiTabs } from "@/server/functions";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function Header() {
   const { lang, setLang } = useLang();
@@ -134,12 +135,12 @@ export function Header() {
               )}
             </div>
           </div>
-          <nav className="flex items-center gap-1 text-sm flex-wrap w-full mt-1">
+          <nav className="flex items-center gap-1.5 text-sm flex-wrap w-full mt-1">
           {tabsLoading ? (
             <div className="flex gap-2">
-              <div className="w-16 h-6 bg-muted animate-pulse rounded" />
-              <div className="w-16 h-6 bg-muted animate-pulse rounded" />
-              <div className="w-16 h-6 bg-muted animate-pulse rounded" />
+              <div className="w-16 h-8 bg-muted animate-pulse rounded-md" />
+              <div className="w-16 h-8 bg-muted animate-pulse rounded-md" />
+              <div className="w-16 h-8 bg-muted animate-pulse rounded-md" />
             </div>
           ) : (
             <>
@@ -151,8 +152,8 @@ export function Header() {
                     key={k}
                     to={"/$kind" as never}
                     params={{ kind: k } as never}
-                    className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
-                    activeProps={{ className: "text-accent" }}
+                    className={buttonVariants({ variant: "outline", size: "sm" })}
+                    activeProps={{ className: "bg-accent text-accent-foreground border-accent" }}
                   >
                     {dbTab ? (lang === "de" ? dbTab.nameDe : dbTab.nameEn || dbTab.nameDe) : t(KIND_LABEL_KEY[k], lang)}
                   </Link>
@@ -165,8 +166,8 @@ export function Header() {
                     key={t.slug}
                     to={"/$kind" as never}
                     params={{ kind: t.slug } as never}
-                    className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
-                    activeProps={{ className: "text-accent" }}
+                    className={buttonVariants({ variant: "outline", size: "sm" })}
+                    activeProps={{ className: "bg-accent text-accent-foreground border-accent" }}
                   >
                     {lang === "de" ? t.nameDe : t.nameEn || t.nameDe}
                   </Link>
@@ -175,8 +176,8 @@ export function Header() {
           )}
           <Link
             to={(lang === "de" ? "/karte" : "/map") as never}
-            className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
-            activeProps={{ className: "text-accent" }}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+            activeProps={{ className: "bg-accent text-accent-foreground border-accent" }}
           >
             {t("map", lang)}
           </Link>
