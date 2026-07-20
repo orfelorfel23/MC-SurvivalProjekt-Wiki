@@ -33,17 +33,19 @@ export function SkinViewer() {
 
       <div className="w-32 h-64 bg-black/50 border border-border rounded flex items-center justify-center p-2 mt-2">
         <img
-          src={`https://crafatar.com/renders/body/${debouncedUsername}?overlay=true`}
+          src={`https://mc-heads.net/body/${debouncedUsername}`}
           alt={`${debouncedUsername}'s Skin`}
           className="max-h-full object-contain"
           onError={(e) => {
-            (e.target as HTMLImageElement).src =
-              "https://crafatar.com/renders/body/Steve?overlay=true";
+            const target = e.target as HTMLImageElement;
+            if (!target.src.includes("Steve")) {
+              target.src = "https://mc-heads.net/body/Steve";
+            }
           }}
         />
       </div>
 
-      <p className="text-xs text-muted-foreground text-center">Powered by Crafatar</p>
+      <p className="text-xs text-muted-foreground text-center">Powered by MC-Heads</p>
     </div>
   );
 }
