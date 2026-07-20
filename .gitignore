@@ -48,3 +48,6 @@ venv/
 
 # Temporary scripts
 create-temp-admin.mjs
+
+# Database Backups
+backups/

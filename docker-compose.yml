@@ -26,5 +26,23 @@ services:
     depends_on:
       - db
 
+  db-backup:
+    image: prodrigestivill/postgres-backup-local
+    container_name: mc_wiki_pg_backup
+    restart: always
+    depends_on:
+      - db
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: mc_wiki
+      POSTGRES_USER: wiki_user
+      POSTGRES_PASSWORD: wiki_password
+      SCHEDULE: "@daily"
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+    volumes:
+      - ./backups:/backups
+
 volumes:
   pgdata:
