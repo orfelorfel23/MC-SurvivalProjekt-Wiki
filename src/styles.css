@@ -62,16 +62,85 @@
 }
 
 :root {
-  /* Dark Minecraft-modern theme as default (no light theme toggle needed) */
+  /* Light Minecraft theme (Daytime/Stone) */
   --radius: 0rem;
+  --background: oklch(0.95 0.01 250);
+  --foreground: oklch(0.2 0.02 250);
+  --card: oklch(0.98 0.01 250);
+  --card-foreground: oklch(0.2 0.02 250);
+  --popover: oklch(0.98 0.01 250);
+  --popover-foreground: oklch(0.2 0.02 250);
+  --primary: oklch(0.45 0.08 60); /* Dirt brown */
+  --primary-foreground: oklch(0.98 0.01 110); /* White text */
+  --secondary: oklch(0.85 0.02 250); /* Light stone */
+  --secondary-foreground: oklch(0.2 0.02 250);
+  --muted: oklch(0.88 0.02 250);
+  --muted-foreground: oklch(0.45 0.02 250);
+  --accent: oklch(0.85 0.02 250);
+  --accent-foreground: oklch(0.2 0.02 250);
+  --destructive: oklch(0.6 0.22 27);
+  --destructive-foreground: oklch(0.98 0.01 110);
+  --border: oklch(0.8 0.02 250);
+  --input: oklch(0.8 0.02 250);
+  --ring: oklch(0.45 0.08 60);
+  
+  --chart-1: oklch(0.72 0.18 142);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.55 0.18 75);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.65 0.2 30);
+  
+  --sidebar: oklch(0.92 0.01 250);
+  --sidebar-foreground: oklch(0.2 0.02 250);
+  --sidebar-primary: oklch(0.45 0.08 60);
+  --sidebar-primary-foreground: oklch(0.98 0.01 110);
+  --sidebar-accent: oklch(0.85 0.02 250);
+  --sidebar-accent-foreground: oklch(0.2 0.02 250);
+  --sidebar-border: oklch(0.8 0.02 250);
+  --sidebar-ring: oklch(0.45 0.08 60);
+
+  /* Rarity tokens */
+  --rarity-common: oklch(0.78 0.01 110);
+  --rarity-uncommon: oklch(0.72 0.18 142);
+  --rarity-rare: oklch(0.7 0.17 240);
+  --rarity-epic: oklch(0.65 0.22 305);
+  --rarity-legendary: oklch(0.78 0.18 75);
+
+  /* Slot surface */
+  --slot: oklch(0.8 0.01 250);
+  --slot-border-light: oklch(0.95 0.01 250);
+  --slot-border-dark: oklch(0.6 0.01 250);
+
+  /* Minecraft block surface tokens */
+  --dirt-1: oklch(0.4 0.08 60);
+  --dirt-2: oklch(0.32 0.07 55);
+  --grass-1: oklch(0.65 0.15 140);
+  --grass-2: oklch(0.55 0.14 140);
+  --stone-1: oklch(0.8 0.01 250);
+  --stone-2: oklch(0.7 0.01 250);
+
+  /* Custom background and button details */
+  --bg-grid: oklch(0.8 0.02 250 / 0.6);
+  --bg-glow-1: oklch(0.9 0.02 250);
+  --bg-glow-2: oklch(0.85 0.02 250 / 0.45);
+  --btn-border-light: oklch(0.95 0.02 250);
+  --btn-border-dark: oklch(0.65 0.02 250);
+  --btn-shadow: oklch(0.98 0.01 250);
+}
+
+.dark {
+  /* Dark Minecraft-modern theme */
   --background: oklch(0.18 0.02 145);
   --foreground: oklch(0.95 0.01 110);
   --card: oklch(0.24 0.022 145);
   --card-foreground: oklch(0.95 0.01 110);
   --popover: oklch(0.22 0.025 145);
   --popover-foreground: oklch(0.95 0.01 110);
-  --primary: 32 9% 43%;
-  --primary-foreground: oklch(0.15 0.02 145);
+  
+  /* Fix: Use valid oklch instead of bare HSL and use light foreground */
+  --primary: oklch(0.4 0.08 60); /* Dirt brown */
+  --primary-foreground: oklch(0.95 0.01 110);
+  
   --secondary: oklch(0.28 0.03 145);
   --secondary-foreground: oklch(0.95 0.01 110);
   --muted: oklch(0.26 0.025 145);
@@ -82,12 +151,14 @@
   --destructive-foreground: oklch(0.98 0.01 110);
   --border: oklch(0.32 0.025 145);
   --input: oklch(0.26 0.025 145);
-  --ring: 32 9% 43%;
+  --ring: oklch(0.4 0.08 60);
+  
   --chart-1: oklch(0.72 0.18 142);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.55 0.18 75);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.65 0.2 30);
+  
   --sidebar: oklch(0.2 0.022 145);
   --sidebar-foreground: oklch(0.95 0.01 110);
   --sidebar-primary: oklch(0.72 0.18 142);
@@ -97,62 +168,13 @@
   --sidebar-border: oklch(0.32 0.025 145);
   --sidebar-ring: oklch(0.72 0.18 142);
 
-  /* Rarity tokens */
-  --rarity-common: oklch(0.78 0.01 110);
-  --rarity-uncommon: oklch(0.72 0.18 142);
-  --rarity-rare: oklch(0.7 0.17 240);
-  --rarity-epic: oklch(0.65 0.22 305);
-  --rarity-legendary: oklch(0.78 0.18 75);
-
-  /* Slot surface (minecraft inventory feel) */
-  --slot: oklch(0.36 0.012 145);
-  --slot-border-light: oklch(0.55 0.015 145);
-  --slot-border-dark: oklch(0.14 0.015 145);
-
-  /* Minecraft block surface tokens based on icon.png primary: 32 9% 43% */
-  /* Converting HSL to oklch approx for dirt: */
-  --dirt-1: oklch(0.4 0.08 60);
-  --dirt-2: oklch(0.32 0.07 55);
-  /* Make grass match the primary color (orange/brown hue) */
-  --grass-1: oklch(0.55 0.12 40);
-  --grass-2: oklch(0.45 0.1 40);
-  --stone-1: oklch(0.45 0.005 145);
-  --stone-2: oklch(0.32 0.005 145);
-}
-
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: 32 9% 43%;
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: 32 9% 43%;
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  /* Custom background and button details */
+  --bg-grid: oklch(0.2 0.02 145 / 0.6);
+  --bg-glow-1: oklch(0.26 0.05 145);
+  --bg-glow-2: oklch(0.24 0.06 75 / 0.45);
+  --btn-border-light: oklch(0.45 0.03 145);
+  --btn-border-dark: oklch(0.12 0.02 145);
+  --btn-shadow: oklch(0.1 0.02 145);
 }
 
 @layer base {
@@ -165,10 +187,10 @@
     color: var(--color-foreground);
     /* Pixelated dirt/stone-like noise background */
     background-image:
-      linear-gradient(oklch(0.2 0.02 145 / 0.6) 1px, transparent 1px),
-      linear-gradient(90deg, oklch(0.2 0.02 145 / 0.6) 1px, transparent 1px),
-      radial-gradient(circle at 20% 10%, oklch(0.26 0.05 145) 0%, transparent 55%),
-      radial-gradient(circle at 80% 90%, oklch(0.24 0.06 75 / 0.45) 0%, transparent 55%);
+      linear-gradient(var(--bg-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px),
+      radial-gradient(circle at 20% 10%, var(--bg-glow-1) 0%, transparent 55%),
+      radial-gradient(circle at 80% 90%, var(--bg-glow-2) 0%, transparent 55%);
     background-size:
       32px 32px,
       32px 32px,
@@ -260,12 +282,12 @@
   letter-spacing: 0.04em;
   color: var(--foreground);
   background-color: var(--secondary);
-  border-top: 3px solid oklch(0.45 0.03 145);
-  border-left: 3px solid oklch(0.45 0.03 145);
-  border-right: 3px solid oklch(0.12 0.02 145);
-  border-bottom: 3px solid oklch(0.12 0.02 145);
+  border-top: 3px solid var(--btn-border-light);
+  border-left: 3px solid var(--btn-border-light);
+  border-right: 3px solid var(--btn-border-dark);
+  border-bottom: 3px solid var(--btn-border-dark);
   border-radius: 0;
-  text-shadow: 1px 1px 0 oklch(0.1 0.02 145);
+  text-shadow: 1px 1px 0 var(--btn-shadow);
   cursor: pointer;
   transition: filter 100ms ease;
 }
@@ -273,10 +295,10 @@
   filter: brightness(1.15);
 }
 .mc-btn:active {
-  border-top-color: oklch(0.12 0.02 145);
-  border-left-color: oklch(0.12 0.02 145);
-  border-right-color: oklch(0.45 0.03 145);
-  border-bottom-color: oklch(0.45 0.03 145);
+  border-top-color: var(--btn-border-dark);
+  border-left-color: var(--btn-border-dark);
+  border-right-color: var(--btn-border-light);
+  border-bottom-color: var(--btn-border-light);
 }
 
 /* Grass-top decorative bar */
