@@ -121,7 +121,7 @@ function Slot({
   );
 
   const className = cn(
-    "mc-slot relative flex items-center justify-center group",
+    "mc-slot relative flex items-center justify-center group hover:z-50",
     size,
     enchanted && "mc-glint",
   );
