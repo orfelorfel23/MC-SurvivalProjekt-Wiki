@@ -83,7 +83,7 @@ export function ItemPicker({
           )}
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+      <DialogContent aria-describedby={undefined} className="max-w-2xl max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Item auswählen</DialogTitle>
         </DialogHeader>
