@@ -53,16 +53,16 @@ export function Header() {
   };
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
-      <div className="container mx-auto px-4 py-3 flex flex-wrap items-center gap-3">
+      <div className="container mx-auto px-4 py-2 flex flex-wrap items-center gap-3">
         <Link to="/" className="flex items-center gap-2">
           <img
             src="/icon.png"
             alt="Minecraft Server Wiki Logo"
-            className="w-9 h-9 object-contain"
+            className="w-16 h-16 object-contain -my-2"
           />
-          <span className="font-bold text-sm uppercase tracking-wider">Minecraft Server Wiki</span>
+          <span className="font-bold text-sm uppercase tracking-wider hidden sm:inline-block">Minecraft Server Wiki</span>
         </Link>
-        <nav className="hidden md:flex items-center gap-1 ml-4 text-sm flex-wrap">
+        <nav className="flex items-center gap-1 md:ml-4 text-sm flex-wrap w-full md:w-auto order-last md:order-none mt-2 md:mt-0">
           {tabsLoading ? (
             <div className="flex gap-2">
               <div className="w-16 h-6 bg-muted animate-pulse rounded" />
@@ -71,8 +71,23 @@ export function Header() {
             </div>
           ) : (
             <>
+              {KINDS.map((k) => {
+                const dbTab = tabs?.find((t) => t.slug === k);
+                if (dbTab && !dbTab.isVisible) return null;
+                return (
+                  <Link
+                    key={k}
+                    to={"/$kind" as never}
+                    params={{ kind: k } as never}
+                    className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
+                    activeProps={{ className: "text-accent" }}
+                  >
+                    {dbTab ? (lang === "de" ? dbTab.nameDe : dbTab.nameEn || dbTab.nameDe) : t(KIND_LABEL_KEY[k], lang)}
+                  </Link>
+                );
+              })}
               {tabs
-                ?.filter((t) => t.isVisible)
+                ?.filter((t) => !t.isBuiltin && t.isVisible)
                 .map((t) => (
                   <Link
                     key={t.slug}
@@ -82,18 +97,6 @@ export function Header() {
                     activeProps={{ className: "text-accent" }}
                   >
                     {lang === "de" ? t.nameDe : t.nameEn || t.nameDe}
-                  </Link>
-                ))}
-              {(!tabs || tabs.length === 0) &&
-                KINDS.map((k) => (
-                  <Link
-                    key={k}
-                    to={"/$kind" as never}
-                    params={{ kind: k } as never}
-                    className="px-2 py-1 rounded hover:bg-accent/20 hover:text-accent transition-colors"
-                    activeProps={{ className: "text-accent" }}
-                  >
-                    {t(KIND_LABEL_KEY[k], lang)}
                   </Link>
                 ))}
             </>
