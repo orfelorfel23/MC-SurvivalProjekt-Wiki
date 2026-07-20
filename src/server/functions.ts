@@ -469,6 +469,16 @@ export const saveTab = createServerFn({ method: "POST" })
     return prisma.wikiTab.create({ data: createData });
   });
 
+export const softDeleteTab = createServerFn({ method: "POST" })
+  .validator((d: { slug: string }) => d)
+  .handler(async ({ data }) => {
+    await requireRole("ADMIN", "EDITOR");
+    return prisma.wikiTab.update({
+      where: { slug: data.slug },
+      data: { deletedAt: new Date() },
+    });
+  });
+
 export const saveGenericEntity = createServerFn({ method: "POST" })
   .validator((d: { kindId: string; slug: string; data: any }) => d)
   .handler(async ({ data }) => {

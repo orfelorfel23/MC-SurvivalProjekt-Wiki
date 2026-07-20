@@ -6,6 +6,7 @@ import {
   saveRecipe,
   getKindItem,
   getKindList,
+  softDeleteGenericEntity,
 } from "@/server/functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,8 @@ function RecipeEditorDetail() {
   const { isEditor } = useAuth();
   const { lang } = useLang();
   const navigate = useNavigate();
+
+  const [deleting, setDeleting] = useState(false);
 
   const [recipe, setRecipe] = useState({
     id: undefined as string | undefined,
@@ -82,6 +85,19 @@ function RecipeEditorDetail() {
     }
   }, [id, fetchedRecipe]);
 
+  const handleDeleteClick = async () => {
+    if (!confirm("Wirklich komplett löschen?")) return;
+    setDeleting(true);
+    try {
+      await softDeleteGenericEntity({ data: { kindId: "rezepte", slug: recipe.slug } });
+      toast.success("Gelöscht!");
+      navigate({ to: "/$kind", params: { kind: "rezepte" }, replace: true });
+    } catch (e) {
+      toast.error("Fehler beim Löschen");
+      setDeleting(false);
+    }
+  };
+
   const handleSaveInit = () => {
     setShowDiff(true);
   };
@@ -106,7 +122,14 @@ function RecipeEditorDetail() {
         <h1 className="text-2xl text-primary">
           {id === "new" ? t("new", lang) + " Rezept" : "Rezept " + t("edit", lang).toLowerCase()}
         </h1>
-        <Button onClick={handleSaveInit}>{t("save", lang)}</Button>
+        <div className="flex gap-2">
+          {id !== "new" && (
+            <Button variant="destructive" onClick={handleDeleteClick} disabled={deleting}>
+              {deleting ? t("loading", lang) : t("delete", lang)}
+            </Button>
+          )}
+          <Button onClick={handleSaveInit}>{t("save", lang)}</Button>
+        </div>
       </div>
 
       <div className="grid gap-6">

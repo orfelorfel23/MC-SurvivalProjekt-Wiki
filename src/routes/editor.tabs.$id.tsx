@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/use-auth";
 import { useLang, t } from "@/lib/i18n";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getWikiTabs, saveTab, getKindList } from "@/server/functions";
+import { getWikiTabs, saveTab, getKindList, softDeleteTab } from "@/server/functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -110,6 +110,7 @@ function TabEditorDetail() {
   });
   const [originalTab, setOriginalTab] = useState<any>(null);
   const [showDiff, setShowDiff] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (id !== "new" && tabs) {
@@ -130,6 +131,20 @@ function TabEditorDetail() {
       }
     }
   }, [id, tabs]);
+
+  const handleDeleteClick = async () => {
+    if (!confirm("Wirklich komplett löschen?")) return;
+    setDeleting(true);
+    try {
+      await softDeleteTab({ data: { slug: tab.slug } });
+      toast.success("Tab gelöscht!");
+      qc.invalidateQueries({ queryKey: ["wikiTabs"] });
+      navigate({ to: "/editor/tabs", replace: true });
+    } catch (e) {
+      toast.error("Fehler beim Löschen");
+      setDeleting(false);
+    }
+  };
 
   const handleSaveInit = () => {
     setShowDiff(true);
@@ -168,7 +183,14 @@ function TabEditorDetail() {
         <h1 className="text-2xl text-primary">
           {id === "new" ? t("new", lang) + " Tab" : "Tab " + t("edit", lang).toLowerCase()}
         </h1>
-        <Button onClick={handleSaveInit}>{t("save", lang)}</Button>
+        <div className="flex gap-2">
+          {id !== "new" && !tab.isBuiltin && (
+            <Button variant="destructive" onClick={handleDeleteClick} disabled={deleting}>
+              {deleting ? t("loading", lang) : t("delete", lang)}
+            </Button>
+          )}
+          <Button onClick={handleSaveInit}>{t("save", lang)}</Button>
+        </div>
       </div>
 
       <div className="grid gap-6">

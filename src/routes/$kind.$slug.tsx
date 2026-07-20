@@ -5,9 +5,8 @@ import remarkGfm from "remark-gfm";
 import MDEditor from "@uiw/react-md-editor";
 import "@uiw/react-md-editor/markdown-editor.css";
 import rehypeSanitize from "rehype-sanitize";
-import { getKindItem } from "@/server/functions";
+import { getKindItem, saveGenericEntity, softDeleteGenericEntity } from "@/server/functions";
 import { useAuth } from "@/lib/use-auth";
-import { saveGenericEntity } from "@/server/functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,6 +44,7 @@ function DetailPage() {
   }>({});
   const [loading, setLoading] = useState(true);
   const [showDiff, setShowDiff] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (slug === "new") {
@@ -103,6 +103,19 @@ function DetailPage() {
       navigate({ to: "/editor/recipes/$id", params: { id: slug } });
     } else {
       setIsEditing(true);
+    }
+  };
+
+  const handleDeleteClick = async () => {
+    if (!confirm("Wirklich komplett löschen?")) return;
+    setDeleting(true);
+    try {
+      await softDeleteGenericEntity({ data: { kindId: k, slug } });
+      toast.success("Gelöscht!");
+      navigate({ to: "/$kind", params: { kind: k }, replace: true });
+    } catch (e) {
+      toast.error("Fehler beim Löschen");
+      setDeleting(false);
     }
   };
 
@@ -171,6 +184,11 @@ function DetailPage() {
             {t("edit", lang)}: {slug}
           </h1>
           <div className="flex gap-2">
+            {slug !== "new" && (
+              <Button variant="destructive" onClick={handleDeleteClick} disabled={deleting}>
+                {deleting ? t("loading", lang) : t("delete", lang)}
+              </Button>
+            )}
             <Button variant="outline" onClick={() => setIsEditing(false)}>
               {t("cancel", lang)}
             </Button>
@@ -246,9 +264,14 @@ function DetailPage() {
               ← {t(KIND_LABEL_KEY[k], lang)}
             </Link>
             {isEditor && (
-              <Button variant="outline" size="sm" onClick={handleEditClick}>
-                {t("edit", lang)}
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleEditClick}>
+                  {t("edit", lang)}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => navigate({ to: "/$kind/$slug", params: { kind: k, slug: "new" } })}>
+                  {t("new", lang)}
+                </Button>
+              </div>
             )}
           </div>
           <header className="my-2 flex flex-wrap items-start gap-4">
