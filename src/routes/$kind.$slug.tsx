@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import MDEditor from "@uiw/react-md-editor";
 import "@uiw/react-md-editor/markdown-editor.css";
@@ -18,6 +19,40 @@ import { ImageUpload } from "@/components/image-upload";
 import { RarityBadge } from "@/components/rarity-badge";
 import { useRecentlyViewed } from "@/lib/use-recently-viewed";
 import { CommentSection } from "@/components/comment-section";
+import { SkinViewer } from "@/components/skin-viewer";
+
+const markdownComponents: Components = {
+  code(props) {
+    const { children, className, node, ...rest } = props;
+    const match = /language-(\w+)/.exec(className || "");
+    const lang = match ? match[1] : "";
+    if (lang === "skinviewer") {
+      const text = String(children).replace(/\n$/, "");
+      const config: any = {};
+      text.split("\n").forEach((line) => {
+        const [key, ...restLine] = line.split(":");
+        if (key && restLine.length > 0) {
+          config[key.trim()] = restLine.join(":").trim();
+        }
+      });
+      return (
+        <div className="not-prose my-4 flex justify-center w-full">
+          <SkinViewer
+            name={config.name || "Steve"}
+            type={config.type as any}
+            role={config.role}
+            imageUrl={config.imageUrl}
+          />
+        </div>
+      );
+    }
+    return (
+      <code className={className} {...rest}>
+        {children}
+      </code>
+    );
+  },
+};
 
 export const Route = createFileRoute("/$kind/$slug")({
   component: DetailPage,
@@ -206,7 +241,7 @@ function DetailPage() {
                     <MDEditor
                       value={editData[f.key] || ""}
                       onChange={(val) => setEditData({ ...editData, [f.key]: val })}
-                      previewOptions={{ rehypePlugins: [[rehypeSanitize]] }}
+                      previewOptions={{ rehypePlugins: [[rehypeSanitize]], components: markdownComponents }}
                       height={300}
                     />
                   </div>
@@ -345,13 +380,13 @@ function DetailPage() {
 
           {description && (
             <section className="prose prose-invert max-w-none mb-6">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{description}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>{description}</ReactMarkdown>
             </section>
           )}
 
           {k === "wiki" && row.bodyDe && (
             <section className="prose prose-invert max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
                 {pickLocalized(row.bodyDe, row.bodyEn, lang)}
               </ReactMarkdown>
             </section>
@@ -396,7 +431,7 @@ function DetailPage() {
                     {t("strategy", lang)}
                   </h3>
                   <div className="prose prose-invert max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
                       {pickLocalized(row.strategyDe, row.strategyEn, lang)}
                     </ReactMarkdown>
                   </div>
