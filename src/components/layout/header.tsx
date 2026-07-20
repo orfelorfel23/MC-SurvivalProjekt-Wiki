@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Search, LogIn, LogOut, Shield, Languages, Moon, Sun } from "lucide-react";
+import { Search, LogIn, LogOut, Shield, Languages, Moon, Sun, Volume2, VolumeX } from "lucide-react";
 import { useAuth } from "@/lib/use-auth";
 import { useLang, t, KINDS, KIND_LABEL_KEY } from "@/lib/i18n";
 import { authClient } from "@/lib/auth-client";
@@ -37,6 +37,19 @@ export function Header() {
       document.documentElement.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
+  };
+
+  const [isMuted, setIsMuted] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("sound_muted") === "true";
+    }
+    return false;
+  });
+
+  const toggleMute = () => {
+    const next = !isMuted;
+    setIsMuted(next);
+    localStorage.setItem("sound_muted", next.toString());
   };
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
@@ -121,6 +134,9 @@ export function Header() {
         </Button>
         <Button variant="ghost" size="icon" onClick={toggleDark} title="Dark Mode umschalten">
           {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+        </Button>
+        <Button variant="ghost" size="icon" onClick={toggleMute} title="Sound umschalten">
+          {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
         </Button>
         {isEditor && (
           <Link to="/editor">
