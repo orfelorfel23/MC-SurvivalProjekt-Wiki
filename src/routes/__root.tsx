@@ -11,7 +11,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Header } from "@/components/layout/header";
-import { LangContext, type Lang } from "@/lib/i18n";
+import { LangContext, type Lang, t } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
 import { useSound } from "@/lib/use-sound";
 
@@ -180,7 +180,7 @@ function RootComponent() {
             <Outlet />
           </main>
           <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
-            Minecraft Server Wiki · Inhalte werden von Editoren gepflegt
+            {t("footerText", lang)}
           </footer>
         </div>
         <Toaster />

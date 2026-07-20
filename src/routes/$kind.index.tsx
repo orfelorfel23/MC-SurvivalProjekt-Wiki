@@ -10,7 +10,10 @@ import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/$kind/")({
   component: KindList,
-  notFoundComponent: () => <div className="container mx-auto px-4 py-8">Unbekannte Kategorie.</div>,
+  notFoundComponent: function NotFound() {
+    const { lang } = useLang();
+    return <div className="container mx-auto px-4 py-8">{t("unknownCategory", lang)}</div>;
+  },
 });
 
 function KindList() {
@@ -102,24 +105,24 @@ function KindList() {
               size="sm"
               onClick={() => navigate({ to: "/$kind/$slug", params: { kind: k, slug: "new" } })}
             >
-              Neu erstellen
+              {t("createNew", lang)}
             </Button>
           )}
         </div>
       </div>
       {loading && <p className="text-muted-foreground">{t("loading", lang)}</p>}
-      {!loading && !currentTab && <p className="text-muted-foreground">Unbekannte Kategorie.</p>}
+      {!loading && !currentTab && <p className="text-muted-foreground">{t("unknownCategory", lang)}</p>}
       {!loading && currentTab?.isBuiltin && filteredRows.length === 0 && (
         <p className="text-muted-foreground">{t("noResults", lang)}</p>
       )}
       {!loading && currentTab && !currentTab?.isBuiltin && modules.length === 0 && (
-        <p className="text-muted-foreground">Diese Seite hat noch keine Module.</p>
+        <p className="text-muted-foreground">{t("noModules", lang)}</p>
       )}
 
       {currentTab?.isBuiltin && rows.length > 0 && (
         <div className="mb-6 max-w-sm">
           <Input
-            placeholder={`${label} durchsuchen...`}
+            placeholder={`${label} ${t("searchIn", lang)}`}
             value={filterQuery}
             onChange={(e) => setFilterQuery(e.target.value)}
           />
@@ -215,7 +218,7 @@ function KindList() {
                 </Link>
               );
             }
-            return <div key={i}>Unbekanntes Modul ({mod.type})</div>;
+            return <div key={i}>{t("unknownModule", lang)} ({mod.type})</div>;
           })}
         </div>
       )}

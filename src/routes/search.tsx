@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, useRef } from "react";
 import { searchWiki } from "@/server/functions";
+import { useLang, t } from "@/lib/i18n";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -25,6 +26,7 @@ export const Route = createFileRoute("/search")({
 function SearchPage() {
   const { q, category, rarity } = Route.useSearch();
   const navigate = useNavigate({ from: "/search" });
+  const { lang } = useLang();
 
   const [localQ, setLocalQ] = useState(q);
   const [localCategory, setLocalCategory] = useState(category || "all");
@@ -75,12 +77,12 @@ function SearchPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-primary">Erweiterte Suche</h1>
+      <h1 className="text-3xl font-bold mb-6 text-primary">{t("advancedSearch", lang)}</h1>
 
       <div className="flex flex-col md:flex-row gap-4 mb-8 bg-card p-4 rounded-lg border shadow-sm">
         <div className="flex-1">
           <Input
-            placeholder="Suchbegriff..."
+            placeholder={t("searchTerm", lang)}
             value={localQ}
             onChange={(e) => setLocalQ(e.target.value)}
           />
@@ -88,24 +90,24 @@ function SearchPage() {
         <div className="w-full md:w-48">
           <Select value={localCategory} onValueChange={setLocalCategory}>
             <SelectTrigger>
-              <SelectValue placeholder="Kategorie (Alle)" />
+              <SelectValue placeholder={t("categoryAll", lang)} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Alle Kategorien</SelectItem>
-              <SelectItem value="waffen">Waffen</SelectItem>
-              <SelectItem value="werkzeuge">Werkzeuge</SelectItem>
-              <SelectItem value="ruestung">Rüstung</SelectItem>
-              <SelectItem value="material">Material</SelectItem>
+              <SelectItem value="all">{t("allCategories", lang)}</SelectItem>
+              <SelectItem value="waffen">{t("weapons", lang)}</SelectItem>
+              <SelectItem value="werkzeuge">{t("tools", lang)}</SelectItem>
+              <SelectItem value="ruestung">{t("armor", lang)}</SelectItem>
+              <SelectItem value="material">{t("material", lang)}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="w-full md:w-48">
           <Select value={localRarity} onValueChange={setLocalRarity}>
             <SelectTrigger>
-              <SelectValue placeholder="Seltenheit (Alle)" />
+              <SelectValue placeholder={t("rarityAll", lang)} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Alle Seltenheiten</SelectItem>
+              <SelectItem value="all">{t("allRarities", lang)}</SelectItem>
               <SelectItem value="COMMON">Common</SelectItem>
               <SelectItem value="UNCOMMON">Uncommon</SelectItem>
               <SelectItem value="RARE">Rare</SelectItem>
@@ -123,15 +125,15 @@ function SearchPage() {
             setLocalRarity("all");
           }}
         >
-          Reset
+          {t("reset", lang)}
         </Button>
       </div>
 
-      {loading && <p className="text-muted-foreground">Sucht...</p>}
+      {loading && <p className="text-muted-foreground">{t("searching", lang)}</p>}
       {!loading &&
         rows.length === 0 &&
         (q || (category && category !== "all") || (rarity && rarity !== "all")) && (
-          <p className="text-muted-foreground">Keine Treffer für diese Filter.</p>
+          <p className="text-muted-foreground">{t("noHits", lang)}</p>
         )}
 
       <div className="space-y-6">

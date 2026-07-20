@@ -21,7 +21,10 @@ import { CommentSection } from "@/components/comment-section";
 
 export const Route = createFileRoute("/$kind/$slug")({
   component: DetailPage,
-  notFoundComponent: () => <div className="container mx-auto px-4 py-8">Nicht gefunden.</div>,
+  notFoundComponent: function NotFound() {
+    const { lang } = useLang();
+    return <div className="container mx-auto px-4 py-8">{t("notFound", lang)}</div>;
+  },
 });
 
 function DetailPage() {
@@ -93,8 +96,8 @@ function DetailPage() {
   );
 
   if (loading)
-    return <div className="container mx-auto px-4 py-8 text-muted-foreground">Lädt...</div>;
-  if (!row && slug !== "new") return <div className="container mx-auto px-4 py-8">Nicht gefunden.</div>;
+    return <div className="container mx-auto px-4 py-8 text-muted-foreground">{t("loading", lang)}</div>;
+  if (!row && slug !== "new") return <div className="container mx-auto px-4 py-8">{t("notFound", lang)}</div>;
 
   const handleEditClick = () => {
     if (k === "rezepte") {
@@ -105,14 +108,14 @@ function DetailPage() {
   };
 
   const handleDeleteClick = async () => {
-    if (!confirm("Wirklich komplett löschen?")) return;
+    if (!confirm(t("confirmDelete", lang))) return;
     setDeleting(true);
     try {
       await softDeleteGenericEntity({ data: { kindId: k, slug } });
-      toast.success("Gelöscht!");
+      toast.success(t("deleted", lang));
       navigate({ to: "/$kind", params: { kind: k }, replace: true });
     } catch (e) {
-      toast.error("Fehler beim Löschen");
+      toast.error(t("deleteError", lang));
       setDeleting(false);
     }
   };
@@ -137,7 +140,7 @@ function DetailPage() {
 
       await saveGenericEntity({ data: { kindId: k, slug, data: payload } });
       
-      toast.success("Gespeichert!");
+      toast.success(t("saved", lang));
       
       if (slug === "new") {
         navigate({ to: "/$kind/$slug", params: { kind: k, slug: payload.slug }, replace: true });
@@ -147,7 +150,7 @@ function DetailPage() {
       setRow(payload);
       setIsEditing(false);
     } catch (e) {
-      toast.error("Fehler beim Speichern");
+      toast.error(t("saveError", lang));
     }
     setSaving(false);
   };
@@ -444,10 +447,10 @@ function DetailPage() {
         <aside className="w-full lg:w-72 flex-shrink-0">
           <div className="mc-panel p-4 sticky top-24">
             <h3 className="text-sm uppercase tracking-widest text-accent mb-4">
-              Zuletzt angesehen
+              {t("recentlyViewed", lang)}
             </h3>
             {history.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Noch keine Einträge.</p>
+              <p className="text-xs text-muted-foreground">{t("noEntriesYet", lang)}</p>
             ) : (
               <div className="flex flex-col gap-2">
                 {history.map((h, i) => (
