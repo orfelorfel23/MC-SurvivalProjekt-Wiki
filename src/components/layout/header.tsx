@@ -181,7 +181,6 @@ export function Header() {
             {t("map", lang)}
           </Link>
         </nav>
-        </nav>
         </div>
       </div>
       <div className="mc-grass-bar" />
