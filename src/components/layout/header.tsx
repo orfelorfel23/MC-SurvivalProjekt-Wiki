@@ -53,16 +53,88 @@ export function Header() {
   };
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
-      <div className="container mx-auto px-4 py-2 flex flex-wrap items-center gap-3">
-        <Link to="/" className="flex items-center gap-2">
+      <div className="container mx-auto px-4 py-2 flex items-stretch gap-4 md:gap-6">
+        <Link to="/" className="flex-shrink-0 flex items-center">
           <img
             src="/icon.png"
             alt="Minecraft Server Wiki Logo"
-            className="w-16 h-16 object-contain -my-2"
+            className="w-20 h-20 object-contain -my-2"
           />
-          <span className="font-bold text-sm uppercase tracking-wider hidden sm:inline-block">Minecraft Server Wiki</span>
         </Link>
-        <nav className="flex items-center gap-1 md:ml-4 text-sm flex-wrap w-full md:w-auto order-last md:order-none mt-2 md:mt-0">
+        <div className="flex flex-col flex-1 justify-center gap-2 min-w-0">
+          <div className="flex flex-wrap items-center gap-2 justify-between w-full">
+            <Link to="/" className="hidden md:block truncate">
+              <span className="font-bold text-sm uppercase tracking-wider">Minecraft Server Wiki</span>
+            </Link>
+            <div className="flex items-center gap-2 flex-wrap ml-auto">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (q.trim())
+                    navigate({ to: "/search", search: { q: q.trim(), category: "", rarity: "" } });
+                }}
+                className="flex items-center gap-2 flex-1 sm:flex-initial"
+              >
+                <div className="relative w-full sm:w-48 md:w-64">
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder={t("searchPlaceholder", lang)}
+                    className="w-full pl-8 pr-3 py-1.5 rounded-md bg-input border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                  />
+                </div>
+              </form>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setLang(lang === "de" ? "en" : "de")}
+                title={t("switchLang", lang)}
+              >
+                <Languages className="w-4 h-4" /> {lang.toUpperCase()}
+              </Button>
+              <Button variant="ghost" size="icon" onClick={toggleDark} title={t("toggleDark", lang)}>
+                {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </Button>
+              <Button variant="ghost" size="icon" onClick={toggleMute} title={t("toggleSound", lang)}>
+                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+              </Button>
+              {isEditor && (
+                <Link to="/editor">
+                  <Button variant="outline" size="sm">
+                    <Shield className="w-4 h-4" /> {t("editor", lang)}
+                  </Button>
+                </Link>
+              )}
+              {isAdmin && (
+                <Link to="/admin">
+                  <Button variant="outline" size="sm">
+                    {t("admin", lang)}
+                  </Button>
+                </Link>
+              )}
+              {authLoading ? (
+                <div className="w-20 h-8 bg-muted animate-pulse rounded" />
+              ) : user ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={async () => {
+                    await authClient.signOut();
+                  }}
+                >
+                  <LogOut className="w-4 h-4 hidden sm:inline-block" /> {t("logout", lang)}
+                </Button>
+              ) : (
+                <Link to="/auth" search={{ from: undefined }}>
+                  <Button size="sm">
+                    <LogIn className="w-4 h-4 hidden sm:inline-block" /> {t("login", lang)}
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+          <nav className="flex items-center gap-1 text-sm flex-wrap w-full mt-1">
           {tabsLoading ? (
             <div className="flex gap-2">
               <div className="w-16 h-6 bg-muted animate-pulse rounded" />
@@ -109,71 +181,8 @@ export function Header() {
             {t("map", lang)}
           </Link>
         </nav>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (q.trim())
-              navigate({ to: "/search", search: { q: q.trim(), category: "", rarity: "" } });
-          }}
-          className="flex items-center gap-2 ml-auto flex-1 md:flex-initial md:w-72"
-        >
-          <div className="relative w-full">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder={t("searchPlaceholder", lang)}
-              className="w-full pl-8 pr-3 py-1.5 rounded-md bg-input border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-            />
-          </div>
-        </form>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setLang(lang === "de" ? "en" : "de")}
-          title={t("switchLang", lang)}
-        >
-          <Languages className="w-4 h-4" /> {lang.toUpperCase()}
-        </Button>
-        <Button variant="ghost" size="icon" onClick={toggleDark} title={t("toggleDark", lang)}>
-          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-        </Button>
-        <Button variant="ghost" size="icon" onClick={toggleMute} title={t("toggleSound", lang)}>
-          {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-        </Button>
-        {isEditor && (
-          <Link to="/editor">
-            <Button variant="outline" size="sm">
-              <Shield className="w-4 h-4" /> {t("editor", lang)}
-            </Button>
-          </Link>
-        )}
-        {isAdmin && (
-          <Link to="/admin">
-            <Button variant="outline" size="sm">
-              {t("admin", lang)}
-            </Button>
-          </Link>
-        )}
-        {authLoading ? (
-          <div className="w-20 h-8 bg-muted animate-pulse rounded" />
-        ) : user ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={async () => {
-              await authClient.signOut();
-            }}
-          >
-            <LogOut className="w-4 h-4" /> {t("logout", lang)}
-          </Button>
-        ) : (
-          <Link to="/auth" search={{ from: undefined }}>
-            <Button size="sm">
-              <LogIn className="w-4 h-4" /> {t("login", lang)}
-            </Button>
-          </Link>
-        )}
+        </nav>
+        </div>
       </div>
       <div className="mc-grass-bar" />
     </header>

@@ -107,14 +107,15 @@ function DetailPage() {
     }
   };
 
-  const handleDeleteClick = async () => {
+  const handleDeleteClick = async (e: any) => {
+    e.preventDefault();
     if (!confirm(t("confirmDelete", lang))) return;
     setDeleting(true);
     try {
       await softDeleteGenericEntity({ data: { kindId: k, slug } });
       toast.success(t("deleted", lang));
-      navigate({ to: "/$kind", params: { kind: k }, replace: true });
-    } catch (e) {
+      window.location.href = `/${k}`;
+    } catch (err) {
       toast.error(t("deleteError", lang));
       setDeleting(false);
     }
@@ -182,7 +183,7 @@ function DetailPage() {
           </h1>
           <div className="flex gap-2">
             {slug !== "new" && (
-              <Button variant="destructive" onClick={handleDeleteClick} disabled={deleting}>
+              <Button type="button" variant="destructive" onClick={handleDeleteClick} disabled={deleting}>
                 {deleting ? t("loading", lang) : t("delete", lang)}
               </Button>
             )}
