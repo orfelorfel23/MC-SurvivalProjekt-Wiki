@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
+import { useLang, t } from "@/lib/i18n";
 
 export function CommentSection({ recipeId }: { recipeId: string }) {
   const { user, isModerator } = useAuth();
+  const { lang } = useLang();
   const qc = useQueryClient();
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -21,7 +23,7 @@ export function CommentSection({ recipeId }: { recipeId: string }) {
   const handleSubmit = async () => {
     if (!content.trim()) return;
     if (!user) {
-      toast.error("Du musst angemeldet sein, um zu kommentieren.");
+      toast.error(t("mustBeLoggedIn", lang));
       return;
     }
 
@@ -29,33 +31,33 @@ export function CommentSection({ recipeId }: { recipeId: string }) {
     try {
       await postComment({ data: { recipeId, content: content.trim(), authorId: user.id } });
       setContent("");
-      toast.success("Kommentar gesendet!");
+      toast.success(t("commentSent", lang));
       qc.invalidateQueries({ queryKey: ["comments", recipeId] });
     } catch (e) {
-      toast.error("Fehler beim Senden des Kommentars.");
+      toast.error(t("commentSendError", lang));
     }
     setSubmitting(false);
   };
 
   const handleDelete = async (commentId: string) => {
-    if (!confirm("Kommentar wirklich löschen?")) return;
+    if (!confirm(t("confirmDeleteComment", lang))) return;
     try {
       await deleteComment({ data: { commentId } });
-      toast.success("Kommentar gelöscht!");
+      toast.success(t("commentDeleted", lang));
       qc.invalidateQueries({ queryKey: ["comments", recipeId] });
     } catch (e) {
-      toast.error("Fehler beim Löschen.");
+      toast.error(t("deleteError", lang));
     }
   };
 
   return (
     <section className="mt-8 border-t border-border pt-6">
-      <h3 className="text-lg font-bold text-primary mb-4">Kommentare</h3>
+      <h3 className="text-lg font-bold text-primary mb-4">{t("commentsTitle", lang)}</h3>
 
       {user ? (
         <div className="mb-6 flex flex-col gap-2">
           <Textarea
-            placeholder="Schreibe einen Kommentar..."
+            placeholder={t("writeComment", lang)}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={3}
@@ -65,19 +67,19 @@ export function CommentSection({ recipeId }: { recipeId: string }) {
             onClick={handleSubmit}
             disabled={submitting || !content.trim()}
           >
-            Senden
+            {t("send", lang)}
           </Button>
         </div>
       ) : (
         <div className="mb-6 p-4 bg-muted text-sm text-muted-foreground rounded">
-          Bitte melde dich an, um einen Kommentar zu schreiben.
+          {t("loginToComment", lang)}
         </div>
       )}
 
       {isLoading ? (
-        <div className="text-muted-foreground text-sm">Lade Kommentare...</div>
+        <div className="text-muted-foreground text-sm">{t("loadingComments", lang)}</div>
       ) : comments?.length === 0 ? (
-        <div className="text-muted-foreground text-sm">Noch keine Kommentare. Sei der Erste!</div>
+        <div className="text-muted-foreground text-sm">{t("noCommentsYet", lang)}</div>
       ) : (
         <div className="flex flex-col gap-4">
           {comments?.map((c) => (
@@ -105,7 +107,7 @@ export function CommentSection({ recipeId }: { recipeId: string }) {
                       </span>
                     )}
                     <span className="text-xs text-muted-foreground ml-2">
-                      {new Date(c.createdAt).toLocaleDateString("de-DE", {
+                      {new Date(c.createdAt).toLocaleDateString(lang === "de" ? "de-DE" : "en-US", {
                         day: "2-digit",
                         month: "short",
                         year: "numeric",

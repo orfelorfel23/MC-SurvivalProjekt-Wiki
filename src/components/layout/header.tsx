@@ -131,14 +131,14 @@ export function Header() {
           variant="ghost"
           size="sm"
           onClick={() => setLang(lang === "de" ? "en" : "de")}
-          title="Sprache wechseln"
+          title={t("switchLang", lang)}
         >
           <Languages className="w-4 h-4" /> {lang.toUpperCase()}
         </Button>
-        <Button variant="ghost" size="icon" onClick={toggleDark} title="Dark Mode umschalten">
+        <Button variant="ghost" size="icon" onClick={toggleDark} title={t("toggleDark", lang)}>
           {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </Button>
-        <Button variant="ghost" size="icon" onClick={toggleMute} title="Sound umschalten">
+        <Button variant="ghost" size="icon" onClick={toggleMute} title={t("toggleSound", lang)}>
           {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
         </Button>
         {isEditor && (
