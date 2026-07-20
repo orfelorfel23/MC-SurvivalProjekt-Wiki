@@ -78,13 +78,17 @@ function KindList() {
     }
   }, [k, currentTab]);
 
-  const label = currentTab
+  const dynamicName = currentTab
     ? lang === "de"
       ? (currentTab as any).nameDe
       : (currentTab as any).nameEn || (currentTab as any).nameDe
-    : k in KIND_LABEL_KEY
+    : undefined;
+
+  const label =
+    dynamicName ||
+    (k in KIND_LABEL_KEY
       ? t(KIND_LABEL_KEY[k as keyof typeof KIND_LABEL_KEY], lang)
-      : k;
+      : k);
 
   return (
     <div className="container mx-auto px-4 py-8">
