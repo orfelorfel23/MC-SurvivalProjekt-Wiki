@@ -16,7 +16,6 @@ import { Switch } from "@/components/ui/switch";
 import { ItemPicker } from "@/components/item-picker";
 import type { GridSlot } from "@/components/crafting-grid";
 import { toast } from "sonner";
-import { DiffModal } from "@/components/diff-modal";
 
 export const Route = createFileRoute("/editor/recipes/$id")({
   component: RecipeEditorDetail,
@@ -40,8 +39,6 @@ function RecipeEditorDetail() {
     grid: Array(9).fill(null) as GridSlot[],
     resultItem: null as GridSlot | null,
   });
-  const [originalRecipe, setOriginalRecipe] = useState<any>(null);
-  const [showDiff, setShowDiff] = useState(false);
 
   const { data: fetchedRecipe } = useQuery({
     queryKey: ["recipe", id],
@@ -81,7 +78,6 @@ function RecipeEditorDetail() {
         resultItem: resultItem as any,
       };
       setRecipe(mapped as any);
-      setOriginalRecipe(mapped as any);
     }
   }, [id, fetchedRecipe]);
 
@@ -96,10 +92,6 @@ function RecipeEditorDetail() {
       toast.error("Fehler beim Löschen");
       setDeleting(false);
     }
-  };
-
-  const handleSaveInit = () => {
-    setShowDiff(true);
   };
 
   const confirmSave = async () => {
@@ -128,7 +120,7 @@ function RecipeEditorDetail() {
               {deleting ? t("loading", lang) : t("delete", lang)}
             </Button>
           )}
-          <Button onClick={handleSaveInit}>{t("save", lang)}</Button>
+          <Button onClick={confirmSave}>{t("save", lang)}</Button>
         </div>
       </div>
 
@@ -203,14 +195,6 @@ function RecipeEditorDetail() {
           </div>
         </div>
       </div>
-
-      <DiffModal
-        isOpen={showDiff}
-        onClose={() => setShowDiff(false)}
-        onConfirm={confirmSave}
-        oldData={originalRecipe || {}}
-        newData={recipe}
-      />
     </div>
   );
 }

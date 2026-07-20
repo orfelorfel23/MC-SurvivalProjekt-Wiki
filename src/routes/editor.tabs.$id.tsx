@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import MDEditor from "@uiw/react-md-editor";
 import "@uiw/react-md-editor/markdown-editor.css";
 import rehypeSanitize from "rehype-sanitize";
-import { DiffModal } from "@/components/diff-modal";
 
 // Map module type -> kind slug used by getKindList
 const MODULE_KIND: Record<string, string> = {
@@ -108,8 +107,6 @@ function TabEditorDetail() {
     order: 0,
     modules: [] as any[],
   });
-  const [originalTab, setOriginalTab] = useState<any>(null);
-  const [showDiff, setShowDiff] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -127,7 +124,6 @@ function TabEditorDetail() {
           modules: Array.isArray(existing.modules) ? existing.modules : [],
         };
         setTab(mapped);
-        setOriginalTab(mapped);
       }
     }
   }, [id, tabs]);
@@ -144,10 +140,6 @@ function TabEditorDetail() {
       toast.error("Fehler beim Löschen");
       setDeleting(false);
     }
-  };
-
-  const handleSaveInit = () => {
-    setShowDiff(true);
   };
 
   const confirmSave = async () => {
@@ -189,7 +181,7 @@ function TabEditorDetail() {
               {deleting ? t("loading", lang) : t("delete", lang)}
             </Button>
           )}
-          <Button onClick={handleSaveInit}>{t("save", lang)}</Button>
+          <Button onClick={confirmSave}>{t("save", lang)}</Button>
         </div>
       </div>
 
@@ -284,14 +276,6 @@ function TabEditorDetail() {
           </div>
         )}
       </div>
-
-      <DiffModal
-        isOpen={showDiff}
-        onClose={() => setShowDiff(false)}
-        onConfirm={confirmSave}
-        oldData={originalTab || {}}
-        newData={tab}
-      />
     </div>
   );
 }

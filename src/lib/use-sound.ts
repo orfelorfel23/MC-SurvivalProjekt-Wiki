@@ -14,6 +14,8 @@ export function useSound() {
 
     // Global click listener for sounds
     const handleGlobalClick = (e: MouseEvent) => {
+      if (localStorage.getItem("sound_muted") === "true") return;
+
       const target = e.target as HTMLElement;
       const isInteractive = target.closest("button") || target.closest("a");
       if (isInteractive) {
@@ -29,6 +31,7 @@ export function useSound() {
   }, []);
 
   const playClick = useCallback(() => {
+    if (localStorage.getItem("sound_muted") === "true") return;
     if (!audioCtx.current) return;
     const ctx = audioCtx.current;
 

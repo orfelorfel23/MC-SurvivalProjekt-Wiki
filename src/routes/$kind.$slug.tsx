@@ -17,7 +17,6 @@ import { CraftingGrid, type GridItem, type GridSlot } from "@/components/craftin
 import { ImageUpload } from "@/components/image-upload";
 import { RarityBadge } from "@/components/rarity-badge";
 import { useRecentlyViewed } from "@/lib/use-recently-viewed";
-import { DiffModal } from "@/components/diff-modal";
 import { CommentSection } from "@/components/comment-section";
 
 export const Route = createFileRoute("/$kind/$slug")({
@@ -43,7 +42,6 @@ function DetailPage() {
     spawnItem?: GridItem | null;
   }>({});
   const [loading, setLoading] = useState(true);
-  const [showDiff, setShowDiff] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -119,10 +117,6 @@ function DetailPage() {
     }
   };
 
-  const handleSaveInit = () => {
-    setShowDiff(true);
-  };
-
   const confirmSave = async () => {
     setSaving(true);
     try {
@@ -192,7 +186,7 @@ function DetailPage() {
             <Button variant="outline" onClick={() => setIsEditing(false)}>
               {t("cancel", lang)}
             </Button>
-            <Button onClick={handleSaveInit} disabled={saving}>
+            <Button onClick={confirmSave} disabled={saving}>
               {saving ? t("loading", lang) : t("save", lang)}
             </Button>
           </div>
@@ -233,13 +227,6 @@ function DetailPage() {
               </div>
             ))}
         </div>
-        <DiffModal
-          isOpen={showDiff}
-          onClose={() => setShowDiff(false)}
-          onConfirm={confirmSave}
-          oldData={row}
-          newData={editData}
-        />
       </article>
     );
   }
