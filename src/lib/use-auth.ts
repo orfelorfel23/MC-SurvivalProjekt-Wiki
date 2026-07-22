@@ -9,6 +9,10 @@ export function useAuth() {
     queryFn: async () => (await authClient.getSession())?.data || null,
     staleTime: 1000 * 60 * 5,
   });
+  
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const user = sessionData?.user ?? null;
 
   const [isEditor, setIsEditor] = useState(false);
@@ -33,5 +37,5 @@ export function useAuth() {
       .catch(console.error);
   }, [user]);
 
-  return { user, isEditor, isAdmin, isModerator, loading: isPending };
+  return { user, isEditor, isAdmin, isModerator, loading: !mounted || isPending };
 }

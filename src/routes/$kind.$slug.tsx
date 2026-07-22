@@ -95,6 +95,16 @@ function DetailPage() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
   const [ConfirmDialog, confirm] = useConfirm();
+  
+  const [currentSlug, setCurrentSlug] = useState(slug);
+  const [currentKind, setCurrentKind] = useState(k);
+  if (currentSlug !== slug || currentKind !== k) {
+    setCurrentSlug(slug);
+    setCurrentKind(k);
+    setLoading(true);
+    setRow(null);
+    setExtras({});
+  }
 
   useEffect(() => {
     if (slug === "new") {
@@ -207,7 +217,7 @@ function DetailPage() {
       await softDeleteGenericEntity({ data: { kindId: k, slug } });
       remove(k, slug);
       toast.success(t("deleted", lang));
-      window.location.href = `/${k}`;
+      navigate({ to: "/$kind", params: { kind: k } });
     } catch (err) {
       toast.error(t("deleteError", lang));
       setDeleting(false);

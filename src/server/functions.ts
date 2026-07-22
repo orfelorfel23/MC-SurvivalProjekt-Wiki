@@ -492,6 +492,11 @@ export const saveGenericEntity = createServerFn({ method: "POST" })
     }
 
     const model = prisma[modelName] as any;
+    
+    if (data.data.slug && data.data.slug.toLowerCase() === "new") {
+      throw new Error("Slug 'new' is reserved and cannot be used.");
+    }
+
     if (data.slug === "new") {
       // Create new
       return model.create({
@@ -724,7 +729,55 @@ export const getRecentlyViewed = createServerFn({ method: "GET" })
   .validator((d: { userId: string }) => d)
   .handler(async ({ data }) => {
     const profile = await prisma.profile.findUnique({ where: { id: data.userId } });
-    return (profile?.recentlyViewed as any[]) || [];
+    const history = (profile?.recentlyViewed as any[]) || [];
+    
+    if (history.length === 0) return [];
+    
+    // Check existence of each item
+    const validHistory = [];
+    let modified = false;
+    
+    for (const item of history) {
+      const tableName = KIND_TABLE[item.kind as keyof typeof KIND_TABLE];
+      if (!tableName) {
+        // Dynamic wiki page logic
+        const isDynamicTab = await prisma.wikiTab.findUnique({ where: { slug: item.kind } });
+        if (isDynamicTab && !isDynamicTab.isBuiltin) {
+          const exists = await prisma.wikiPage.findFirst({
+            where: { slug: item.slug, deletedAt: null },
+          });
+          if (exists) validHistory.push(item);
+          else modified = true;
+        } else {
+          modified = true;
+        }
+        continue;
+      }
+      
+      const modelName = prismaModels[tableName] as keyof typeof prisma;
+      if (!modelName) {
+        modified = true;
+        continue;
+      }
+      
+      const model = prisma[modelName] as any;
+      const exists = await model.findFirst({
+        where: { slug: item.slug, deletedAt: null },
+      });
+      
+      if (exists) validHistory.push(item);
+      else modified = true;
+    }
+    
+    if (modified && profile) {
+      // Update the DB asynchronously to not block
+      prisma.profile.update({
+        where: { id: data.userId },
+        data: { recentlyViewed: validHistory }
+      }).catch(console.error);
+    }
+    
+    return validHistory;
   });
 
 export const saveRecentlyViewed = createServerFn({ method: "POST" })

@@ -36,6 +36,11 @@ function KindList() {
   }, [rows, filterQuery]);
   const [modules, setModules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pageSize, setPageSize] = useState(24);
+  
+  useEffect(() => {
+    setPageSize(24);
+  }, [k, filterQuery]);
 
   const { data: tabs, isLoading: isTabsLoading } = useQuery({
     queryKey: ["wikiTabs"],
@@ -134,8 +139,9 @@ function KindList() {
       )}
 
       {currentTab?.isBuiltin && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {filteredRows.map((r) => {
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {filteredRows.slice(0, pageSize).map((r) => {
             const title =
               k === "wiki" || !currentTab?.isBuiltin
                 ? pickLocalized(r.titleDe, r.titleEn, lang)
@@ -177,7 +183,15 @@ function KindList() {
               </Link>
             );
           })}
-        </div>
+          </div>
+          {pageSize < filteredRows.length && (
+            <div className="mt-8 flex justify-center">
+              <Button variant="outline" onClick={() => setPageSize((p) => p + 24)}>
+                {lang === "de" ? "Mehr laden" : "Load more"}
+              </Button>
+            </div>
+          )}
+        </>
       )}
 
       {currentTab && !currentTab?.isBuiltin && (

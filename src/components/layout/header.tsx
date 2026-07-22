@@ -160,7 +160,7 @@ export function Header() {
                     className={cn(buttonVariants({ variant: "outline", size: "sm" }), "border-foreground/30 hover:border-primary/50")}
                     activeProps={{ className: "bg-primary text-primary-foreground border-primary hover:bg-primary/90" }}
                   >
-                    {dbTab ? (lang === "de" ? dbTab.nameDe : dbTab.nameEn || dbTab.nameDe) : t(KIND_LABEL_KEY[k], lang)}
+                    {dbTab?.isBuiltin ? t(KIND_LABEL_KEY[k], lang) : (dbTab ? (lang === "de" ? dbTab.nameDe : dbTab.nameEn || dbTab.nameDe) : t(KIND_LABEL_KEY[k], lang))}
                   </Link>
                 );
               })}
