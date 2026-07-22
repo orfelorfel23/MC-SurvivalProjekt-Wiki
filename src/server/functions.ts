@@ -264,8 +264,8 @@ export const searchWiki = createServerFn({ method: "GET" })
     }
 
     let itemsToSearch = searchCache;
-    if (data.category) itemsToSearch = itemsToSearch.filter((i) => i.category === data.category);
-    if (data.rarity) itemsToSearch = itemsToSearch.filter((i) => i.rarity === data.rarity);
+    if (data.category) itemsToSearch = itemsToSearch.filter((i) => i.category?.toLowerCase() === data.category?.toLowerCase());
+    if (data.rarity) itemsToSearch = itemsToSearch.filter((i) => i.rarity?.toLowerCase() === data.rarity?.toLowerCase());
 
     if (!data.q)
       return itemsToSearch.slice(0, 50).map((r) => ({

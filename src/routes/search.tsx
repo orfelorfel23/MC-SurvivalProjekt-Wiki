@@ -101,9 +101,9 @@ function SearchPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t("allCategories", lang)}</SelectItem>
-              <SelectItem value="waffen">{t("weapons", lang)}</SelectItem>
-              <SelectItem value="werkzeuge">{t("tools", lang)}</SelectItem>
-              <SelectItem value="ruestung">{t("armor", lang)}</SelectItem>
+              <SelectItem value="weapon">{t("weapons", lang)}</SelectItem>
+              <SelectItem value="tool">{t("tools", lang)}</SelectItem>
+              <SelectItem value="armor">{t("armor", lang)}</SelectItem>
               <SelectItem value="material">{t("material", lang)}</SelectItem>
             </SelectContent>
           </Select>
