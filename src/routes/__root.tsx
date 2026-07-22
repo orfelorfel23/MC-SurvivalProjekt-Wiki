@@ -166,7 +166,10 @@ function RootComponent() {
     if (saved === "de" || saved === "en") setLang(saved);
   }, []);
   useEffect(() => {
-    if (typeof window !== "undefined") localStorage.setItem("lang", lang);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("lang", lang);
+      document.documentElement.lang = lang;
+    }
   }, [lang]);
 
   useSound();
