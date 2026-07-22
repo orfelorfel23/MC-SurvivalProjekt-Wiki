@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, LogIn, LogOut, Shield, Languages, Moon, Sun, Volume2, VolumeX } from "lucide-react";
 import { useAuth } from "@/lib/use-auth";
 import { useLang, t, KINDS, KIND_LABEL_KEY } from "@/lib/i18n";
@@ -21,12 +21,13 @@ export function Header() {
     staleTime: 1000 * 60 * 60,
   });
 
-  const [isDark, setIsDark] = useState(() => {
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
     if (typeof window !== "undefined") {
-      return document.documentElement.classList.contains("dark");
+      setIsDark(document.documentElement.classList.contains("dark"));
     }
-    return false;
-  });
+  }, []);
 
   const toggleDark = () => {
     const next = !isDark;
@@ -40,12 +41,13 @@ export function Header() {
     }
   };
 
-  const [isMuted, setIsMuted] = useState(() => {
+  const [isMuted, setIsMuted] = useState(false);
+
+  useEffect(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("sound_muted") === "true";
+      setIsMuted(localStorage.getItem("sound_muted") === "true");
     }
-    return false;
-  });
+  }, []);
 
   const toggleMute = () => {
     const next = !isMuted;
