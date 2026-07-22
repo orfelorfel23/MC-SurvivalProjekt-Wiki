@@ -29,7 +29,7 @@ function AdminPage() {
   }, [isAdmin]);
 
   if (loading) return <div className="container mx-auto px-4 py-8">...</div>;
-  if (!user) return <Navigate to="/auth" search={{ from: location.pathname }} />;
+  if (!user) return <Navigate to="/login" search={{ from: location.pathname }} />;
   if (!isAdmin) return <div className="container mx-auto px-4 py-8">{t("noAdminAccess", lang)}</div>;
 
   const handleGrant = async (userId: string, role: "ADMIN" | "MODERATOR" | "EDITOR") => {

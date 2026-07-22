@@ -132,7 +132,7 @@ export function Header() {
                   <LogOut className="w-4 h-4 hidden sm:inline-block" /> {t("logout", lang)}
                 </Button>
               ) : (
-                <Link to="/auth" search={{ from: undefined }}>
+                <Link to="/login" search={{ from: undefined }}>
                   <Button size="sm">
                     <LogIn className="w-4 h-4 hidden sm:inline-block" /> {t("login", lang)}
                   </Button>

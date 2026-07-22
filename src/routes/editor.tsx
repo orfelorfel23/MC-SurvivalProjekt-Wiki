@@ -13,7 +13,7 @@ function EditorLayout() {
 
   if (loading) return <div className="container mx-auto px-4 py-8">...</div>;
   if (!user) {
-    return <Navigate to="/auth" search={{ from: location.pathname }} />;
+    return <Navigate to="/login" search={{ from: location.pathname }} />;
   }
   if (!isEditor) {
     return (
