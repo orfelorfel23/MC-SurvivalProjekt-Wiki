@@ -293,6 +293,7 @@ function DetailPage() {
                   </div>
                 ) : f.key === "imageUrl" ? (
                   <ImageUpload
+                    id={f.key}
                     value={editData[f.key]}
                     onChange={(url) => setEditData({ ...editData, [f.key]: url })}
                   />

@@ -5,9 +5,11 @@ import { Input } from "./ui/input";
 import { toast } from "sonner";
 
 export function ImageUpload({
+  id,
   value,
   onChange,
 }: {
+  id?: string;
   value: string;
   onChange: (url: string) => void;
 }) {
@@ -39,6 +41,7 @@ export function ImageUpload({
     <div className="flex flex-col gap-2">
       <div className="flex gap-2">
         <Input
+          id={id}
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
           placeholder="/items/example.png"
