@@ -164,9 +164,15 @@ function DetailPage() {
       : pickLocalized(row.nameDe, row.nameEn, lang)
     : "";
 
-  const { history } = useRecentlyViewed(
+  const { history, remove } = useRecentlyViewed(
     row ? { kind: k, slug, title: titleForHistory || slug } : undefined
   );
+
+  useEffect(() => {
+    if (!loading && !row && slug !== "new") {
+      remove(k, slug);
+    }
+  }, [loading, row, slug, k]);
 
   if (loading)
     return <div className="container mx-auto px-4 py-8 text-muted-foreground">{t("loading", lang)}</div>;
@@ -199,6 +205,7 @@ function DetailPage() {
     setDeleting(true);
     try {
       await softDeleteGenericEntity({ data: { kindId: k, slug } });
+      remove(k, slug);
       toast.success(t("deleted", lang));
       window.location.href = `/${k}`;
     } catch (err) {

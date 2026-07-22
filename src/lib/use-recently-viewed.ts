@@ -51,5 +51,17 @@ export function useRecentlyViewed(currentItem?: { kind: string; slug: string; ti
     init();
   }, [currentItem?.kind, currentItem?.slug, user?.id]);
 
-  return { history, initialized };
+  const remove = (kind: string, slug: string) => {
+    setHistory((prev) => {
+      const updated = prev.filter((i) => !(i.kind === kind && i.slug === slug));
+      if (user) {
+        saveRecentlyViewed({ data: { userId: user.id, history: updated } }).catch(console.error);
+      } else {
+        localStorage.setItem("recentlyViewed", JSON.stringify(updated));
+      }
+      return updated;
+    });
+  };
+
+  return { history, initialized, remove };
 }
