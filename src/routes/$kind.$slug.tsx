@@ -280,10 +280,11 @@ function DetailPage() {
             })
             .map((f) => (
               <div key={f.key} className="grid gap-2">
-                <Label>{f.label}</Label>
+                <Label htmlFor={f.key}>{f.label}</Label>
                 {f.textarea ? (
                   <div data-color-mode="dark">
                     <MDEditor
+                      id={f.key}
                       value={editData[f.key] || ""}
                       onChange={(val) => setEditData({ ...editData, [f.key]: val })}
                       previewOptions={{ rehypePlugins: [[rehypeSanitize]], components: markdownComponents }}
@@ -297,6 +298,8 @@ function DetailPage() {
                   />
                 ) : (
                   <Input
+                    id={f.key}
+                    placeholder={f.label}
                     type={f.type || "text"}
                     value={editData[f.key] || ""}
                     onChange={(e) =>
