@@ -5,6 +5,7 @@ import { Button } from "../components/ui/button";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useAuth } from "@/lib/use-auth";
+import { useConfirm } from "@/components/ui/use-confirm";
 
 export const Route = createFileRoute("/admin/trash")({
   component: AdminTrashPage,
@@ -13,6 +14,7 @@ export const Route = createFileRoute("/admin/trash")({
 function AdminTrashPage() {
   const queryClient = useQueryClient();
   const { user, isModerator, isAdmin, loading } = useAuth();
+  const [ConfirmDialog, confirm] = useConfirm();
 
   const { data: items, isLoading } = useQuery({
     queryKey: ["deletedItems"],
@@ -43,6 +45,7 @@ function AdminTrashPage() {
 
   return (
     <div className="p-8 max-w-5xl mx-auto">
+      <ConfirmDialog />
       <h1 className="text-3xl font-bold mb-4">Papierkorb</h1>
       <p className="text-muted-foreground mb-8">
         Hier siehst du alle gelöschten Einträge der letzten 30 Tage.
@@ -70,8 +73,8 @@ function AdminTrashPage() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  if (confirm("Diesen Eintrag wirklich wiederherstellen?")) {
+                onClick={async () => {
+                  if (await confirm("Diesen Eintrag wirklich wiederherstellen?")) {
                     restoreMutation.mutate({ kindId: item._kind, id: item.id });
                   }
                 }}

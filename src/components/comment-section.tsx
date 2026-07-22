@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { useLang, t } from "@/lib/i18n";
+import { useConfirm } from "@/components/ui/use-confirm";
 
 export function CommentSection({ recipeId }: { recipeId: string }) {
   const { user, isModerator } = useAuth();
@@ -14,6 +15,7 @@ export function CommentSection({ recipeId }: { recipeId: string }) {
   const qc = useQueryClient();
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [ConfirmDialog, confirm] = useConfirm();
 
   const { data: comments, isLoading } = useQuery({
     queryKey: ["comments", recipeId],
@@ -40,7 +42,7 @@ export function CommentSection({ recipeId }: { recipeId: string }) {
   };
 
   const handleDelete = async (commentId: string) => {
-    if (!confirm(t("confirmDeleteComment", lang))) return;
+    if (!(await confirm(t("confirmDeleteComment", lang)))) return;
     try {
       await deleteComment({ data: { commentId } });
       toast.success(t("commentDeleted", lang));
@@ -52,6 +54,7 @@ export function CommentSection({ recipeId }: { recipeId: string }) {
 
   return (
     <section className="mt-8 border-t border-border pt-6">
+      <ConfirmDialog />
       <h3 className="text-lg font-bold text-primary mb-4">{t("commentsTitle", lang)}</h3>
 
       {user ? (

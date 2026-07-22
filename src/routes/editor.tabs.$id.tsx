@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import MDEditor from "@uiw/react-md-editor";
 import "@uiw/react-md-editor/markdown-editor.css";
 import rehypeSanitize from "rehype-sanitize";
+import { useConfirm } from "@/components/ui/use-confirm";
 
 // Map module type -> kind slug used by getKindList
 const MODULE_KIND: Record<string, string> = {
@@ -108,6 +109,7 @@ function TabEditorDetail() {
     modules: [] as any[],
   });
   const [deleting, setDeleting] = useState(false);
+  const [ConfirmDialog, confirm] = useConfirm();
 
   useEffect(() => {
     if (id !== "new" && tabs) {
@@ -130,7 +132,7 @@ function TabEditorDetail() {
 
   const handleDeleteClick = async (e: any) => {
     e.preventDefault();
-    if (!confirm("Wirklich komplett löschen?")) return;
+    if (!(await confirm("Wirklich komplett löschen?"))) return;
     setDeleting(true);
     try {
       await softDeleteTab({ data: { slug: tab.slug } });
@@ -170,8 +172,9 @@ function TabEditorDetail() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <div className="flex justify-between mb-6">
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <ConfirmDialog />
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl text-primary">
           {id === "new" ? t("new", lang) + " Tab" : "Tab " + t("edit", lang).toLowerCase()}
         </h1>

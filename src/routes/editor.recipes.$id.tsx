@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { ItemPicker } from "@/components/item-picker";
 import type { GridSlot } from "@/components/crafting-grid";
 import { toast } from "sonner";
+import { useConfirm } from "@/components/ui/use-confirm";
 
 export const Route = createFileRoute("/editor/recipes/$id")({
   component: RecipeEditorDetail,
@@ -28,6 +29,7 @@ function RecipeEditorDetail() {
   const navigate = useNavigate();
 
   const [deleting, setDeleting] = useState(false);
+  const [ConfirmDialog, confirm] = useConfirm();
 
   const [recipe, setRecipe] = useState({
     id: undefined as string | undefined,
@@ -83,7 +85,7 @@ function RecipeEditorDetail() {
 
   const handleDeleteClick = async (e: any) => {
     e.preventDefault();
-    if (!confirm("Wirklich komplett löschen?")) return;
+    if (!(await confirm("Wirklich komplett löschen?"))) return;
     setDeleting(true);
     try {
       await softDeleteGenericEntity({ data: { kindId: "rezepte", slug: recipe.slug } });
@@ -110,8 +112,9 @@ function RecipeEditorDetail() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
-      <div className="flex justify-between mb-6">
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <ConfirmDialog />
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl text-primary">
           {id === "new" ? t("new", lang) + " Rezept" : "Rezept " + t("edit", lang).toLowerCase()}
         </h1>

@@ -20,6 +20,8 @@ import { RarityBadge } from "@/components/rarity-badge";
 import { useRecentlyViewed } from "@/lib/use-recently-viewed";
 import { CommentSection } from "@/components/comment-section";
 import { SkinViewer } from "@/components/skin-viewer";
+import { useConfirm } from "@/components/ui/use-confirm";
+import { Shield } from "lucide-react";
 
 const markdownComponents: Components = {
   code(props) {
@@ -92,6 +94,7 @@ function DetailPage() {
   }>({});
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
+  const [ConfirmDialog, confirm] = useConfirm();
 
   useEffect(() => {
     if (slug === "new") {
@@ -192,7 +195,7 @@ function DetailPage() {
 
   const handleDeleteClick = async (e: any) => {
     e.preventDefault();
-    if (!confirm(t("confirmDelete", lang))) return;
+    if (!(await confirm(t("confirmDelete", lang)))) return;
     setDeleting(true);
     try {
       await softDeleteGenericEntity({ data: { kindId: k, slug } });
@@ -352,6 +355,7 @@ function DetailPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <ConfirmDialog />
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Main Content */}
         <article className="flex-1 relative">
