@@ -37,6 +37,13 @@ function SearchPage() {
 
   const debounceRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
+  // Sync URL changes (e.g. from header search) back to local state
+  useEffect(() => {
+    setLocalQ(q);
+    setLocalCategory(category || "all");
+    setLocalRarity(rarity || "all");
+  }, [q, category, rarity]);
+
   useEffect(() => {
     // If empty query and no filters, don't search immediately
     if (!q && (!category || category === "all") && (!rarity || rarity === "all")) {

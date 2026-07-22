@@ -77,13 +77,16 @@ export function Header() {
                 className="flex items-center gap-2 flex-1 sm:flex-initial"
               >
                 <div className="relative w-full sm:w-48 md:w-64">
-                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <button type="submit" className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                    <Search className="w-4 h-4" />
+                  </button>
                   <input
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder={t("searchPlaceholder", lang)}
                     className="w-full pl-8 pr-3 py-1.5 rounded-md bg-input border border-border text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                   />
+                  <button type="submit" className="hidden">Submit</button>
                 </div>
               </form>
               <Button
