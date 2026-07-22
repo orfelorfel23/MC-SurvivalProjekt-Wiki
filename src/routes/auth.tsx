@@ -4,6 +4,7 @@ import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useLang, t } from "@/lib/i18n";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>) => {
@@ -24,6 +25,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const qc = useQueryClient();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,18 +37,20 @@ function AuthPage() {
           password,
           name: email.split("@")[0],
         });
-        if (error) throw new Error(error.message);
-        toast.success(t("accountCreated", lang));
-        nav({ to: from as never });
-      } else {
-        const { data, error } = await authClient.signIn.email({
-          email,
-          password,
-        });
-        if (error) throw new Error(error.message);
-        toast.success(t("welcomeBack", lang));
-        nav({ to: from as never });
-      }
+          if (error) throw new Error(error.message);
+          toast.success(t("accountCreated", lang));
+          await qc.invalidateQueries({ queryKey: ["session"] });
+          nav({ to: from as never });
+        } else {
+          const { data, error } = await authClient.signIn.email({
+            email,
+            password,
+          });
+          if (error) throw new Error(error.message);
+          toast.success(t("welcomeBack", lang));
+          await qc.invalidateQueries({ queryKey: ["session"] });
+          nav({ to: from as never });
+        }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t("error", lang));
     } finally {
