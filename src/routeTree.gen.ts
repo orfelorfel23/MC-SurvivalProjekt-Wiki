@@ -11,9 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as MapRouteImport } from './routes/map'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as KarteRouteImport } from './routes/karte'
 import { Route as EditorRouteImport } from './routes/editor'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EditorIndexRouteImport } from './routes/editor.index'
@@ -36,6 +36,11 @@ const MapRoute = MapRouteImport.update({
   path: '/map',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const KarteRoute = KarteRouteImport.update({
   id: '/karte',
   path: '/karte',
@@ -44,11 +49,6 @@ const KarteRoute = KarteRouteImport.update({
 const EditorRoute = EditorRouteImport.update({
   id: '/editor',
   path: '/editor',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -110,9 +110,9 @@ const EditorRecipesIdRoute = EditorRecipesIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/auth': typeof AuthRoute
   '/editor': typeof EditorRouteWithChildren
   '/karte': typeof KarteRoute
+  '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
@@ -128,8 +128,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/auth': typeof AuthRoute
   '/karte': typeof KarteRoute
+  '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
@@ -146,9 +146,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
-  '/auth': typeof AuthRoute
   '/editor': typeof EditorRouteWithChildren
   '/karte': typeof KarteRoute
+  '/login': typeof LoginRoute
   '/map': typeof MapRoute
   '/search': typeof SearchRoute
   '/$kind/$slug': typeof KindSlugRoute
@@ -166,9 +166,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
-    | '/auth'
     | '/editor'
     | '/karte'
+    | '/login'
     | '/map'
     | '/search'
     | '/$kind/$slug'
@@ -184,8 +184,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin'
-    | '/auth'
     | '/karte'
+    | '/login'
     | '/map'
     | '/search'
     | '/$kind/$slug'
@@ -201,9 +201,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
-    | '/auth'
     | '/editor'
     | '/karte'
+    | '/login'
     | '/map'
     | '/search'
     | '/$kind/$slug'
@@ -220,9 +220,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
-  AuthRoute: typeof AuthRoute
   EditorRoute: typeof EditorRouteWithChildren
   KarteRoute: typeof KarteRoute
+  LoginRoute: typeof LoginRoute
   MapRoute: typeof MapRoute
   SearchRoute: typeof SearchRoute
   KindSlugRoute: typeof KindSlugRoute
@@ -245,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/karte': {
       id: '/karte'
       path: '/karte'
@@ -257,13 +264,6 @@ declare module '@tanstack/react-router' {
       path: '/editor'
       fullPath: '/editor'
       preLoaderRoute: typeof EditorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -380,9 +380,9 @@ const EditorRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
-  AuthRoute: AuthRoute,
   EditorRoute: EditorRouteWithChildren,
   KarteRoute: KarteRoute,
+  LoginRoute: LoginRoute,
   MapRoute: MapRoute,
   SearchRoute: SearchRoute,
   KindSlugRoute: KindSlugRoute,
