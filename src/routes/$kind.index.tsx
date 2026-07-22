@@ -4,6 +4,8 @@ import { getKindList, getWikiTabs, getTabModulesData } from "@/server/functions"
 import { useLang, pickLocalized, t, KIND_TABLE, KIND_LABEL_KEY } from "@/lib/i18n";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/use-auth";
+import { useRecentlyViewed } from "@/lib/use-recently-viewed";
+import { RecentlyViewedSidebar } from "@/components/recently-viewed-sidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "@tanstack/react-router";
@@ -21,6 +23,7 @@ function KindList() {
   const k = kind as string;
   const { lang } = useLang();
   const { isEditor } = useAuth();
+  const { history } = useRecentlyViewed();
   const navigate = useNavigate();
   const [filterQuery, setFilterQuery] = useState("");
   const [rows, setRows] = useState<any[]>([]);
@@ -97,8 +100,11 @@ function KindList() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-start mb-6">
-        <h1 className="text-2xl text-primary">{label}</h1>
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+        {/* Main Content */}
+        <div className="flex-1 min-w-0 w-full">
+          <div className="flex justify-between items-start mb-6">
+            <h1 className="text-2xl text-primary">{label}</h1>
         <div className="flex gap-2">
           {isEditor && currentTab && (
             <Button
@@ -240,6 +246,11 @@ function KindList() {
           })}
         </div>
       )}
+        </div>
+        
+        {/* Sidebar */}
+        <RecentlyViewedSidebar history={history} />
+      </div>
     </div>
   );
 }

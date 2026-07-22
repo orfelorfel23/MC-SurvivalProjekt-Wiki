@@ -32,7 +32,17 @@ export function useRecentlyViewed(currentItem?: { kind: string; slug: string; ti
       }
       
       if (isMounted) {
-        setHistory(initial);
+        // Deduplicate initial history
+        const uniqueInitial = [];
+        const seen = new Set();
+        for (const item of initial) {
+          const key = item.kind.toLowerCase() + ":" + item.slug.toLowerCase();
+          if (!seen.has(key)) {
+            seen.add(key);
+            uniqueInitial.push(item);
+          }
+        }
+        setHistory(uniqueInitial);
         setInitialized(true);
       }
     };
