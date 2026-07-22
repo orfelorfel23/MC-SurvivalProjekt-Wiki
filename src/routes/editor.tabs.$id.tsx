@@ -194,10 +194,12 @@ function TabEditorDetail() {
           <Input value={tab.nameDe} onChange={(e) => setTab({ ...tab, nameDe: e.target.value })} />
         </div>
         <div className="grid gap-2">
-          <Label>Slug (URL) {tab.isBuiltin && "(Nicht änderbar bei Built-in)"}</Label>
+          <Label>
+            Slug (URL) {tab.isBuiltin ? "(Nicht änderbar bei Built-in)" : (id !== "new" && "(Nicht änderbar)")}
+          </Label>
           <Input
             value={tab.slug}
-            disabled={tab.isBuiltin}
+            disabled={tab.isBuiltin || id !== "new"}
             onChange={(e) => setTab({ ...tab, slug: e.target.value })}
           />
         </div>

@@ -137,9 +137,10 @@ function RecipeEditorDetail() {
           />
         </div>
         <div className="grid gap-2">
-          <Label>Slug (URL)</Label>
+          <Label>Slug (URL) {id !== "new" && "(Nicht änderbar)"}</Label>
           <Input
             value={recipe.slug}
+            disabled={id !== "new"}
             onChange={(e) => setRecipe({ ...recipe, slug: e.target.value })}
           />
         </div>

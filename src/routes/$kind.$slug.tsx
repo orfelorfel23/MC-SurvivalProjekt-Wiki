@@ -314,7 +314,9 @@ function DetailPage() {
             })
             .map((f) => (
               <div key={f.key} className="grid gap-2">
-                <Label htmlFor={f.key}>{f.label}</Label>
+                <Label htmlFor={f.key}>
+                  {f.label} {f.key === "slug" && slug !== "new" && "(Nicht änderbar)"}
+                </Label>
                 {f.textarea ? (
                   <div data-color-mode="dark">
                     <MDEditor
@@ -338,6 +340,7 @@ function DetailPage() {
                     placeholder={f.label}
                     type={f.type || "text"}
                     value={editData[f.key] || ""}
+                    disabled={f.key === "slug" && slug !== "new"}
                     onChange={(e) =>
                       setEditData({
                         ...editData,
