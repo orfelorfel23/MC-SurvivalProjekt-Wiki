@@ -65,10 +65,10 @@ export const Route = createFileRoute("/$kind/$slug")({
         <div className="text-muted-foreground mb-4">
           <Shield className="w-16 h-16 opacity-50 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-foreground mb-2">{t("notFound", lang)}</h2>
-          <p>Diese Seite existiert nicht.</p>
+          <p>{t("pageNotFound", lang)}</p>
         </div>
         <Link to="/">
-          <Button variant="outline">Zurück zur Startseite</Button>
+          <Button variant="outline">{t("backToHome", lang)}</Button>
         </Link>
       </div>
     );
@@ -182,10 +182,10 @@ function DetailPage() {
         <div className="text-muted-foreground mb-4">
           <Shield className="w-16 h-16 opacity-50 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-foreground mb-2">{t("notFound", lang)}</h2>
-          <p>Dieses Element existiert nicht oder wurde gelöscht.</p>
+          <p>{t("itemNotFound", lang)}</p>
         </div>
         <Link to="/$kind" params={{ kind: k }}>
-          <Button variant="outline">Zurück zur Übersicht</Button>
+          <Button variant="outline">{t("backToList", lang)}</Button>
         </Link>
       </div>
     );
