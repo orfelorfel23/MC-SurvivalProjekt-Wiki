@@ -58,7 +58,18 @@ export const Route = createFileRoute("/$kind/$slug")({
   component: DetailPage,
   notFoundComponent: function NotFound() {
     const { lang } = useLang();
-    return <div className="container mx-auto px-4 py-8">{t("notFound", lang)}</div>;
+    return (
+      <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center">
+        <div className="text-muted-foreground mb-4">
+          <Shield className="w-16 h-16 opacity-50 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-foreground mb-2">{t("notFound", lang)}</h2>
+          <p>Diese Seite existiert nicht.</p>
+        </div>
+        <Link to="/">
+          <Button variant="outline">Zurück zur Startseite</Button>
+        </Link>
+      </div>
+    );
   },
 });
 
@@ -156,7 +167,20 @@ function DetailPage() {
 
   if (loading)
     return <div className="container mx-auto px-4 py-8 text-muted-foreground">{t("loading", lang)}</div>;
-  if (!row && slug !== "new") return <div className="container mx-auto px-4 py-8">{t("notFound", lang)}</div>;
+  if (!row && slug !== "new") {
+    return (
+      <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center">
+        <div className="text-muted-foreground mb-4">
+          <Shield className="w-16 h-16 opacity-50 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-foreground mb-2">{t("notFound", lang)}</h2>
+          <p>Dieses Element existiert nicht oder wurde gelöscht.</p>
+        </div>
+        <Link to="/$kind" params={{ kind: k }}>
+          <Button variant="outline">Zurück zur Übersicht</Button>
+        </Link>
+      </div>
+    );
+  }
 
   const handleEditClick = () => {
     if (k === "rezepte") {
