@@ -87,9 +87,15 @@ function DetailPage() {
       setLoading(false);
       setRow({});
       
+      const isDynamicWiki = !KIND_TABLE[k];
+      const isWikiPage = k === "wiki" || isDynamicWiki;
+
       const initialData: any = {};
-      if (k === "wiki") {
+      if (isWikiPage) {
         initialData.titleDe = "";
+        if (isDynamicWiki) {
+          initialData.category = k;
+        }
       } else {
         initialData.nameDe = "";
       }
@@ -254,10 +260,17 @@ function DetailPage() {
             .filter((f) => {
               if (editData[f.key] !== undefined) return true;
               if (slug === "new") {
-                const isWiki = k === "wiki";
-                if (f.key === "slug" || f.key === "category" || f.key === "descriptionDe" || f.key === "imageUrl") return true;
-                if (!isWiki && f.key === "nameDe") return true;
-                if (isWiki && (f.key === "titleDe" || f.key === "bodyDe")) return true;
+                const isDynamicWiki = !KIND_TABLE[k];
+                const isWikiPage = k === "wiki" || isDynamicWiki;
+                
+                if (f.key === "slug" || f.key === "category") return true;
+                
+                if (!isWikiPage) {
+                  if (f.key === "nameDe" || f.key === "descriptionDe" || f.key === "imageUrl") return true;
+                } else {
+                  if (f.key === "titleDe" || f.key === "bodyDe") return true;
+                }
+                
                 if (k === "shop" && (f.key === "price" || f.key === "currency")) return true;
                 if (k === "aufgaben" && (f.key === "rewardAmount" || f.key === "rewardCurrency")) return true;
                 if (k === "befehle" && (f.key === "syntax" || f.key === "permission" || f.key === "examples")) return true;
