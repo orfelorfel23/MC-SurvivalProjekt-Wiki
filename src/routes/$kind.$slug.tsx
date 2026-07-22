@@ -86,7 +86,25 @@ function DetailPage() {
     if (slug === "new") {
       setLoading(false);
       setRow({});
-      setEditData({});
+      
+      const initialData: any = {};
+      if (k === "wiki") {
+        initialData.titleDe = "";
+      } else {
+        initialData.nameDe = "";
+      }
+      
+      if (k === "shop") {
+        initialData.price = 0;
+        initialData.currency = "coins";
+      } else if (k === "aufgaben") {
+        initialData.rewardAmount = 0;
+        initialData.rewardCurrency = "coins";
+      } else if (k === "befehle") {
+        initialData.syntax = "";
+      }
+      
+      setEditData(initialData);
       setIsEditing(true);
       return;
     }
@@ -170,7 +188,8 @@ function DetailPage() {
 
       if (slug === "new") {
         if (!payload.slug) {
-          payload.slug = payload.nameDe?.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || `new-entry-${Date.now()}`;
+          const baseName = payload.nameDe || payload.titleDe || "";
+          payload.slug = baseName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || `new-entry-${Date.now()}`;
         }
       }
 
@@ -232,7 +251,20 @@ function DetailPage() {
         </div>
         <div className="grid gap-4 bg-card p-6 border border-border">
           {fields
-            .filter((f) => editData[f.key] !== undefined || (slug === "new" && (f.key === "slug" || f.key === "nameDe" || f.key === "category" || f.key === "descriptionDe" || f.key === "imageUrl")))
+            .filter((f) => {
+              if (editData[f.key] !== undefined) return true;
+              if (slug === "new") {
+                const isWiki = k === "wiki";
+                if (f.key === "slug" || f.key === "category" || f.key === "descriptionDe" || f.key === "imageUrl") return true;
+                if (!isWiki && f.key === "nameDe") return true;
+                if (isWiki && (f.key === "titleDe" || f.key === "bodyDe")) return true;
+                if (k === "shop" && (f.key === "price" || f.key === "currency")) return true;
+                if (k === "aufgaben" && (f.key === "rewardAmount" || f.key === "rewardCurrency")) return true;
+                if (k === "befehle" && (f.key === "syntax" || f.key === "permission" || f.key === "examples")) return true;
+                if (k === "bosse" && f.key === "strategyDe") return true;
+              }
+              return false;
+            })
             .map((f) => (
               <div key={f.key} className="grid gap-2">
                 <Label>{f.label}</Label>
