@@ -8,10 +8,12 @@ export function ImageUpload({
   id,
   value,
   onChange,
+  placeholder,
 }: {
   id?: string;
   value: string;
   onChange: (url: string) => void;
+  placeholder?: string;
 }) {
   const [uploading, setUploading] = useState(false);
 
@@ -44,7 +46,7 @@ export function ImageUpload({
           id={id}
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="/items/example.png"
+          placeholder={placeholder || "/items/example.png"}
           className="flex-1"
         />
         <div className="relative">

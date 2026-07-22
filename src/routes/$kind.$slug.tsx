@@ -294,6 +294,7 @@ function DetailPage() {
                 ) : f.key === "imageUrl" ? (
                   <ImageUpload
                     id={f.key}
+                    placeholder={f.label}
                     value={editData[f.key]}
                     onChange={(url) => setEditData({ ...editData, [f.key]: url })}
                   />
