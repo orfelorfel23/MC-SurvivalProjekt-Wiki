@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite dev",
     "fetch-items": "npx tsx scripts/fetch-mc-items.ts",
-    "build": "npm run fetch-items && vite build && esbuild server-entry.ts --bundle --platform=node --outfile=server.js --format=esm --external:./dist/server/server.js --external:express --external:@prisma/client",
+    "build": "vite build && esbuild server-entry.ts --bundle --platform=node --outfile=server.js --format=esm --external:./dist/server/server.js --external:express --external:@prisma/client",
     "build:dev": "npm run fetch-items && vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",

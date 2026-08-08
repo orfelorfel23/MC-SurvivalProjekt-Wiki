@@ -1,7 +1,14 @@
 node_modules
 dist
+dist-ssr
 .output
 .vinxi
+.tanstack
+.nitro
 .git
 .github
 *.log
+tests
+test-results
+playwright.config.ts
+*.sql

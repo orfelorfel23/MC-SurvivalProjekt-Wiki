@@ -13,6 +13,7 @@ services:
       - /mnt/Jannik-Cloud-Volume-01/mc-survival-wiki/db-data:/var/lib/postgresql/data
 
   web:
+    image: ghcr.io/orfelorfel23/mc-survivalprojekt-wiki:latest
     build: .
     container_name: mc_wiki_web
     restart: always

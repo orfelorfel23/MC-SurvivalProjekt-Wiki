@@ -58,15 +58,26 @@ The application is built with modern, high-performance technologies:
    ```
    The site will be available at `http://localhost:5173`.
 
-## Production Deployment (Complete Package)
+## Production Deployment & CI/CD
 
-To build and run the entire application (Web Server + Database) as a complete package via Docker:
+The application utilizes **GitHub Actions** and the **GitHub Container Registry (GHCR)** for automated pre-compilation.
+
+### 1. Automated Pre-Build via GitHub Actions
+On every push to `main`, GitHub Actions compiles the app, builds the Docker image, and publishes it to `ghcr.io/orfelorfel23/mc-survivalprojekt-wiki:latest`.
+
+### 2. Fast Server Deployment (Jannik Cloud)
+To deploy the latest pre-compiled image on the server without rebuilding locally:
+
+```bash
+docker compose pull && docker compose up -d
+```
+
+### 3. Local Docker Build (Alternative)
+To build and run the entire application locally via Docker:
 
 ```bash
 docker compose up -d --build
 ```
-
-This will automatically build the application image and start both containers. The web app will be mapped to port `3000`.
 
 ## Architecture & Roles
 
