@@ -11,6 +11,12 @@ services:
       - "25560:5432"
     volumes:
       - /mnt/Jannik-Cloud-Volume-01/mc-survival-wiki/db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wiki_user -d mc_wiki"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   web:
     image: ghcr.io/orfelorfel23/mc-survivalprojekt-wiki:latest
@@ -24,7 +30,14 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/', (r) => process.exit(r.statusCode < 400 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   db-backup:
     image: prodrigestivill/postgres-backup-local
@@ -43,5 +56,11 @@ services:
       BACKUP_KEEP_MONTHS: 6
     volumes:
       - /mnt/Jannik-Cloud-Volume-01/mc-survival-wiki/backups:/backups
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8080/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
 
