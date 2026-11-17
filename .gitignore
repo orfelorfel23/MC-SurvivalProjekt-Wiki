@@ -51,3 +51,9 @@ create-temp-admin.mjs
 
 # Database Backups
 backups/
+
+# Cleanup rules
+test-*.ts
+test-*.cjs
+*.err.log
+*.out.log
