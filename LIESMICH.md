@@ -229,4 +229,6 @@ MC-SurvivalProjekt-Wiki/
 
 ## Lizenz
 
-Privates / internes Projekt. Öffentlich ohne separate Open-Source-`LICENSE`-Datei gehostet.
+Der eigene Quellcode dieses Projekts steht unter **CC0 1.0 Universal** (Public Domain) — Details in [`LICENSE`](LICENSE).
+
+> **Drittanbieter-Bestandteile:** Externe Abhängigkeiten, eingebundene Bibliotheken, Schriften, Datensätze und Medien-Assets unterliegen weiterhin ihren jeweiligen eigenen Lizenzen und sind von CC0 1.0 ausgenommen. Details siehe [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).

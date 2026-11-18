@@ -231,4 +231,6 @@ MC-SurvivalProjekt-Wiki/
 
 ## License
 
-Private / Internal Project. Hosted publicly without a separate open-source `LICENSE` file.
+This project's own code is dedicated to the public domain under **CC0 1.0 Universal** — see [`LICENSE`](LICENSE).
+
+> **Third-Party Components:** External dependencies, bundled libraries, fonts, datasets, and media assets retain their own respective licenses and are excluded from CC0 1.0. See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for details.
